@@ -1,0 +1,468 @@
+/* =========================================================
+   NAVBAR - FULLY RESPONSIVE
+   Desktop: Expanding pill with brand + links + CTA
+   Mobile: Full-width bar with Menu button + Get started
+   ========================================================= */
+
+/* Mobile nav is hidden by default (desktop-first) */
+.mnav {
+  display: none;
+}
+
+.mobile-menu {
+  display: none;
+}
+
+/* ---------------------------------------------------------
+   Wrapper: Sticky positioning
+   --------------------------------------------------------- */
+.nav-wrap {
+  position: sticky;
+  top: 18px;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0 12px;
+  
+}
+
+/* Click zone buffer */
+.nav-zone {
+  pointer-events: auto;
+  padding: 18px 26px;
+  border-radius: 999px;
+  transition: padding 0.3s ease;
+  
+}
+
+/* ---------------------------------------------------------
+   Desktop pill
+   --------------------------------------------------------- */
+.nav-pill {
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+
+  height: 56px;
+  width: 100%;
+  max-width: 620px;
+
+  padding: 10px 22px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.1);
+
+  --reveal: 0;
+
+  transition: max-width var(--nav-speed) var(--nav-ease), box-shadow 0.35s ease,
+    backdrop-filter 0.35s ease;
+}
+
+/* Expanded state */
+.nav-pill.is-expanded {
+  max-width: min(800px, calc(100vw - 92px));
+  --reveal: 1;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(18px);
+}
+
+/* Link container */
+.nav-links {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 0 26px;
+  transition: padding 1.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-pill.is-expanded .nav-links {
+  padding: 0 240px;
+}
+
+/* Individual links */
+.nav-link {
+  font-size: 15px;
+  font-weight: 400;
+  color: #0b0b0c;
+  padding: 6px 6px;
+  white-space: nowrap;
+  transition: color 0.22s ease;
+  position: relative;
+}
+
+.nav-link:hover {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* .nav-link.active {
+  color: #000;
+  font-weight: 500;
+} */
+
+/* Brand (slides in on expand) */
+.nav-brand {
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%)
+    translateX(calc((-130px) + (160px * var(--reveal))));
+
+  font-family: var(--brand-font);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  text-transform: lowercase;
+  font-size: 20px;
+  color: #0b0b0c;
+  white-space: nowrap;
+
+  transition: transform 1.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* CTA button (slides in on expand) */
+.nav-cta-pill {
+  position: absolute;
+  right: -28px;
+  top: 50%;
+  transform: translateY(-50%)
+    translateX(calc((120px) - (155px * var(--reveal))));
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+
+  background: #000;
+  color: #fff;
+
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+
+  transition: transform 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.35s cubic-bezier(0.22, 0.9, 0.3, 1),
+    color 0.35s cubic-bezier(0.22, 0.9, 0.3, 1), box-shadow 0.35s ease;
+}
+
+.nav-cta-pill:hover {
+  background: #a0e92a;
+  color: #000;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+/* ---------------------------------------------------------
+   Mobile controls
+   --------------------------------------------------------- */
+.mnav-menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #0b0b0c;
+  font: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.mnav-menu:hover {
+  opacity: 0.7;
+}
+
+.mnav-burger {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: rgba(214, 214, 214, 0.087);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.mnav-burger span {
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: #0b0b0c;
+  border-radius: 999px;
+  transition: transform 0.3s cubic-bezier(0.22, 0.9, 0.3, 1), opacity 0.3s ease;
+}
+
+.mnav-burger span + span {
+  margin-top: 6px;
+}
+
+/* Hamburger to X animation */
+.mnav-menu.is-open .mnav-burger span:first-child {
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+.mnav-menu.is-open .mnav-burger span:last-child {
+  transform: translateY(-3.5px) rotate(-45deg);
+}
+
+.mnav-label {
+  font-size: 25px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.mnav-cta {
+  height: 52px;
+  padding: 0 2px;
+  border-radius: 999px;
+  background: #0b0b0c;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.mnav-cta:hover {
+  background: #a0e92a;
+  color: #000;
+  transform: scale(1.05);
+}
+
+/* ---------------------------------------------------------
+   Mobile Menu Full-Screen Overlay
+   --------------------------------------------------------- */
+.mobile-menu {
+  position: fixed;
+  top: 90px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background: #f5f4f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 20px;
+  visibility: hidden;
+  transform: translateY(-100%);
+  transition: visibility 0s 0.35s,
+    transform 0.35s cubic-bezier(0.22, 0.9, 0.3, 1);
+  pointer-events: none;
+}
+
+.mobile-menu.is-open {
+  visibility: visible;
+  transform: translateY(0);
+  transition: transform 0.35s cubic-bezier(0.22, 0.9, 0.3, 1);
+  pointer-events: auto;
+}
+
+.mobile-menu-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+  
+}
+
+.mobile-menu-link {
+  padding: 20px 0px;
+  font-size: clamp(24px, 6vw, 32px);
+  font-weight: 400;
+  color: #0b0b0c;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 20px;
+  transition: background 0.2s ease, color 0.2s ease;
+  opacity: 0;
+  transform: translateY(-50px);
+  width: 100%;
+}
+
+/* Closing state - slide up quickly */
+.mobile-menu .mobile-menu-link {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+
+/* Opening state - drop down with stagger AFTER menu appears */
+.mobile-menu.is-open .mobile-menu-link {
+  animation: dropDown 0.6s cubic-bezier(0.22, 0.9, 0.3, 1) forwards;
+}
+
+.mobile-menu.is-open .mobile-menu-link:nth-child(1) {
+  animation-delay: 0.4s;
+}
+.mobile-menu.is-open .mobile-menu-link:nth-child(2) {
+  animation-delay: 0.48s;
+}
+.mobile-menu.is-open .mobile-menu-link:nth-child(3) {
+  animation-delay: 0.56s;
+}
+.mobile-menu.is-open .mobile-menu-link:nth-child(4) {
+  animation-delay: 0.64s;
+}
+.mobile-menu.is-open .mobile-menu-link:nth-child(5) {
+  animation-delay: 0.72s;
+}
+.mobile-menu.is-open .mobile-menu-link:nth-child(6) {
+  animation-delay: 0.8s;
+}
+
+@keyframes dropDown {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-menu-link:hover {
+  background: #a0e92a;
+  color: #000;
+  transform: scale(1.05);
+}
+
+/* ---------------------------------------------------------
+   TABLET BREAKPOINT (1024px and below)
+   - Slightly smaller desktop nav before mobile switch
+   --------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .nav-pill.is-expanded {
+    max-width: min(720px, calc(100vw - 80px));
+  }
+
+  .nav-links {
+    gap: 18px;
+  }
+
+  .nav-link {
+    font-size: 13px;
+  }
+
+  .nav-pill.is-expanded .nav-links {
+    padding: 0 220px;
+  }
+}
+
+/* ---------------------------------------------------------
+   MOBILE BREAKPOINT (860px and below)
+   --------------------------------------------------------- */
+@media (max-width: 860px) {
+  .nav-pill.is-expanded {
+    max-width: none;
+    --reveal: 0;
+  }
+  /* Show mobile nav */
+  .mnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    gap: 14px;
+  }
+
+  /* Show mobile menu dropdown */
+  .mobile-menu {
+    display: block;
+  }
+
+  /* Hide desktop elements */
+  .nav-brand,
+  .nav-links,
+  .nav-cta-pill {
+    display: none !important;
+  }
+
+  /* Adjust wrapper */
+  .nav-wrap {
+    top: 12px;
+    padding: 0 12px;
+  }
+
+  .nav-zone {
+    padding: 0;
+    width: 100%;
+  }
+
+  /* Full-width mobile nav */
+  .nav-pill {
+    max-width: none;
+    height: clamp(50px, 14.5vw, 65px);
+    width: 100%;
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  /* Scale mobile elements */
+  .mnav-label {
+    font-size: clamp(16px, 4.5vw, 20px);
+  }
+
+  .mnav-burger {
+    width: clamp(40px, 11vw, 56px);
+    height: clamp(40px, 11vw, 56px);
+  }
+
+  .mnav-burger span {
+    width: clamp(14px, 3.5vw, 16px);
+  }
+
+  .mnav-cta {
+    height: clamp(40px, 11vw, 56px);
+    font-size: clamp(14px, 4vw, 15px);
+    padding: 0 clamp(24px, 8vw, 32px);
+  }
+}
+
+/* ---------------------------------------------------------
+   SMALL MOBILE (480px and below)
+   --------------------------------------------------------- */
+@media (max-width: 480px) {
+  .mnav-label {
+    font-size: clamp(14px, 4.5vw, 16px);
+  }
+
+  .mnav {
+    gap: 8px;
+  }
+}
+
+/* ---------------------------------------------------------
+   EXTRA SMALL (360px and below)
+   --------------------------------------------------------- */
+@media (max-width: 360px) {
+  .mnav-label {
+    display: none; /* Hide "Menu" text on very small screens */
+  }
+
+  .mnav-burger {
+    width: 38px;
+    height: 38px;
+  }
+
+  .mnav-cta {
+    height: 38px;
+    font-size: 14px;
+    padding: 0 14px;
+  }
+}

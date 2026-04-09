@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /Users/mustafakhetran/Clockwrk/styles/*.css)",
+      "Bash(du -sh /Users/mustafakhetran/Clockwrk/*)"
+    ]
+  }
+}
