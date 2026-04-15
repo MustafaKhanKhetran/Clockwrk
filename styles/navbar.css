@@ -19,7 +19,7 @@
 .nav-wrap {
   position: sticky;
   top: 18px;
-  z-index: 50;
+  z-index: 2000;
   display: flex;
   justify-content: center;
   pointer-events: none;

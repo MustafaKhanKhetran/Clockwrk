@@ -252,14 +252,51 @@ This site uses modern web APIs and CSS features. Supported browsers:
 
 [Contact information to be added]
 
-## Change Log
+## Known Architecture Gotchas
 
-This README should be updated alongside code changes. Each new entry should include the local date and time of the change.
+These are non-obvious traps in the codebase that have caused bugs. Check here before editing styles.
 
-- 2026-04-09 23:10:00 PKT
-  Updated the mobile comparison table in `styles/comparison.css` so the sticky left label column stays visible, the first comparison column is the default visible comparison, mobile text is larger, horizontal scrolling feels smoother, and the left column extends farther at the bottom for a stronger visual anchor.
+## Working Rules For Future AI Edits
+
+Read `README.md` before making changes. Use it as the first source of project context, known traps, and current editing rules.
+
+Then read `logs.md` for detailed implementation history before editing the same area.
+
+Before making any new change, review the last 5 entries in `logs.md` so you do not repeat work, undo recent decisions, or miss active constraints.
+
+After every code or styling change:
+
+1. Add a new entry to `logs.md`.
+2. Include the local date and time.
+3. Name the files that changed.
+4. Explain what changed and why.
+5. Include any bug cause, specificity trap, layout constraint, or follow-up detail that another AI would need before editing the same area.
+
+### CSS Specificity Trap — `.section h3`
+
+`global.css` contains this rule:
+```css
+.section h3 {
+  font-size: clamp(32px, 5vw, 48px); /* specificity: 0,1,1 */
+}
+```
+
+Every section in `index.html` uses both a section-specific class AND the shared `section` class (e.g. `class="process-section section"`). Any `h3` inside a `.section` will be locked to `clamp(32px, 5vw, 48px)` by this rule.
+
+**A single-class selector like `.process-title` (specificity `0,1,0`) will always lose to `.section h3` (specificity `0,1,1`), making font-size changes appear to have no effect.**
+
+**Fix pattern:** Scope section title selectors to their parent to raise specificity:
+```css
+/* Wrong — loses to .section h3 */
+.process-title { font-size: clamp(40px, 6vw, 92px); }
+
+/* Correct — beats .section h3 */
+.process-header .process-title { font-size: clamp(40px, 6vw, 92px); }
+```
+
+This fix has already been applied to `.process-header .process-title` in `styles/process.css`. Apply the same pattern to any other section titles that use an `h3` tag.
 
 ---
 
 **Current Version:** v0.4.0 (In Development)
-**Last Updated:** 2026-04-09 23:10:00 PKT
+**Last Updated:** 2026-04-12 21:27:33 PKT
