@@ -655,6 +655,7 @@
     const servicesMobileCompare = document.querySelector(".services-mobile-compare");
     const servicesMobileComparePromptText = document.querySelector(".services-mobile-compare-prompt-text");
     const servicesMobileCompareCopy = document.querySelector(".services-mobile-compare-copy");
+    const servicesMobilePlanSlider = document.querySelector(".services-mobile-plan-slider");
     const servicesMobilePlans = Array.from(document.querySelectorAll("[data-services-mobile-plan]"));
     let dropStackTimer;
     let draggedServiceLabel = "";
@@ -662,6 +663,7 @@
     let activeDragGhost = null;
     let activeDroppedServices = [];
     let mobileCompareUpdateFrame = 0;
+    let mobilePlanUpdateFrame = 0;
     let mobileCompareShown = false;
     const SERVICES_TECH_MAP = {
       design: ["Figma", "Photoshop", "Illustrator", "Webflow", "WordPress"],
@@ -761,6 +763,40 @@
       mobileCompareUpdateFrame = requestAnimationFrame(() => {
         mobileCompareUpdateFrame = 0;
         updateMobileComparePosition();
+      });
+    }
+
+    function updateMobilePlanSliderState() {
+      if (!servicesMobilePlanSlider || servicesMobilePlans.length === 0) return;
+
+      const sliderRect = servicesMobilePlanSlider.getBoundingClientRect();
+      const sliderCenter = sliderRect.left + sliderRect.width / 2;
+
+      let activeIndex = 0;
+      let bestDistance = Number.POSITIVE_INFINITY;
+
+      servicesMobilePlans.forEach((plan, index) => {
+        const rect = plan.getBoundingClientRect();
+        const planCenter = rect.left + rect.width / 2;
+        const distance = Math.abs(planCenter - sliderCenter);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          activeIndex = index;
+        }
+      });
+
+      servicesMobilePlans.forEach((plan, index) => {
+        plan.classList.toggle("services-mobile-plan-active", index === activeIndex);
+        plan.classList.toggle("services-mobile-plan-prev", index === activeIndex - 1);
+        plan.classList.toggle("services-mobile-plan-next", index === activeIndex + 1);
+      });
+    }
+
+    function scheduleMobilePlanSliderState() {
+      if (mobilePlanUpdateFrame) return;
+      mobilePlanUpdateFrame = requestAnimationFrame(() => {
+        mobilePlanUpdateFrame = 0;
+        updateMobilePlanSliderState();
       });
     }
 
@@ -1006,6 +1042,7 @@
     const initialActive = serviceCategories.find((cat) => cat.classList.contains("services-item-active"));
     layoutAccordion(initialActive);
     updateScrollbar(initialActive);
+    scheduleMobilePlanSliderState();
 
     function renderServicesTech(discipline) {
       if (!servicesTechPills) return;
@@ -1174,6 +1211,7 @@
         meta.textContent = `~${monthMap[planType] || 1} mo. of subscription`;
       });
 
+      scheduleMobilePlanSliderState();
       scheduleMobileComparePosition();
     }
 
@@ -1397,10 +1435,15 @@
     window.addEventListener("resize", () => {
       const active = serviceCategories.find((cat) => cat.classList.contains("services-item-active"));
       layoutAccordion(active);
+      scheduleMobilePlanSliderState();
       scheduleMobileComparePosition();
     }, { passive: true });
 
     window.addEventListener("scroll", scheduleMobileComparePosition, { passive: true });
+
+    if (servicesMobilePlanSlider) {
+      servicesMobilePlanSlider.addEventListener("scroll", scheduleMobilePlanSliderState, { passive: true });
+    }
 
     if (typeof ResizeObserver !== "undefined") {
       const mobileCompareObserver = new ResizeObserver(() => {

@@ -1274,20 +1274,22 @@
 
   .services-mobile-plan-slider {
     display: flex;
-    gap: 16px;
+    gap: 0;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-inline: 11%;
-    padding-bottom: 2px;
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    padding: 0 10vw 2px;
     min-height: 0;
-    max-height: 92px;
+    max-height: 124px;
     margin-top: 22px;
     opacity: 1;
     transform: translateY(0);
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
-    scroll-padding-inline: 11%;
+    scroll-padding-inline: 10vw;
+    align-items: center;
     transition:
       max-height 0.34s cubic-bezier(0.22, 1, 0.36, 1),
       opacity 0.24s ease,
@@ -1300,17 +1302,48 @@
   }
 
   .services-mobile-plan {
-    flex: 0 0 78%;
+    flex: 0 0 80vw;
+    min-height: 104px;
+    padding: 18px 28px 16px;
     scroll-snap-align: center;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    color: #ffffff;
+    background: transparent;
+    position: relative;
+    z-index: 1;
+    margin-right: -20vw;
+    opacity: 0.66;
+    transform: scale(0.9);
+    transform-origin: center center;
+    transition: transform 0.28s ease, opacity 0.28s ease, z-index 0.28s ease;
+  }
+
+  .services-mobile-plan:last-child {
+    margin-right: 0;
+  }
+
+  .services-mobile-plan.services-mobile-plan-active {
+    z-index: 3;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .services-mobile-plan.services-mobile-plan-prev,
+  .services-mobile-plan.services-mobile-plan-next {
+    z-index: 2;
+    opacity: 0.82;
+    transform: scale(0.94);
   }
 
   .services-mobile-plan-title {
     color: #84a733;
-    font-size: 30px;
+    font-size: 32px;
+    font-weight: 500;
     line-height: 1.04;
     white-space: nowrap;
   }
@@ -1322,7 +1355,7 @@
   .services-mobile-plan-meta {
     margin-top: 10px;
     color: #8b8b8b;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.2;
     white-space: nowrap;
     text-align: center;
@@ -1696,27 +1729,34 @@
   }
 
   .services-mobile-plan-slider {
-    gap: 12px;
-    padding-inline: 6%;
-    scroll-padding-inline: 6%;
-    max-height: 72px;
+    gap: 0;
+    padding: 0 9vw;
+    scroll-padding-inline: 9vw;
+    max-height: 112px;
     margin-top: 18px;
   }
 
   .services-mobile-plan {
-    flex-basis: 88%;
+    flex-basis: 82vw;
+    min-height: 96px;
+    padding: 16px 22px 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-right: -22vw;
+  }
+
+  .services-mobile-plan:last-child {
+    margin-right: 0;
   }
 
   .services-mobile-plan-title {
-    font-size: 26px;
+    font-size: 28px;
   }
 
   .services-mobile-plan-meta {
     margin-top: 8px;
-    font-size: 16px;
+    font-size: 15px;
     text-align: center;
   }
 
