@@ -665,6 +665,8 @@
     let mobileCompareUpdateFrame = 0;
     let mobilePlanUpdateFrame = 0;
     let mobileCompareShown = false;
+    let mobileCompareActivated = false;
+    let lastMobileCompareScrollY = window.scrollY;
     const SERVICES_TECH_MAP = {
       design: ["Figma", "Photoshop", "Illustrator", "Webflow", "WordPress"],
       development: ["HTML", "CSS", "PHP", "Laravel", "Python", "Javascript", "TypeScript", "Node.js", "Nuxt.js", "Next.js", "React.js", "Express.js", "React Native", "TailwindCSS", "Vue"],
@@ -1227,8 +1229,14 @@
         servicesMobileCompare.style.removeProperty("top");
         servicesMobileCompare.style.removeProperty("bottom");
         mobileCompareShown = false;
+        mobileCompareActivated = false;
+        lastMobileCompareScrollY = window.scrollY;
         return;
       }
+
+      const currentScrollY = window.scrollY;
+      const scrollingDown = currentScrollY > lastMobileCompareScrollY + 1;
+      lastMobileCompareScrollY = currentScrollY;
 
       const sectionRect = servicesSection.getBoundingClientRect();
       const sectionTop = window.scrollY + sectionRect.top;
@@ -1236,12 +1244,28 @@
       const listRect = servicesList.getBoundingClientRect();
       const gridRect = servicesGrid.getBoundingClientRect();
       const sectionProgress = ((window.scrollY + window.innerHeight) - sectionTop) / sectionHeight;
-      const enterThreshold = 0.4;
-      const exitThreshold = 0.34;
-      const progressThreshold = mobileCompareShown ? exitThreshold : enterThreshold;
-      const shouldShow = sectionProgress >= progressThreshold && sectionRect.bottom > 80 && sectionRect.top < window.innerHeight;
+      const isAboveServiceTable = listRect.top >= window.innerHeight * 0.82;
+      const isInServicesViewport = sectionRect.top < window.innerHeight && sectionRect.bottom > 0;
 
-      if (!shouldShow) {
+      if (isAboveServiceTable) {
+        servicesMobileCompare.classList.remove("services-mobile-compare-docked");
+        servicesGrid.style.setProperty("--services-mobile-compare-space", "0px");
+        servicesMobileCompare.style.left = "0px";
+        servicesMobileCompare.style.width = `${window.innerWidth}px`;
+        servicesMobileCompare.style.top = "auto";
+        servicesMobileCompare.style.bottom = "0px";
+        servicesMobileCompare.classList.remove("services-mobile-compare-visible");
+        servicesMobileCompare.setAttribute("aria-hidden", "true");
+        mobileCompareShown = false;
+        mobileCompareActivated = false;
+        return;
+      }
+
+      if (!mobileCompareActivated && scrollingDown && isInServicesViewport && sectionProgress >= 0.4) {
+        mobileCompareActivated = true;
+      }
+
+      if (!mobileCompareActivated) {
         servicesMobileCompare.classList.remove("services-mobile-compare-docked");
         servicesGrid.style.setProperty("--services-mobile-compare-space", "0px");
         servicesMobileCompare.style.left = "0px";
@@ -1260,9 +1284,10 @@
 
       const bottomOffset = 0;
       const compareHeight = servicesMobileCompare.offsetHeight;
-      const reservedSpace = window.innerWidth <= 520 ? 308 : 364;
+      const reservedSpace = compareHeight;
       const floatingTop = window.innerHeight - bottomOffset - compareHeight;
-      const shouldDock = listRect.bottom <= floatingTop;
+      const isPastServicesSection = sectionRect.bottom <= 0;
+      const shouldDock = isPastServicesSection || listRect.bottom <= floatingTop;
 
       if (shouldDock) {
         const dockTop = Math.max(0, servicesList.offsetTop + servicesList.offsetHeight);
