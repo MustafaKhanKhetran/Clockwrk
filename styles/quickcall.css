@@ -1,0 +1,168 @@
+.quick-call-section {
+  min-height: auto;
+  align-items: flex-start;
+  padding: clamp(42px, 9vw, 72px) 10px;
+  background: #ffffff;
+}
+
+.quick-call-shell {
+  max-width: 1740px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.quick-call-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.quick-call-emoji-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.quick-call-emoji {
+  position: absolute;
+  font-size: clamp(34px, 2.8vw, 52px);
+  line-height: 1;
+  opacity: 0;
+  transform: translate3d(0, 64px, 0);
+  transition:
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.55s ease;
+  will-change: transform, opacity;
+}
+
+.quick-call-section.quick-call-visible .quick-call-emoji {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.quick-call-section.quick-call-flyout .quick-call-emoji {
+  opacity: 0;
+  transform: translate3d(0, -104px, 0);
+}
+
+.quick-call-emoji-1 {
+  left: 12%;
+  top: 32%;
+  transition-delay: 0.05s;
+}
+
+.quick-call-emoji-2 {
+  left: 36%;
+  top: 4%;
+  transition-delay: 0.18s;
+}
+
+.quick-call-emoji-3 {
+  right: 11%;
+  bottom: 12%;
+  transition-delay: 0.3s;
+}
+
+.quick-call-emoji-4 {
+  left: 29%;
+  bottom: 10%;
+  transition-delay: 0.42s;
+}
+
+.quick-call-emoji-5 {
+  right: 32%;
+  top: 44%;
+  transition-delay: 0.55s;
+}
+
+.quick-call-title {
+  margin: 0;
+  max-width: 28ch;
+  font-size: clamp(52px, 5.9vw, 92px);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+  font-weight: 500;
+  color: #111111;
+}
+
+.quick-call-highlight {
+  color: #b4ef36;
+}
+
+.quick-call-break {
+  display: inline;
+}
+
+.quick-call-link {
+  margin-top: clamp(42px, 4vw, 58px);
+  display: inline-block;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.14);
+  font-size: clamp(18px, 1.55vw, 25px);
+  line-height: 1;
+  font-weight: 400;
+  color: #111111;
+  text-decoration: none;
+  transition: border-color 0.22s ease, transform 0.22s ease;
+}
+
+.quick-call-link:hover {
+  border-color: rgba(17, 17, 17, 0.34);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 860px) {
+  .quick-call-section {
+    padding: 68px 2px;
+  }
+
+  .quick-call-title {
+    max-width: 10.8ch;
+    font-size: clamp(35px, 10.8vw, 62px);
+    line-height: 0.96;
+    font-weight: 500;
+  }
+
+  .quick-call-break {
+    display: none;
+  }
+
+  .quick-call-link {
+    margin-top: 30px;
+    padding-bottom: 10px;
+    font-size: 18px;
+  }
+
+  .quick-call-emoji {
+    font-size: 28px;
+  }
+
+  .quick-call-emoji-1 {
+    left: 4%;
+    top: 37%;
+  }
+
+  .quick-call-emoji-2 {
+    left: 22%;
+    top: 1%;
+  }
+
+  .quick-call-emoji-3 {
+    right: 4%;
+    bottom: 14%;
+  }
+
+  .quick-call-emoji-4 {
+    left: 18%;
+    bottom: 8%;
+  }
+
+  .quick-call-emoji-5 {
+    right: 18%;
+    top: 46%;
+  }
+}

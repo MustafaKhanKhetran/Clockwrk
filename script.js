@@ -1587,4 +1587,178 @@
       discoveryCard.classList.remove("discovery-active");
     });
   }
+
+  const quickCallSection = document.querySelector(".quick-call-section");
+
+  if (quickCallSection) {
+    let quickCallPlayed = false;
+    let quickCallFlyoutTimer;
+
+    const quickCallObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting || quickCallPlayed) return;
+
+        quickCallPlayed = true;
+        quickCallSection.classList.add("quick-call-visible");
+
+        quickCallFlyoutTimer = window.setTimeout(() => {
+          quickCallSection.classList.add("quick-call-flyout");
+        }, 2000);
+
+        quickCallObserver.unobserve(quickCallSection);
+      });
+    }, { threshold: 0.28 });
+
+    quickCallObserver.observe(quickCallSection);
+  }
+
+  const aboutStrengthCards = Array.from(document.querySelectorAll(".about-strength-card"));
+  const aboutStrengthViewport = window.matchMedia("(max-width: 860px)");
+
+  if (aboutStrengthCards.length) {
+    function clearActiveAboutStrength() {
+      aboutStrengthCards.forEach((card) => {
+        card.classList.remove("is-mobile-active");
+        card.querySelector(".about-strength-toggle")?.setAttribute("aria-pressed", "false");
+      });
+    }
+
+    function setActiveAboutStrength(activeCard) {
+      aboutStrengthCards.forEach((card) => {
+        const isActive = card === activeCard && !card.classList.contains("is-mobile-active");
+        card.classList.toggle("is-mobile-active", isActive);
+        card.querySelector(".about-strength-toggle")?.setAttribute("aria-pressed", String(isActive));
+      });
+    }
+
+    aboutStrengthCards.forEach((card) => {
+      const toggle = card.querySelector(".about-strength-toggle");
+
+      card.addEventListener("click", (event) => {
+        if (!aboutStrengthViewport.matches) return;
+        event.stopPropagation();
+        setActiveAboutStrength(card);
+      });
+
+      toggle?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (!aboutStrengthViewport.matches) return;
+        setActiveAboutStrength(card);
+      });
+    });
+
+    document.addEventListener("click", () => {
+      if (!aboutStrengthViewport.matches) return;
+      clearActiveAboutStrength();
+    });
+
+    window.addEventListener("scroll", () => {
+      if (!aboutStrengthViewport.matches) return;
+      clearActiveAboutStrength();
+    }, { passive: true });
+
+    aboutStrengthViewport.addEventListener("change", () => {
+      clearActiveAboutStrength();
+    });
+  }
+
+  const aboutTrust = document.querySelector(".about-trust");
+  const aboutTrustCardWindow = aboutTrust?.querySelector(".about-trust-card-window");
+  const aboutTrustTrack = aboutTrust?.querySelector(".about-trust-card-track");
+  const aboutTrustCards = aboutTrustTrack
+    ? Array.from(aboutTrustTrack.querySelectorAll(".about-trust-card"))
+    : [];
+  const aboutTrustViewport = window.matchMedia("(min-width: 861px)");
+  const aboutTrustMobileViewport = window.matchMedia("(max-width: 860px)");
+
+  if (aboutTrust && aboutTrustTrack && aboutTrustCards.length > 1) {
+    let aboutTrustFrame = 0;
+    let aboutTrustMobileFrame = 0;
+
+    function updateAboutTrustScroll() {
+      aboutTrustFrame = 0;
+
+      if (!aboutTrustViewport.matches) {
+        aboutTrustCards.forEach((card) => {
+          card.style.removeProperty("--about-card-y");
+          card.style.removeProperty("--about-card-scale");
+          card.style.removeProperty("--about-card-opacity");
+          card.style.removeProperty("z-index");
+        });
+        return;
+      }
+
+      const rect = aboutTrust.getBoundingClientRect();
+      const scrollRange = Math.max(1, aboutTrust.offsetHeight - window.innerHeight);
+      const progress = Math.min(1, Math.max(0, -rect.top / scrollRange));
+      const deckProgress = progress * (aboutTrustCards.length - 1);
+      const stackGap = 26;
+      const cardHeight = aboutTrustTrack.getBoundingClientRect().height;
+      const lineGap = 118;
+      const lineStep = cardHeight + lineGap;
+
+      aboutTrustCards.forEach((card, index) => {
+        const stackedY = index * stackGap;
+        const linedY = (index - deckProgress) * lineStep;
+        const y = Math.max(stackedY, linedY);
+        const scale = 1;
+
+        card.style.setProperty("--about-card-y", `${y}px`);
+        card.style.setProperty("--about-card-scale", String(scale));
+        card.style.setProperty("--about-card-opacity", "1");
+        card.style.zIndex = String(100 + index);
+      });
+    }
+
+    function requestAboutTrustUpdate() {
+      if (aboutTrustFrame) return;
+      aboutTrustFrame = window.requestAnimationFrame(updateAboutTrustScroll);
+    }
+
+    function updateAboutTrustMobileSliderState() {
+      aboutTrustMobileFrame = 0;
+      if (!aboutTrustCardWindow || !aboutTrustMobileViewport.matches) {
+        aboutTrustCards.forEach((card) => {
+          card.classList.remove("about-trust-card-active", "about-trust-card-prev", "about-trust-card-next");
+        });
+        return;
+      }
+
+      const sliderRect = aboutTrustCardWindow.getBoundingClientRect();
+      const sliderCenter = sliderRect.left + sliderRect.width / 2;
+      let activeIndex = 0;
+      let bestDistance = Number.POSITIVE_INFINITY;
+
+      aboutTrustCards.forEach((card, index) => {
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.left + rect.width / 2;
+        const distance = Math.abs(cardCenter - sliderCenter);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          activeIndex = index;
+        }
+      });
+
+      aboutTrustCards.forEach((card, index) => {
+        card.classList.toggle("about-trust-card-active", index === activeIndex);
+        card.classList.toggle("about-trust-card-prev", index === activeIndex - 1);
+        card.classList.toggle("about-trust-card-next", index === activeIndex + 1);
+      });
+    }
+
+    function requestAboutTrustMobileSliderState() {
+      if (aboutTrustMobileFrame) return;
+      aboutTrustMobileFrame = window.requestAnimationFrame(updateAboutTrustMobileSliderState);
+    }
+
+    window.addEventListener("scroll", requestAboutTrustUpdate, { passive: true });
+    window.addEventListener("resize", requestAboutTrustUpdate);
+    window.addEventListener("resize", requestAboutTrustMobileSliderState);
+    aboutTrustCardWindow?.addEventListener("scroll", requestAboutTrustMobileSliderState, { passive: true });
+    aboutTrustViewport.addEventListener("change", requestAboutTrustUpdate);
+    aboutTrustMobileViewport.addEventListener("change", requestAboutTrustMobileSliderState);
+    updateAboutTrustScroll();
+    updateAboutTrustMobileSliderState();
+  }
+
 })();
