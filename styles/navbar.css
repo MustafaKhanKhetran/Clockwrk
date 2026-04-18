@@ -19,7 +19,7 @@
 .nav-wrap {
   position: sticky;
   top: 18px;
-  z-index: 2000;
+  z-index: 5000;
   display: flex;
   justify-content: center;
   pointer-events: none;
@@ -42,6 +42,7 @@
 .nav-pill {
   pointer-events: auto;
   position: relative;
+  z-index: 3;
   overflow: hidden;
 
   height: 56px;
@@ -247,28 +248,43 @@
    --------------------------------------------------------- */
 .mobile-menu {
   position: fixed;
-  top: 90px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 40;
-  background: #f5f4f4;
+  inset: 0;
+  z-index: 2;
+  background: transparent;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 0px 20px;
+  padding: clamp(130px, 24vh, 180px) 20px 44px;
   visibility: hidden;
-  transform: translateY(-100%);
-  transition: visibility 0s 0.35s,
-    transform 0.35s cubic-bezier(0.22, 0.9, 0.3, 1);
+  transition: visibility 0s 0.72s;
   pointer-events: none;
 }
 
 .mobile-menu.is-open {
   visibility: visible;
-  transform: translateY(0);
-  transition: transform 0.35s cubic-bezier(0.22, 0.9, 0.3, 1);
+  transition: visibility 0s;
   pointer-events: auto;
+}
+
+body.mobile-menu-open::before,
+body.mobile-menu-closing::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 4990;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.38s ease;
+}
+
+body.mobile-menu-open::before {
+  opacity: 1;
+}
+
+body.mobile-menu-closing::before {
+  opacity: 0;
+  transition-delay: 0.32s;
 }
 
 .mobile-menu-nav {
@@ -291,44 +307,43 @@
   border-radius: 20px;
   transition: background 0.2s ease, color 0.2s ease;
   opacity: 0;
-  transform: translateY(-50px);
+  transform: translateY(-34px);
   width: 100%;
 }
 
-/* Closing state - slide up quickly */
+/* Closing state - links lift away first, then the white drawer fades. */
 .mobile-menu .mobile-menu-link {
-  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 0.9, 0.3, 1);
+  transition: opacity 0.26s ease,
+    transform 0.36s cubic-bezier(0.22, 0.9, 0.3, 1),
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-/* Opening state - drop down with stagger AFTER menu appears */
+/* Opening state - links slide down from the top after the white drawer appears. */
 .mobile-menu.is-open .mobile-menu-link {
-  animation: dropDown 0.6s cubic-bezier(0.22, 0.9, 0.3, 1) forwards;
+  opacity: 1;
+  transform: translateY(0);
+  transition-duration: 0.62s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .mobile-menu.is-open .mobile-menu-link:nth-child(1) {
-  animation-delay: 0.4s;
+  transition-delay: 0.2s;
 }
 .mobile-menu.is-open .mobile-menu-link:nth-child(2) {
-  animation-delay: 0.48s;
+  transition-delay: 0.26s;
 }
 .mobile-menu.is-open .mobile-menu-link:nth-child(3) {
-  animation-delay: 0.56s;
+  transition-delay: 0.32s;
 }
 .mobile-menu.is-open .mobile-menu-link:nth-child(4) {
-  animation-delay: 0.64s;
+  transition-delay: 0.38s;
 }
 .mobile-menu.is-open .mobile-menu-link:nth-child(5) {
-  animation-delay: 0.72s;
+  transition-delay: 0.44s;
 }
 .mobile-menu.is-open .mobile-menu-link:nth-child(6) {
-  animation-delay: 0.8s;
-}
-
-@keyframes dropDown {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  transition-delay: 0.5s;
 }
 
 .mobile-menu-link:hover {
@@ -379,7 +394,7 @@
 
   /* Show mobile menu dropdown */
   .mobile-menu {
-    display: block;
+    display: flex;
   }
 
   /* Hide desktop elements */

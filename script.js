@@ -200,31 +200,48 @@
   const mobileMenuBtn = document.querySelector(".mnav-menu");
   const mobileMenu = document.getElementById("mobileMenu");
   const mobileMenuLinks = document.querySelectorAll(".mobile-menu-link");
+  let mobileMenuCloseTimer;
 
   if (mobileMenuBtn && mobileMenu) {
+    const openMobileMenu = () => {
+      clearTimeout(mobileMenuCloseTimer);
+      document.body.classList.remove("mobile-menu-closing");
+      document.body.classList.add("mobile-menu-open");
+      mobileMenuBtn.classList.add("is-open");
+      mobileMenu.classList.add("is-open");
+      mobileMenuBtn.setAttribute("aria-label", "Close menu");
+      mobileMenuBtn.setAttribute("aria-expanded", "true");
+    };
+
+    const closeMobileMenu = () => {
+      clearTimeout(mobileMenuCloseTimer);
+      mobileMenuBtn.classList.remove("is-open");
+      mobileMenu.classList.remove("is-open");
+      document.body.classList.remove("mobile-menu-open");
+      document.body.classList.add("mobile-menu-closing");
+      mobileMenuBtn.setAttribute("aria-label", "Open menu");
+      mobileMenuBtn.setAttribute("aria-expanded", "false");
+
+      mobileMenuCloseTimer = window.setTimeout(() => {
+        document.body.classList.remove("mobile-menu-closing");
+      }, 760);
+    };
+
     // Toggle menu on button click
     mobileMenuBtn.addEventListener("click", () => {
       const isOpen = mobileMenuBtn.classList.contains("is-open");
 
       if (isOpen) {
-        // Close menu
-        mobileMenuBtn.classList.remove("is-open");
-        mobileMenu.classList.remove("is-open");
-        mobileMenuBtn.setAttribute("aria-label", "Open menu");
+        closeMobileMenu();
       } else {
-        // Open menu
-        mobileMenuBtn.classList.add("is-open");
-        mobileMenu.classList.add("is-open");
-        mobileMenuBtn.setAttribute("aria-label", "Close menu");
+        openMobileMenu();
       }
     });
 
     // Close menu when a link is clicked
     mobileMenuLinks.forEach((link) => {
       link.addEventListener("click", () => {
-        mobileMenuBtn.classList.remove("is-open");
-        mobileMenu.classList.remove("is-open");
-        mobileMenuBtn.setAttribute("aria-label", "Open menu");
+        closeMobileMenu();
       });
     });
 
@@ -235,9 +252,7 @@
         !mobileMenuBtn.contains(e.target) &&
         mobileMenu.classList.contains("is-open")
       ) {
-        mobileMenuBtn.classList.remove("is-open");
-        mobileMenu.classList.remove("is-open");
-        mobileMenuBtn.setAttribute("aria-label", "Open menu");
+        closeMobileMenu();
       }
     });
   }
