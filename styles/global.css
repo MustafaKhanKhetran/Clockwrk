@@ -59,6 +59,9 @@
     --nav-ease: cubic-bezier(0.16, 1, 0.3, 1);
   }
   
+  /* Visibility utilities */
+  .mobile-only { display: none; }
+
   /* Reset & Base */
   *,
   *::before,

@@ -1,7 +1,7 @@
 .quick-call-section {
   min-height: auto;
   align-items: flex-start;
-  padding: clamp(42px, 9vw, 72px) 10px;
+  padding: clamp(72px, 11vw, 118px) 10px;
   background: #ffffff;
 }
 
@@ -117,7 +117,7 @@
 
 @media (max-width: 860px) {
   .quick-call-section {
-    padding: 68px 2px;
+    padding: 92px 2px;
   }
 
   .quick-call-title {

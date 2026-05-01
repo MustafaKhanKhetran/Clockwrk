@@ -538,20 +538,20 @@
   .hero-cta .cta-pill {
     width: 100%;
     justify-content: center;
-    height: clamp(58px, 14vw, 72px);
-    padding: 0 20px;
+    height: 56px;
+    padding: 0 68px 0 24px;
     font-size: clamp(17px, 4.5vw, 22px);
   }
 
   .hero-cta .cta-icon {
-    width: clamp(44px, 11vw, 52px);
-    height: clamp(44px, 11vw, 52px);
-    right: 8px;
+    width: 42px;
+    height: 42px;
+    right: 7px;
     font-size: clamp(16px, 4vw, 20px);
   }
 
   .hero-cta .cta-pill:hover .cta-icon {
-    right: calc(100% - clamp(52px, 13vw, 60px));
+    right: calc(100% - 49px);
   }
 }
 
@@ -628,4 +628,29 @@
     width: 18px;
     height: 18px;
   }
+}
+
+/* ---------------------------------------------------------
+   MOBILE: disable CSS hover, enable tap animation
+   --------------------------------------------------------- */
+@media (max-width: 880px) {
+  .cta-pill:hover {
+    background: #000;
+    color: #fff;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .cta-pill:hover .cta-text { transform: none; }
+  .cta-pill:hover .cta-icon { right: 6px; }
+
+  .cta-pill.is-tapped {
+    background: #a0e92a;
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+  }
+
+  .cta-pill.is-tapped .cta-text { transform: translateX(28px); }
+  .hero-cta .cta-pill.is-tapped .cta-icon { right: calc(100% - 49px); }
 }

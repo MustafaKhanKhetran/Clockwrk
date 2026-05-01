@@ -300,6 +300,383 @@
   }
 
   // ---------------------------------------------------------
+  // 8) Pricing — plan and billing selection
+  // ---------------------------------------------------------
+  const pricingShell = document.querySelector(".pricing-shell");
+
+  if (pricingShell) {
+    const pricingBilling = pricingShell.querySelector(".pricing-billing");
+    const billingButtons = Array.from(
+      pricingShell.querySelectorAll("[data-pricing-billing]")
+    );
+    const planCards = Array.from(
+      pricingShell.querySelectorAll("[data-pricing-plan]")
+    );
+    const summaryTotals = Array.from(pricingShell.querySelectorAll("[data-pricing-summary-total]"));
+
+    let activeBilling = "weekly";
+    let isFirstSync = true;
+    let activePlan = planCards.find((card) =>
+      card.classList.contains("pricing-plan-card-active")
+    ) || planCards[0];
+
+    const addonButtons = Array.from(pricingShell.querySelectorAll(".pricing-addon-action button[data-addon-price]"));
+
+    function getAddonPrice(btn) {
+      const price = activeBilling === "monthly"
+        ? (btn.dataset.addonMonthlyPrice || btn.dataset.addonPrice)
+        : (btn.dataset.addonWeeklyPrice || btn.dataset.addonPrice);
+      const amount = Number(price);
+      return Number.isFinite(amount) ? amount : 0;
+    }
+
+    function getAddonTotal() {
+      return addonButtons.reduce((sum, btn) => {
+        return sum + (btn.classList.contains("is-added") ? getAddonPrice(btn) : 0);
+      }, 0);
+    }
+
+    function formatPrice(value) {
+      const amount = Number(value);
+      if (!Number.isFinite(amount)) return "$0";
+      return `$${amount.toLocaleString("en-US")}`;
+    }
+
+    function animateCounter(el, from, to, duration, prefix = "") {
+      if (el._counterRAF) cancelAnimationFrame(el._counterRAF);
+      const start = performance.now();
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = `${prefix}${formatPrice(Math.round(from + (to - from) * eased))}`;
+        if (progress < 1) {
+          el._counterRAF = requestAnimationFrame(step);
+        } else {
+          el.textContent = `${prefix}${formatPrice(to)}`;
+          el._counterRAF = null;
+        }
+      }
+      el._counterRAF = requestAnimationFrame(step);
+    }
+
+    function syncPricingUI(billingChanged) {
+      if (pricingBilling) {
+        pricingBilling.dataset.activeBilling = activeBilling;
+      }
+
+      billingButtons.forEach((button) => {
+        const isActive = button.dataset.pricingBilling === activeBilling;
+        button.classList.toggle("pricing-billing-option-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      const isMonthly = activeBilling === "monthly";
+
+      addonButtons.forEach((btn) => {
+        const priceEl = btn.closest(".pricing-addon-action")?.querySelector(".pricing-addon-price");
+        if (!priceEl) return;
+        const targetVal = getAddonPrice(btn);
+        if (isFirstSync) {
+          priceEl.textContent = `+ ${formatPrice(targetVal)}`;
+          priceEl._currentVal = targetVal;
+        } else if (billingChanged) {
+          const fromVal = priceEl._currentVal ?? targetVal;
+          priceEl.classList.add("is-entering");
+          animateCounter(priceEl, fromVal, targetVal, 300, "+ ");
+          priceEl._currentVal = targetVal;
+          setTimeout(() => priceEl.classList.remove("is-entering"), 320);
+        }
+      });
+
+      planCards.forEach((card) => {
+        const isActive = card === activePlan;
+        const priceEl = card.querySelector(".pricing-plan-price");
+        const origEl = card.querySelector(".pricing-plan-price-orig");
+        const weeklyVal = Number(card.dataset.weeklyPrice);
+        const monthlyDiscounted = Number(card.dataset.monthlyPrice);
+        const monthlyFull = weeklyVal * 4;
+
+        card.classList.toggle("pricing-plan-card-active", isActive);
+
+        if (priceEl) {
+          priceEl.classList.toggle("pricing-plan-price-active", isActive);
+          const targetVal = isMonthly ? monthlyDiscounted : weeklyVal;
+
+          if (isFirstSync) {
+            priceEl.textContent = formatPrice(targetVal);
+            priceEl._currentVal = targetVal;
+          } else if (billingChanged) {
+            const fromVal = priceEl._currentVal ?? weeklyVal;
+            priceEl.classList.add("is-entering");
+            animateCounter(priceEl, fromVal, targetVal, 300);
+            priceEl._currentVal = targetVal;
+            setTimeout(() => priceEl.classList.remove("is-entering"), 320);
+          }
+        }
+
+        if (origEl && billingChanged) {
+          if (isMonthly) {
+            origEl.textContent = formatPrice(weeklyVal);
+            origEl.classList.add("is-visible");
+            animateCounter(origEl, weeklyVal, monthlyFull, 300);
+            origEl._currentVal = monthlyFull;
+          } else {
+            origEl.classList.remove("is-visible");
+            setTimeout(() => { origEl.textContent = ""; }, 280);
+          }
+        }
+      });
+
+      if (summaryTotals.length && activePlan) {
+        const weeklyVal = Number(activePlan.dataset.weeklyPrice);
+        const planVal = isMonthly
+          ? Number(activePlan.dataset.monthlyPrice)
+          : weeklyVal;
+        const targetVal = planVal + getAddonTotal();
+        summaryTotals.forEach((el) => {
+          if (isFirstSync) {
+            el.textContent = formatPrice(targetVal);
+          } else {
+            animateCounter(el, el._currentVal ?? targetVal, targetVal, 300);
+          }
+          el._currentVal = targetVal;
+        });
+      }
+
+      isFirstSync = false;
+    }
+
+    billingButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeBilling = button.dataset.pricingBilling || "weekly";
+        syncPricingUI(true);
+      });
+    });
+
+    addonButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const isAdded = btn.classList.toggle("is-added");
+        const priceEl = btn.closest(".pricing-addon-action").querySelector(".pricing-addon-price");
+        if (priceEl) priceEl.classList.toggle("is-added", isAdded);
+
+        if (summaryTotals.length && activePlan) {
+          const isMonthly = activeBilling === "monthly";
+          const planVal = isMonthly
+            ? Number(activePlan.dataset.monthlyPrice)
+            : Number(activePlan.dataset.weeklyPrice);
+          const newTotal = planVal + getAddonTotal();
+          summaryTotals.forEach((el) => {
+            animateCounter(el, el._currentVal ?? newTotal, newTotal, 300);
+            el._currentVal = newTotal;
+          });
+        }
+      });
+    });
+
+    planCards.forEach((card) => {
+      const selectButton = card.querySelector(".pricing-plan-select");
+      const activateCard = () => {
+        activePlan = card;
+        syncPricingUI(false);
+      };
+
+      card.addEventListener("click", activateCard);
+      if (selectButton) {
+        selectButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          activateCard();
+        });
+      }
+    });
+
+    syncPricingUI();
+
+    // Mobile bottom summary — services-style popup behavior
+    const mobileSummary = pricingShell.querySelector(".pricing-mobile-summary");
+    const pricingSection = document.getElementById("pricing");
+    if (mobileSummary && pricingSection) {
+      const mobileSummaryLearn = mobileSummary.querySelector(".pricing-mobile-summary-learn");
+      const mobileSummaryClose = mobileSummary.querySelector(".pricing-mobile-summary-close");
+      const mobileSummaryDetails = mobileSummary.querySelector(".pricing-mobile-summary-details");
+      const mqPricingViewport = window.matchMedia("(max-width: 860px)");
+      let pricingMobileActivated = false;
+      let pricingMobileShown = false;
+      let pricingMobileExpanded = false;
+      let pendingPricingExpandAfterScroll = false;
+      let pendingPricingExpandTarget = 0;
+      let pricingMobileTransitionLockUntil = 0;
+      let lastPricingScrollY = window.scrollY;
+
+      const isMobilePricingLayout = () => mqPricingViewport.matches;
+
+      const updatePricingMobileSummaryPosition = () => {
+        if (!mobileSummary || !pricingSection || !pricingShell) return;
+
+        if (!isMobilePricingLayout()) {
+          mobileSummary.classList.remove("is-visible", "is-docked", "is-expanded");
+          mobileSummary.setAttribute("aria-hidden", "true");
+          if (mobileSummaryDetails) mobileSummaryDetails.setAttribute("aria-hidden", "true");
+          pricingShell.style.setProperty("--pricing-mobile-summary-space", "0px");
+          mobileSummary.style.removeProperty("left");
+          mobileSummary.style.removeProperty("width");
+          mobileSummary.style.removeProperty("top");
+          mobileSummary.style.removeProperty("bottom");
+          pricingMobileShown = false;
+          pricingMobileActivated = false;
+          pricingMobileExpanded = false;
+          lastPricingScrollY = window.scrollY;
+          return;
+        }
+
+        const currentScrollY = window.scrollY;
+        const scrollingDown = currentScrollY > lastPricingScrollY + 1;
+        lastPricingScrollY = currentScrollY;
+
+        if (pendingPricingExpandAfterScroll && Math.abs(currentScrollY - pendingPricingExpandTarget) <= 2) {
+          pendingPricingExpandAfterScroll = false;
+          pricingMobileExpanded = true;
+          mobileSummary.classList.add("is-expanded");
+          setTimeout(updatePricingMobileSummaryPosition, 880);
+        }
+
+        const sectionRect = pricingSection.getBoundingClientRect();
+        const sectionHeight = Math.max(pricingSection.offsetHeight, 1);
+        const sectionTop = window.scrollY + sectionRect.top;
+        const shellRect = pricingShell.getBoundingClientRect();
+        const sectionProgress = ((window.scrollY + window.innerHeight) - sectionTop) / sectionHeight;
+        const isAbovePricingSection = sectionRect.top >= window.innerHeight * 0.82;
+        const isInPricingViewport = sectionRect.top < window.innerHeight && sectionRect.bottom > 0;
+
+        if (isAbovePricingSection) {
+          mobileSummary.classList.remove("is-visible", "is-docked", "is-expanded");
+          mobileSummary.setAttribute("aria-hidden", "true");
+          if (mobileSummaryDetails) mobileSummaryDetails.setAttribute("aria-hidden", "true");
+          pricingShell.style.setProperty("--pricing-mobile-summary-space", "0px");
+          mobileSummary.style.left = "0px";
+          mobileSummary.style.width = `${window.innerWidth}px`;
+          mobileSummary.style.top = "auto";
+          mobileSummary.style.bottom = "0px";
+          pricingMobileShown = false;
+          pricingMobileActivated = false;
+          pricingMobileExpanded = false;
+          pendingPricingExpandAfterScroll = false;
+          return;
+        }
+
+        if (!pricingMobileActivated && scrollingDown && isInPricingViewport && sectionProgress >= 0.6) {
+          pricingMobileActivated = true;
+        }
+
+        if (
+          pricingMobileActivated &&
+          !scrollingDown &&
+          isInPricingViewport &&
+          sectionProgress < 0.6 &&
+          Date.now() > pricingMobileTransitionLockUntil
+        ) {
+          pricingMobileActivated = false;
+        }
+
+        if (!pricingMobileActivated) {
+          mobileSummary.classList.remove("is-visible", "is-docked", "is-expanded");
+          mobileSummary.setAttribute("aria-hidden", "true");
+          if (mobileSummaryDetails) mobileSummaryDetails.setAttribute("aria-hidden", "true");
+          pricingShell.style.setProperty("--pricing-mobile-summary-space", "0px");
+          mobileSummary.style.left = "0px";
+          mobileSummary.style.width = `${window.innerWidth}px`;
+          mobileSummary.style.top = "auto";
+          mobileSummary.style.bottom = "0px";
+          pricingMobileShown = false;
+          pricingMobileExpanded = false;
+          pendingPricingExpandAfterScroll = false;
+          return;
+        }
+
+        mobileSummary.classList.add("is-visible");
+        mobileSummary.classList.toggle("is-expanded", pricingMobileExpanded);
+        mobileSummary.setAttribute("aria-hidden", "false");
+        if (mobileSummaryDetails) {
+          mobileSummaryDetails.setAttribute("aria-hidden", String(!pricingMobileExpanded));
+        }
+        pricingMobileShown = true;
+
+        const summaryHeight = mobileSummary.offsetHeight;
+        const reservedSpace = summaryHeight;
+        const bottomOffset = 0;
+        const floatingTop = window.innerHeight - bottomOffset - summaryHeight;
+        const isPastPricingSection = sectionRect.bottom <= 0;
+        const shouldDock = isPastPricingSection || shellRect.bottom <= window.innerHeight;
+
+        if (shouldDock) {
+          const dockTop = Math.max(0, pricingShell.offsetHeight - summaryHeight);
+
+          mobileSummary.classList.add("is-docked");
+          pricingShell.style.setProperty("--pricing-mobile-summary-space", `${reservedSpace}px`);
+          mobileSummary.style.left = `${-shellRect.left}px`;
+          mobileSummary.style.width = `${window.innerWidth}px`;
+          mobileSummary.style.top = `${dockTop}px`;
+          mobileSummary.style.bottom = "auto";
+        } else {
+          mobileSummary.classList.remove("is-docked");
+          pricingShell.style.setProperty("--pricing-mobile-summary-space", `${reservedSpace}px`);
+          mobileSummary.style.left = "0px";
+          mobileSummary.style.width = `${window.innerWidth}px`;
+          mobileSummary.style.top = "auto";
+          mobileSummary.style.bottom = `${bottomOffset}px`;
+        }
+      };
+
+      window.addEventListener("scroll", updatePricingMobileSummaryPosition, { passive: true });
+      window.addEventListener("resize", updatePricingMobileSummaryPosition);
+      mqPricingViewport.addEventListener("change", updatePricingMobileSummaryPosition);
+
+      function animateSummaryExpand() {
+        const doExpand = () => {
+          pricingMobileTransitionLockUntil = Date.now() + 1100;
+          pricingMobileActivated = true;
+          pricingMobileExpanded = true;
+          mobileSummary.classList.add("is-expanded");
+          updatePricingMobileSummaryPosition();
+          setTimeout(updatePricingMobileSummaryPosition, 880);
+        };
+
+        const sectionRect = pricingSection.getBoundingClientRect();
+        const sectionTop = window.scrollY + sectionRect.top;
+        const sectionBottom = sectionTop + pricingSection.offsetHeight;
+        const dockScrollTarget = Math.max(0, sectionBottom - window.innerHeight - 318);
+        const isPastSectionEnd = window.scrollY > dockScrollTarget + 1;
+
+        if (isPastSectionEnd) {
+          pendingPricingExpandAfterScroll = true;
+          pendingPricingExpandTarget = dockScrollTarget;
+          window.scrollTo({ top: dockScrollTarget, behavior: "smooth" });
+        } else {
+          doExpand();
+        }
+      }
+
+      function animateSummaryCollapse() {
+        pricingMobileTransitionLockUntil = Date.now() + 1100;
+        pricingMobileActivated = true;
+        pricingMobileExpanded = false;
+        mobileSummary.classList.remove("is-expanded");
+        requestAnimationFrame(updatePricingMobileSummaryPosition);
+        setTimeout(updatePricingMobileSummaryPosition, 880);
+      }
+
+      if (mobileSummaryLearn) {
+        mobileSummaryLearn.addEventListener("click", animateSummaryExpand);
+      }
+
+      if (mobileSummaryClose) {
+        mobileSummaryClose.addEventListener("click", animateSummaryCollapse);
+      }
+
+      updatePricingMobileSummaryPosition();
+    }
+  }
+
+  // ---------------------------------------------------------
   // 9) Engagement Card — Kanban
   //    Progress tab: 2 non-active rows (top + bottom)
   //    Done tab: 1 active row
@@ -687,6 +1064,50 @@
       development: ["HTML", "CSS", "PHP", "Laravel", "Python", "Javascript", "TypeScript", "Node.js", "Nuxt.js", "Next.js", "React.js", "Express.js", "React Native", "TailwindCSS", "Vue"],
       integration: ["Stripe", "Paypal", "AWS", "Amazon", "MongoDB", "Postgres", "MySQL", "Redis", "SQLite", "Sendgrid", "DigitalOcean", "Firebase", "Nexgen", "Any other API"],
     };
+
+    // Shared tooltip for selected service info buttons
+    const serviceInfoTooltip = document.createElement("div");
+    serviceInfoTooltip.className = "services-drop-tooltip";
+    serviceInfoTooltip.innerHTML =
+      `<p class="services-drop-tooltip-desc"></p>` +
+      `<p class="services-drop-tooltip-note">It's an example. Services are tailored to each client's needs.</p>`;
+    document.body.appendChild(serviceInfoTooltip);
+
+    let _tooltipActiveBtn = null;
+
+    function showServiceInfoTooltip(btn) {
+      const desc = btn.dataset.tooltipDesc || "";
+      if (!desc) return;
+      serviceInfoTooltip.querySelector(".services-drop-tooltip-desc").textContent = desc;
+      serviceInfoTooltip.classList.add("is-visible");
+      _tooltipActiveBtn = btn;
+      positionServiceInfoTooltip(btn);
+    }
+
+    function positionServiceInfoTooltip(btn) {
+      const rect = btn.getBoundingClientRect();
+      const tW = serviceInfoTooltip.offsetWidth || 440;
+      let left = rect.right - tW;
+      if (left < 8) left = 8;
+      if (left + tW > window.innerWidth - 8) left = window.innerWidth - 8 - tW;
+      serviceInfoTooltip.style.left = `${left}px`;
+      serviceInfoTooltip.style.top = "auto";
+      serviceInfoTooltip.style.bottom = `${window.innerHeight - rect.top + 10}px`;
+    }
+
+    function hideServiceInfoTooltip() {
+      serviceInfoTooltip.classList.remove("is-visible");
+      _tooltipActiveBtn = null;
+    }
+
+    serviceInfoTooltip.addEventListener("mouseleave", () => hideServiceInfoTooltip());
+
+    document.addEventListener("click", (e) => {
+      const activeContainsTarget = _tooltipActiveBtn && _tooltipActiveBtn.contains(e.target);
+      if (!serviceInfoTooltip.contains(e.target) && !activeContainsTarget) {
+        hideServiceInfoTooltip();
+      }
+    });
 
     // Sync count badges
     function syncServiceCounts() {
@@ -1116,6 +1537,7 @@
 
       pill.addEventListener("dragstart", (event) => {
         if (isMobileServicesLayout()) return;
+        hideServiceInfoTooltip();
         draggedServiceLabel = pill.querySelector("span")?.textContent?.trim() || "";
         draggedServicePill = pill;
         pill.classList.add("services-request-pill-dragging");
@@ -1150,6 +1572,8 @@
 
       pill.addEventListener("click", (event) => {
         if (!event.target.closest(".services-request-plus")) return;
+
+        hideServiceInfoTooltip();
         const label = pill.querySelector("span")?.textContent?.trim() || "";
         const existingEntry = activeDroppedServices.find((service) => service.pill === pill);
 
@@ -1187,12 +1611,44 @@
       updateScrollbar(active);
     }
 
+    function _roundUpWeek(x) {
+      return Math.max(1, Math.ceil(x));
+    }
+
+    function _subscriptionLabel(weeks) {
+      const roundedWeeks = _roundUpWeek(weeks);
+      const unit = roundedWeeks === 1 ? "wk." : "wks.";
+      return `~${roundedWeeks} ${unit} of subscription`;
+    }
+
+    function _calcPlanWeeks() {
+      const totalHours = activeDroppedServices.reduce((sum, entry) => {
+        return sum + (parseInt(entry.pill.dataset.hours, 10) || 0);
+      }, 0);
+      const buffered = totalHours * 1.2;
+      const startupRaw = buffered / 40;
+      return {
+        startup: _roundUpWeek(startupRaw),
+        business: _roundUpWeek(startupRaw / 2),
+        enterprise: _roundUpWeek(startupRaw / 3),
+      };
+    }
+
     function updateDropzonePlanCopy() {
       if (!servicesDropPlanCopy) return;
       const count = activeDroppedServices.length;
       const word = count === 1 ? "That" : "Those";
       const noun = count === 1 ? "service" : "services";
       servicesDropPlanCopy.textContent = `${word} ${count} ${noun} can be provided on a:`;
+
+      const weeks = _calcPlanWeeks();
+      document.querySelectorAll("[data-services-drop-plan]").forEach((planEl) => {
+        const type = planEl.dataset.servicesDropPlan;
+        const meta = planEl.querySelector(".services-drop-plan-meta");
+        if (meta && weeks[type] !== undefined) {
+          meta.textContent = _subscriptionLabel(weeks[type]);
+        }
+      });
     }
 
     function updateMobileCompareState() {
@@ -1202,11 +1658,7 @@
       const hasSelection = count > 0;
       const word = count === 1 ? "That" : "Those";
       const noun = count === 1 ? "service" : "services";
-      const monthMap = {
-        startup: Math.max(1, Math.ceil(count / 2)),
-        business: Math.max(1, Math.ceil(count / 4)),
-        enterprise: Math.max(1, Math.ceil(count / 6)),
-      };
+      const weeks = _calcPlanWeeks();
 
       servicesMobileCompare.classList.toggle("services-mobile-compare-has-selection", hasSelection);
       servicesMobileCompare.classList.toggle("services-mobile-compare-empty", !hasSelection);
@@ -1225,7 +1677,7 @@
         const planType = plan.getAttribute("data-services-mobile-plan");
         const meta = plan.querySelector("[data-services-mobile-plan-meta]");
         if (!planType || !meta) return;
-        meta.textContent = `~${monthMap[planType] || 1} mo. of subscription`;
+        meta.textContent = _subscriptionLabel(weeks[planType] ?? 1);
       });
 
       scheduleMobilePlanSliderState();
@@ -1392,6 +1844,7 @@
       if (activeDroppedServices.some((s) => s.pill === draggedServicePill)) return;
 
       const pill = draggedServicePill;
+      const tooltipDesc = pill.dataset.tooltip || "";
       const mobilePersistent = isMobileServicesLayout();
       const entry = {
         pill,
@@ -1424,7 +1877,26 @@
           `<span></span><span></span>` +
         `</button>`;
 
+      const infoBtn = itemEl.querySelector(".services-drop-info");
+      if (infoBtn && tooltipDesc) {
+        infoBtn.dataset.tooltipName = label;
+        infoBtn.dataset.tooltipDesc = tooltipDesc;
+        infoBtn.addEventListener("mouseenter", () => showServiceInfoTooltip(infoBtn));
+        infoBtn.addEventListener("mouseleave", (e) => {
+          if (!serviceInfoTooltip.contains(e.relatedTarget)) hideServiceInfoTooltip();
+        });
+        infoBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (_tooltipActiveBtn === infoBtn && serviceInfoTooltip.classList.contains("is-visible")) {
+            hideServiceInfoTooltip();
+          } else {
+            showServiceInfoTooltip(infoBtn);
+          }
+        });
+      }
+
       itemEl.querySelector(".services-drop-remove-single").addEventListener("click", () => {
+        hideServiceInfoTooltip();
         removeDroppedService(pill, itemEl);
       });
 
@@ -1607,8 +2079,6 @@
 
   if (quickCallSection) {
     let quickCallPlayed = false;
-    let quickCallFlyoutTimer;
-
     const quickCallObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting || quickCallPlayed) return;
@@ -1616,7 +2086,7 @@
         quickCallPlayed = true;
         quickCallSection.classList.add("quick-call-visible");
 
-        quickCallFlyoutTimer = window.setTimeout(() => {
+        window.setTimeout(() => {
           quickCallSection.classList.add("quick-call-flyout");
         }, 2000);
 
@@ -1774,6 +2244,133 @@
     aboutTrustMobileViewport.addEventListener("change", requestAboutTrustMobileSliderState);
     updateAboutTrustScroll();
     updateAboutTrustMobileSliderState();
+  }
+
+  const showcaseCards = Array.from(document.querySelectorAll(".showcase-card"));
+  const showcaseMobileViewport = window.matchMedia("(max-width: 860px)");
+
+  if (showcaseCards.length) {
+    let showcaseFrame = 0;
+
+    function clearShowcaseMobileActive() {
+      showcaseCards.forEach((card) => {
+        card.classList.remove("is-mobile-active");
+      });
+    }
+
+    function updateShowcaseMobileActive() {
+      showcaseFrame = 0;
+
+      if (!showcaseMobileViewport.matches) {
+        clearShowcaseMobileActive();
+        return;
+      }
+
+      const viewportCenter = window.innerHeight * 0.5;
+      let activeCard = null;
+      let bestDistance = Number.POSITIVE_INFINITY;
+
+      showcaseCards.forEach((card) => {
+        const rect = card.getBoundingClientRect();
+        const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+
+        if (visibleHeight <= 0) return;
+
+        const cardCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(cardCenter - viewportCenter);
+
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          activeCard = card;
+        }
+      });
+
+      showcaseCards.forEach((card) => {
+        card.classList.toggle("is-mobile-active", card === activeCard);
+      });
+    }
+
+    function requestShowcaseMobileActiveUpdate() {
+      if (showcaseFrame) return;
+      showcaseFrame = window.requestAnimationFrame(updateShowcaseMobileActive);
+    }
+
+    window.addEventListener("scroll", requestShowcaseMobileActiveUpdate, { passive: true });
+    window.addEventListener("resize", requestShowcaseMobileActiveUpdate);
+    showcaseMobileViewport.addEventListener("change", requestShowcaseMobileActiveUpdate);
+    updateShowcaseMobileActive();
+  }
+
+  // ---------------------------------------------------------
+  // Mobile CTA tap animation
+  // ---------------------------------------------------------
+  const mqMobileCta = window.matchMedia("(max-width: 880px)");
+  const ctaEls = Array.from(document.querySelectorAll(
+    ".cta-pill, .nav-cta-pill, .mnav-cta, .pricing-summary-cta, .pricing-mobile-summary-cta"
+  ));
+
+  ctaEls.forEach((el) => {
+    el.addEventListener("touchstart", () => {
+      if (!mqMobileCta.matches) return;
+      el.classList.add("is-tapped");
+    }, { passive: true });
+
+    el.addEventListener("touchend", () => {
+      if (!mqMobileCta.matches) return;
+      setTimeout(() => el.classList.remove("is-tapped"), 380);
+    }, { passive: true });
+
+    el.addEventListener("touchcancel", () => {
+      el.classList.remove("is-tapped");
+    }, { passive: true });
+  });
+
+  // ---------------------------------------------------------
+  // Feedback horizontal slide scroll
+  // ---------------------------------------------------------
+  const feedbackSection = document.getElementById("feedback");
+  const feedbackSlidesEl = feedbackSection ? feedbackSection.querySelector(".feedback-slides") : null;
+  const feedbackClientPortraits = feedbackSection
+    ? Array.from(feedbackSection.querySelectorAll(".feedback-reveal-avatar"))
+    : [];
+
+  if (feedbackSection && feedbackSlidesEl) {
+    let fbMaxTranslate = 0;
+
+    function setFeedbackActiveClient(index) {
+      if (!feedbackClientPortraits.length) {
+        return;
+      }
+
+      const activeIndex = index % feedbackClientPortraits.length;
+      feedbackClientPortraits.forEach((portrait, portraitIndex) => {
+        const isActive = portraitIndex === activeIndex;
+        portrait.classList.toggle("is-active", isActive);
+        portrait.style.setProperty("--timer-progress", "0deg");
+      });
+    }
+
+    function setFeedbackHeight() {
+      fbMaxTranslate = Math.max(0, feedbackSlidesEl.scrollWidth - window.innerWidth);
+      feedbackSection.style.height = `${window.innerHeight + fbMaxTranslate}px`;
+    }
+
+    function updateFeedbackScroll() {
+      const sectionRect = feedbackSection.getBoundingClientRect();
+      const sectionTop = sectionRect.top;
+      const totalProgress = Math.max(0, Math.min(-sectionTop, fbMaxTranslate));
+
+      feedbackSlidesEl.style.transform = `translateX(-${totalProgress}px)`;
+    }
+
+    setFeedbackActiveClient(0);
+    setFeedbackHeight();
+    window.addEventListener("resize", () => {
+      setFeedbackHeight();
+      updateFeedbackScroll();
+    });
+    window.addEventListener("scroll", updateFeedbackScroll, { passive: true });
+    updateFeedbackScroll();
   }
 
 })();

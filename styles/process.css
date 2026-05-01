@@ -1362,8 +1362,8 @@
     justify-content: center;
     width: 100%;
     min-height: 0;
-    height: clamp(58px, 14vw, 72px);
-    padding: 0 clamp(20px, 5vw, 24px);
+    height: 56px;
+    padding: 0 68px 0 24px;
     border-radius: 999px;
     background: #000000;
     color: #ffffff;
@@ -1379,7 +1379,7 @@
     line-height: 1;
     color: #ffffff;
     transform: none;
-    padding-right: clamp(42px, 11vw, 52px);
+    padding-right: 0;
   }
 
   .process-cta-title-hover {
@@ -1388,12 +1388,12 @@
 
   .process-cta-arrow {
     position: absolute;
-    right: 8px;
+    right: 7px;
     top: 50%;
     left: auto;
     bottom: auto;
-    width: clamp(44px, 11vw, 52px);
-    height: clamp(44px, 11vw, 52px);
+    width: 42px;
+    height: 42px;
     font-size: clamp(16px, 4vw, 20px);
     background: #ffffff;
     color: #000000;
@@ -1411,10 +1411,10 @@
   .process-card-cta:hover .process-cta-arrow {
     left: auto;
     top: 50%;
-    right: calc(100% - clamp(52px, 13vw, 60px));
+    right: calc(100% - 49px);
     bottom: auto;
-    width: clamp(44px, 11vw, 52px);
-    height: clamp(44px, 11vw, 52px);
+    width: 42px;
+    height: 42px;
     background: #ffffff;
     color: #000000;
     font-size: clamp(16px, 4vw, 20px);

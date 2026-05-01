@@ -15,7 +15,7 @@
 .services-shell {
   background: #141414;
   border-radius: 34px;
-  padding: clamp(74px, 9vw, 90px) clamp(60px, 6vw, 74px);
+  padding: clamp(84px, 9vw, 100px) clamp(60px, 6vw, 74px);
   color: #ffffff;
 }
 
@@ -57,7 +57,7 @@
   background: #202020;
   border-radius: 20px;
   overflow: hidden;
-  height: 642px;
+  height: 740px;
 }
 
 .services-item {
@@ -146,8 +146,8 @@
   flex-direction: column;
   justify-content: flex-start;
   min-height: auto;
-  gap: 20px;
-  padding: 0 0 2px;
+  gap: 24px;
+  padding: 0 0 2px 18px;
 }
 
 @keyframes servicesDrawerReveal {
@@ -289,7 +289,7 @@
 }
 
 .services-dropzone {
-  min-height: 642px;
+  min-height: 740px;
   padding: 22px;
   border-radius: 20px;
   background: #1f1f1f;
@@ -307,7 +307,7 @@
 
 .services-dropzone-inner {
   width: 100%;
-  height: 598px;
+  height: 696px;
   border: 1px dashed rgba(255, 255, 255, 0.22);
   border-radius: 36px;
   position: relative;
@@ -523,8 +523,8 @@
 
 .services-drop-selected-pill {
   min-width: 0;
-  flex: 0 0 40%;
-  width: 40%;
+  flex: 0 0 50%;
+  width: 50%;
   max-width: calc(100% - 58px);
   display: flex;
   align-items: center;
@@ -570,6 +570,7 @@
   color: #f6f6f6;
   font-size: 17px;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .services-drop-info,
@@ -592,6 +593,49 @@
   color: rgba(255, 255, 255, 0.55);
   font-size: 10px;
   line-height: 1;
+  cursor: pointer;
+}
+
+.services-drop-tooltip {
+  position: fixed;
+  width: min(440px, calc(100vw - 16px));
+  background: #1a1a1a;
+  border-radius: 16px;
+  padding: 18px 24px;
+  z-index: 9000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.services-drop-tooltip.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.services-drop-tooltip-name {
+  display: block;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+
+.services-drop-tooltip-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.55;
+  margin: 0 0 12px;
+}
+
+.services-drop-tooltip-note {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.38);
+  font-style: italic;
+  line-height: 1.4;
+  margin: 0;
 }
 
 .services-drop-remove {
@@ -785,7 +829,7 @@
   justify-content: center;
   gap: 10px;
   margin-top: 0;
-  margin-bottom: 40px;
+  margin-bottom: 0;
 }
 
 .services-filter-pill {
@@ -817,7 +861,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 54px;
   min-height: 88px;
   max-width: 1120px;
   margin-inline: auto;
@@ -1226,6 +1270,14 @@
     position: relative;
     z-index: 1;
     text-align: center;
+    overflow: hidden;
+    transform: translateY(0);
+    opacity: 1;
+    transition:
+      min-height 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      padding 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.3s ease,
+      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .services-mobile-compare-prompt-icon {
@@ -1252,6 +1304,22 @@
     background: #131313;
     box-shadow: none;
     min-height: 0;
+    transition:
+      margin-top 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      padding-top 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .services-mobile-compare-has-selection .services-mobile-compare-prompt {
+    min-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    transform: translateY(28px);
+    pointer-events: none;
+  }
+
+  .services-mobile-compare-has-selection .services-mobile-compare-card {
+    margin-top: 0;
   }
 
   .services-mobile-compare-copy {
