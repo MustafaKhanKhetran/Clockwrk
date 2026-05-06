@@ -599,7 +599,7 @@
 .services-drop-tooltip {
   position: fixed;
   width: min(440px, calc(100vw - 16px));
-  background: #1a1a1a;
+  background: #121212;
   border-radius: 16px;
   padding: 18px 24px;
   z-index: 9000;
@@ -735,7 +735,7 @@
 }
 
 .services-drop-compare:hover {
-  background: #111111;
+  background: #121212;
   color: #ffffff;
   transform: translateY(-2px);
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
@@ -765,7 +765,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #111111;
+  background: #121212;
   color: #ffffff;
   font-size: 24px;
   line-height: 1;
@@ -1021,7 +1021,7 @@
     min-width: 0;
     flex: 0 0 auto;
     border-radius: 50%;
-    background: #111111;
+    background: #121212;
     color: #ffffff;
     align-items: center;
     justify-content: center;
@@ -1184,7 +1184,7 @@
     width: 30px;
     height: 3px;
     border-radius: 999px;
-    background: #111111;
+    background: #121212;
     transform: translate(-50%, -50%);
     transition:
       background-color 0.28s ease,
@@ -1458,7 +1458,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #111111;
+    background: #121212;
     color: #ffffff;
     font-size: 26px;
     line-height: 1;

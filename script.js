@@ -2027,8 +2027,8 @@
     ?.closest(".process-card");
 
   if (discoveryCard) {
-    const ANIM_DURATION = 1600; // ms — covers full forward animation (ring 0.45+0.65s + checkmark 1.1+0.45s = ~1.55s)
-    const HOLD_AFTER_COMPLETE_MS = 500;
+    const ANIM_DURATION = 1100; // ms — covers full forward animation (ring 0.35+0.45s + checkmark 0.8+0.3s = ~1.1s)
+    const HOLD_AFTER_COMPLETE_MS = 0;
     let rewindTimer;
     let hasPlayedInView = false;
 
@@ -2330,47 +2330,453 @@
   // ---------------------------------------------------------
   const feedbackSection = document.getElementById("feedback");
   const feedbackSlidesEl = feedbackSection ? feedbackSection.querySelector(".feedback-slides") : null;
+  const feedbackFinalSlide = feedbackSection
+    ? feedbackSection.querySelector(".feedback-slide-final")
+    : null;
+  const feedbackFinalConnector = feedbackSection
+    ? feedbackSection.querySelector(".feedback-connector-final")
+    : null;
   const feedbackClientPortraits = feedbackSection
-    ? Array.from(feedbackSection.querySelectorAll(".feedback-reveal-avatar"))
+    ? Array.from(feedbackSection.querySelectorAll(".feedback-block-circle"))
     : [];
+  const feedbackClientQuote = feedbackSection
+    ? feedbackSection.querySelector(".feedback-block-client-quote")
+    : null;
+  const feedbackClientName = feedbackSection
+    ? feedbackSection.querySelector(".feedback-block-client-name")
+    : null;
+  const feedbackClientRole = feedbackSection
+    ? feedbackSection.querySelector(".feedback-block-client-role")
+    : null;
+  const feedbackClientBlock = feedbackSection
+    ? feedbackSection.querySelector(".feedback-block-client")
+    : null;
+  const feedbackMobilePortraits = feedbackSection
+    ? Array.from(feedbackSection.querySelectorAll(".feedback-mobile-avatar"))
+    : [];
+  const feedbackMobileQuote = feedbackSection
+    ? feedbackSection.querySelector(".feedback-mobile-quote")
+    : null;
+  const feedbackMobileName = feedbackSection
+    ? feedbackSection.querySelector(".feedback-mobile-name")
+    : null;
+  const feedbackMobileRole = feedbackSection
+    ? feedbackSection.querySelector(".feedback-mobile-role")
+    : null;
+  const feedbackMobileCopy = feedbackSection
+    ? feedbackSection.querySelector(".feedback-mobile-copy")
+    : null;
+  const feedbackMobileCard = feedbackSection
+    ? feedbackSection.querySelector(".feedback-mobile-testimonial-card")
+    : null;
+  const feedbackClientTestimonials = [
+    {
+      quote: "Clockwrk built out both our finance app and web platform, and honestly, the whole experience was smooth from start to finish. The UI feels clean and intuitive, and everything just works the way it should. They understood what we needed without us having to over-explain - which made a big difference.",
+      name: "Saadulev Khan",
+      role: "",
+    },
+    {
+      quote: "Clockwrk really understood what we were trying to build with Lagom from day one. They translated our vision into a brand and website that felt right immediately. The team is sharp, quick to respond, and easy to collaborate with. I'd definitely work with them again.",
+      name: "Moaz Khan Tareen",
+      role: "Principal Architect, Lagom Studio",
+    },
+    {
+      quote: "Working with Clockwrk on our ecommerce store was a great experience. They handled everything end-to-end and made the process feel straightforward, which isn't always the case with projects like this. The final result looks great and performs even better than we expected.",
+      name: "Zuraiz Sohal",
+      role: "COO @ Kanzo",
+    },
+    {
+      quote: "We needed a proper upgrade, and Clockwrk delivered exactly that. The new website feels modern, clean, and much more aligned with where our business is today. They worked efficiently without cutting corners, which we really appreciated.",
+      name: "Mahad Saud",
+      role: "CEO @ Three Star Mills",
+    },
+    {
+      quote: "Building a full ERP system is complex, but Clockwrk approached it with a lot of clarity and structure. From frontend to backend, everything was well thought out and executed properly. You can tell they take their work seriously - one of the more reliable and capable teams I've worked with.",
+      name: "Umer Sarwar Lodhi",
+      role: "Founder @ SPP",
+    },
+  ];
 
   if (feedbackSection && feedbackSlidesEl) {
+    const feedbackDesktopViewport = window.matchMedia("(min-width: 861px)");
+    const feedbackMobileViewport = window.matchMedia("(max-width: 860px)");
     let fbMaxTranslate = 0;
+    let feedbackRevealScrollDistance = 0;
+    let feedbackEdgeFadeScrollDistance = 0;
+    let feedbackRevealStartScrollY = null;
+    let feedbackTimerRaf = null;
+    let feedbackTimerStartedAt = 0;
+    let feedbackActiveClient = 0;
+    let feedbackRenderedClient = -1;
+    let feedbackCopyFadeTimer = null;
+    const feedbackClientDuration = 6500;
+    const feedbackTimerStartThreshold = 0.45;
+    const feedbackCopyFadeDuration = 260;
+    const feedbackHeightTransitionDuration = 320;
+
+    function renderFeedbackClient(index, shouldFade = true) {
+      const activeTestimonial = feedbackClientTestimonials[index];
+      if (!activeTestimonial || index === feedbackRenderedClient) {
+        return;
+      }
+
+      if (feedbackCopyFadeTimer) {
+        clearTimeout(feedbackCopyFadeTimer);
+        feedbackCopyFadeTimer = null;
+      }
+
+      const updateDesktopCopy = () => {
+        if (feedbackClientQuote) feedbackClientQuote.textContent = activeTestimonial.quote;
+        if (feedbackClientName) feedbackClientName.textContent = activeTestimonial.name;
+        if (feedbackClientRole) feedbackClientRole.textContent = activeTestimonial.role;
+        feedbackClientBlock?.classList.remove("is-fading");
+      };
+
+      const updateMobileCopy = () => {
+        if (feedbackMobileQuote) feedbackMobileQuote.textContent = activeTestimonial.quote;
+        if (feedbackMobileName) feedbackMobileName.textContent = activeTestimonial.name;
+        if (feedbackMobileRole) feedbackMobileRole.textContent = activeTestimonial.role;
+      };
+
+      if (!shouldFade || (!feedbackClientBlock && !feedbackMobileCopy)) {
+        updateDesktopCopy();
+        updateMobileCopy();
+        feedbackRenderedClient = index;
+        return;
+      }
+
+      if (feedbackClientBlock) {
+        feedbackClientBlock.classList.add("is-fading");
+      }
+
+      if (feedbackMobileCopy && feedbackMobileViewport.matches) {
+        if (feedbackMobileCard) {
+          feedbackMobileCard.style.height = `${feedbackMobileCard.offsetHeight}px`;
+        }
+
+        feedbackMobileCopy.classList.add("is-fading");
+        feedbackCopyFadeTimer = setTimeout(() => {
+          updateMobileCopy();
+          if (feedbackMobileCard) {
+            feedbackMobileCard.style.height = `${feedbackMobileCard.scrollHeight}px`;
+          }
+
+          requestAnimationFrame(() => {
+            feedbackMobileCopy.classList.remove("is-fading");
+          });
+
+          feedbackCopyFadeTimer = setTimeout(() => {
+            if (feedbackMobileCard) {
+              feedbackMobileCard.style.height = "";
+            }
+            updateDesktopCopy();
+            feedbackRenderedClient = index;
+            feedbackCopyFadeTimer = null;
+          }, feedbackHeightTransitionDuration);
+        }, feedbackCopyFadeDuration);
+        return;
+      }
+
+      feedbackCopyFadeTimer = setTimeout(() => {
+        updateDesktopCopy();
+        feedbackRenderedClient = index;
+        feedbackCopyFadeTimer = null;
+      }, feedbackCopyFadeDuration);
+    }
 
     function setFeedbackActiveClient(index) {
       if (!feedbackClientPortraits.length) {
         return;
       }
 
-      const activeIndex = index % feedbackClientPortraits.length;
+      feedbackActiveClient = index % feedbackClientPortraits.length;
       feedbackClientPortraits.forEach((portrait, portraitIndex) => {
-        const isActive = portraitIndex === activeIndex;
+        const isActive = portraitIndex === feedbackActiveClient;
         portrait.classList.toggle("is-active", isActive);
         portrait.style.setProperty("--timer-progress", "0deg");
       });
+      feedbackMobilePortraits.forEach((portrait, portraitIndex) => {
+        const isActive = portraitIndex === feedbackActiveClient;
+        portrait.classList.toggle("is-active", isActive);
+        portrait.style.setProperty("--timer-progress", "0deg");
+      });
+
+      renderFeedbackClient(feedbackActiveClient, feedbackRenderedClient !== -1);
+    }
+
+    function stopFeedbackClientTimer() {
+      if (feedbackTimerRaf) {
+        cancelAnimationFrame(feedbackTimerRaf);
+        feedbackTimerRaf = null;
+      }
+      feedbackTimerStartedAt = 0;
+      setFeedbackActiveClient(0);
+    }
+
+    function runFeedbackClientTimer(now) {
+      if (!feedbackTimerStartedAt) {
+        feedbackTimerStartedAt = now;
+      }
+
+      const elapsed = now - feedbackTimerStartedAt;
+      const progress = Math.min(elapsed / feedbackClientDuration, 1);
+      const activePortrait = feedbackClientPortraits[feedbackActiveClient];
+      const activeMobilePortrait = feedbackMobilePortraits[feedbackActiveClient];
+
+      if (activePortrait) {
+        activePortrait.style.setProperty(
+          "--timer-progress",
+          `${Math.round(progress * 360)}deg`
+        );
+      }
+      if (activeMobilePortrait) {
+        activeMobilePortrait.style.setProperty(
+          "--timer-progress",
+          `${Math.round(progress * 360)}deg`
+        );
+      }
+
+      if (progress >= 1) {
+        feedbackTimerStartedAt = now;
+        setFeedbackActiveClient(feedbackActiveClient + 1);
+      }
+
+      feedbackTimerRaf = requestAnimationFrame(runFeedbackClientTimer);
+    }
+
+    function startFeedbackClientTimer() {
+      if (!feedbackClientPortraits.length || feedbackTimerRaf) {
+        return;
+      }
+
+      setFeedbackActiveClient(feedbackActiveClient);
+      feedbackTimerRaf = requestAnimationFrame(runFeedbackClientTimer);
+    }
+
+    function updateFeedbackCurtain(progress) {
+      if (!feedbackFinalSlide || !feedbackClientPortraits.length) {
+        return;
+      }
+
+      feedbackFinalSlide.classList.toggle("is-curtain-closed", progress <= 0);
+      const dashFadeProgress = Math.max(0, Math.min((progress - 0.45) / 0.15, 1));
+      feedbackFinalSlide.style.setProperty(
+        "--feedback-final-dash-opacity",
+        `${1 - dashFadeProgress}`
+      );
+      if (feedbackFinalConnector) {
+        feedbackFinalConnector.style.opacity = `${1 - dashFadeProgress}`;
+      }
+
+      const firstPortrait = feedbackClientPortraits[0];
+      if (!firstPortrait) {
+        return;
+      }
+
+      const screenRect = feedbackFinalSlide.getBoundingClientRect();
+      const firstPortraitRect = firstPortrait.getBoundingClientRect();
+      const curtainX = firstPortraitRect.left + (firstPortraitRect.width / 2) - screenRect.left;
+      const curtainY = firstPortraitRect.top + (firstPortraitRect.height / 2) - screenRect.top;
+      const maxRadius = Math.max(
+        Math.hypot(curtainX, curtainY),
+        Math.hypot(screenRect.width - curtainX, curtainY),
+        Math.hypot(curtainX, screenRect.height - curtainY),
+        Math.hypot(screenRect.width - curtainX, screenRect.height - curtainY)
+      ) + 24;
+
+      feedbackFinalSlide.style.setProperty("--feedback-curtain-x", `${curtainX}px`);
+      feedbackFinalSlide.style.setProperty("--feedback-curtain-y", `${curtainY}px`);
+      feedbackFinalSlide.style.setProperty(
+        "--feedback-curtain-radius",
+        `${Math.max(0, progress) * maxRadius}px`
+      );
     }
 
     function setFeedbackHeight() {
-      fbMaxTranslate = Math.max(0, feedbackSlidesEl.scrollWidth - window.innerWidth);
-      feedbackSection.style.height = `${window.innerHeight + fbMaxTranslate}px`;
+      if (!feedbackDesktopViewport.matches) {
+        fbMaxTranslate = 0;
+        feedbackRevealScrollDistance = 0;
+        feedbackEdgeFadeScrollDistance = 0;
+        feedbackSection.style.removeProperty("height");
+        feedbackSlidesEl.style.removeProperty("transform");
+        return;
+      }
+
+      fbMaxTranslate = feedbackFinalSlide
+        ? Math.max(
+          0,
+          feedbackFinalSlide.offsetLeft + feedbackFinalSlide.offsetWidth - window.innerWidth
+        )
+        : Math.max(0, feedbackSlidesEl.scrollWidth - window.innerWidth);
+      feedbackRevealScrollDistance = Math.max(window.innerHeight * 0.9, 720);
+      feedbackEdgeFadeScrollDistance = Math.max(window.innerHeight * 0.35, 280);
+      feedbackSection.style.height = `${
+        window.innerHeight +
+        fbMaxTranslate +
+        feedbackRevealScrollDistance +
+        feedbackEdgeFadeScrollDistance
+      }px`;
     }
 
     function updateFeedbackScroll() {
+      if (!feedbackDesktopViewport.matches) {
+        return;
+      }
+
       const sectionRect = feedbackSection.getBoundingClientRect();
       const sectionTop = sectionRect.top;
-      const totalProgress = Math.max(0, Math.min(-sectionTop, fbMaxTranslate));
+      const totalScrollableProgress = Math.max(
+        0,
+        Math.min(
+          -sectionTop,
+          fbMaxTranslate + feedbackRevealScrollDistance + feedbackEdgeFadeScrollDistance
+        )
+      );
+      const totalProgress = Math.min(totalScrollableProgress, fbMaxTranslate);
+      const hasReachedFinalSlide = totalScrollableProgress >= fbMaxTranslate;
+      if (!hasReachedFinalSlide) {
+        feedbackRevealStartScrollY = null;
+      } else if (feedbackRevealStartScrollY === null) {
+        feedbackRevealStartScrollY = window.scrollY;
+      }
+      const finalSlideRect = feedbackFinalSlide
+        ? feedbackFinalSlide.getBoundingClientRect()
+        : null;
+      const finalRevealProgress = feedbackRevealScrollDistance && feedbackRevealStartScrollY !== null
+        ? Math.max(
+          0,
+          Math.min(
+            (window.scrollY - feedbackRevealStartScrollY) / feedbackRevealScrollDistance,
+            1
+          )
+        )
+        : 0;
+      const finalEdgeFadeProgress = feedbackEdgeFadeScrollDistance && feedbackRevealStartScrollY !== null
+        ? Math.max(
+          0,
+          Math.min(
+            (window.scrollY - feedbackRevealStartScrollY - feedbackRevealScrollDistance) /
+              feedbackEdgeFadeScrollDistance,
+            1
+          )
+        )
+        : 0;
+      const isFinalSlideVisible = finalSlideRect
+        ? finalSlideRect.left < window.innerWidth && finalSlideRect.right > 0
+        : false;
 
       feedbackSlidesEl.style.transform = `translateX(-${totalProgress}px)`;
+      updateFeedbackCurtain(finalRevealProgress);
+      if (feedbackFinalSlide) {
+        const edgeColor = Math.round(18 + (237 * finalEdgeFadeProgress));
+        feedbackFinalSlide.style.backgroundColor = `rgb(${edgeColor}, ${edgeColor}, ${edgeColor})`;
+      }
+
+      if (isFinalSlideVisible && finalRevealProgress >= feedbackTimerStartThreshold) {
+        startFeedbackClientTimer();
+      } else {
+        stopFeedbackClientTimer();
+      }
+    }
+
+    function updateFeedbackMobileTimer() {
+      if (!feedbackMobileViewport.matches) {
+        return;
+      }
+
+      const sectionRect = feedbackSection.getBoundingClientRect();
+      const isVisible = sectionRect.top < window.innerHeight && sectionRect.bottom > 0;
+      if (isVisible) {
+        startFeedbackClientTimer();
+      } else {
+        stopFeedbackClientTimer();
+      }
     }
 
     setFeedbackActiveClient(0);
+    feedbackMobilePortraits.forEach((portrait, index) => {
+      portrait.addEventListener("click", () => {
+        feedbackTimerStartedAt = 0;
+        setFeedbackActiveClient(index);
+      });
+    });
     setFeedbackHeight();
     window.addEventListener("resize", () => {
+      feedbackRevealStartScrollY = null;
       setFeedbackHeight();
       updateFeedbackScroll();
+      updateFeedbackMobileTimer();
     });
-    window.addEventListener("scroll", updateFeedbackScroll, { passive: true });
+    feedbackDesktopViewport.addEventListener("change", () => {
+      feedbackRevealStartScrollY = null;
+      stopFeedbackClientTimer();
+      setFeedbackHeight();
+      updateFeedbackScroll();
+      updateFeedbackMobileTimer();
+    });
+    feedbackMobileViewport.addEventListener("change", updateFeedbackMobileTimer);
+    window.addEventListener("scroll", () => {
+      updateFeedbackScroll();
+      updateFeedbackMobileTimer();
+    }, { passive: true });
     updateFeedbackScroll();
+    updateFeedbackMobileTimer();
+  }
+
+  // ── Cheatcode call card: discovery animation ────────────────
+  const cheatcodeCallCard = document.querySelector(".cheatcode-card-call");
+  if (cheatcodeCallCard) {
+    const CALL_ANIM_DURATION = 1100;
+    const CALL_HOLD_MS = 0;
+    let callRewindTimer;
+
+    function scheduleCallRewind() {
+      clearTimeout(callRewindTimer);
+      callRewindTimer = setTimeout(() => {
+        cheatcodeCallCard.classList.remove("discovery-active");
+      }, CALL_ANIM_DURATION + CALL_HOLD_MS);
+    }
+
+    function triggerCallAnimation() {
+      cheatcodeCallCard.classList.add("discovery-active");
+      scheduleCallRewind();
+    }
+
+    cheatcodeCallCard.addEventListener("mouseenter", () => {
+      if (mqProcessViewport.matches) return;
+      triggerCallAnimation();
+    });
+
+    cheatcodeCallCard.addEventListener("mouseleave", () => {
+      if (mqProcessViewport.matches) return;
+      scheduleCallRewind();
+    });
+  }
+
+  // ── Cheatcode plan card carousel ────────────────────────────
+  const cheatcodePlanCard = document.querySelector(".cheatcode-card-plan");
+  if (cheatcodePlanCard) {
+    let cycleState = 0;
+    let cycleTimer = null;
+
+    function advanceCycle() {
+      cycleState = (cycleState + 1) % 3;
+      if (cycleState === 0) {
+        cheatcodePlanCard.removeAttribute("data-cycle");
+      } else {
+        cheatcodePlanCard.dataset.cycle = String(cycleState);
+      }
+    }
+
+    cheatcodePlanCard.addEventListener("mouseenter", () => {
+      advanceCycle();
+      cycleTimer = setInterval(advanceCycle, 650);
+    });
+
+    cheatcodePlanCard.addEventListener("mouseleave", () => {
+      clearInterval(cycleTimer);
+      cycleTimer = null;
+    });
   }
 
 })();

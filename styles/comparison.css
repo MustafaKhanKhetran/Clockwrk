@@ -201,7 +201,7 @@
 }
 
 .highlight-cell {
-  background: #0b0b0c;
+  background: #121212;
   color: #ffffff;
   font-weight: 500;
   position: relative;
@@ -212,7 +212,7 @@
 
 /* First highlight cell (header) - rounded top */
 .table-header .highlight-cell {
-  background: #0b0b0c;
+  background: #121212;
   color: #a0e92a;
   font-size: clamp(22px, 2.8vw, 30px);
   font-weight: 400;
@@ -797,7 +797,7 @@
 
   /* ---- Data cells (black) ---- */
   .mob-td-data {
-    background: #0b0b0c;
+    background: #121212;
     color: #ffffff;
     font-size: 14px;
     font-weight: 400;

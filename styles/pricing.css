@@ -388,7 +388,7 @@
   width: min(360px, calc(100vw - 32px));
   padding: 16px 20px;
   border-radius: 16px;
-  background: #1a1a1a;
+  background: #121212;
   color: rgba(255, 255, 255, 0.82);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   font-size: 14px;
@@ -485,7 +485,7 @@
 
 .pricing-addon-action button.is-added::before,
 .pricing-addon-action button.is-added::after {
-  background: #111111;
+  background: #121212;
 }
 
 .pricing-addon-action button.is-added::after {
@@ -619,7 +619,7 @@
 }
 
 .pricing-summary-cta:hover {
-  background: #000000;
+  background: #121212;
   color: #ffffff;
   transform: translateY(-2px);
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
@@ -646,7 +646,7 @@
   width: 54px;
   height: 54px;
   border-radius: 999px;
-  background: #111111;
+  background: #121212;
   color: #ffffff;
   display: grid;
   place-items: center;
@@ -1098,12 +1098,12 @@
   }
 
   .pricing-mobile-summary-cta:hover {
-    background: #000000;
+    background: #121212;
     color: #ffffff;
   }
 
   .pricing-mobile-summary-cta .pricing-summary-cta-icon {
-    background: #111111;
+    background: #121212;
     color: #ffffff;
   }
 
@@ -1231,13 +1231,13 @@
   .pricing-summary-cta:hover .pricing-summary-cta-icon,
   .pricing-mobile-summary-cta:hover .pricing-summary-cta-icon {
     right: 12px;
-    background: #111111;
+    background: #121212;
     color: #ffffff;
   }
 
   .pricing-summary-cta.is-tapped,
   .pricing-mobile-summary-cta.is-tapped {
-    background: #000000;
+    background: #121212;
     color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);

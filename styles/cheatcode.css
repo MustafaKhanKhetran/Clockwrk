@@ -1,0 +1,373 @@
+.cheatcode-section {
+  background: #ffffff;
+  color: #101012;
+  min-height: 100vh;
+  padding: clamp(150px, 13vh, 190px) 20px clamp(76px, 9vh, 120px);
+}
+
+.cheatcode-shell {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.cheatcode-copy h2 {
+  margin: 0 auto;
+  color: #101012;
+  font-size: clamp(56px, 4.6vw, 86px);
+  line-height: 1.09;
+  font-weight: 500;
+  letter-spacing: -1.4px;
+}
+
+.cheatcode-copy h2 span {
+  color: #a0e92a;
+}
+
+.cheatcode-mobile-title {
+  display: none;
+}
+
+.cheatcode-mobile-subtitle {
+  display: none;
+}
+
+.cheatcode-copy p {
+  margin: clamp(26px, 3.2vh, 36px) 0 0;
+  color: #626264;
+  font-size: clamp(21px, 1.8vw, 32px);
+  line-height: 1.12;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+}
+
+.cheatcode-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  width: min(840px, 100%);
+  margin: clamp(118px, 13vh, 150px) auto 0;
+}
+
+.cheatcode-card {
+  min-width: 0;
+  height: 360px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #f4f4f2;
+  display: grid;
+  grid-template-rows: 1fr 102px;
+  text-align: left;
+}
+
+.cheatcode-card-visual {
+  position: relative;
+  background: #f5f5f4;
+  min-height: 0;
+}
+
+.cheatcode-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  color: #101012;
+  background: #e9e9e7;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.cheatcode-card-plan .cheatcode-card-bottom {
+  background: #a0e92a;
+}
+
+.cheatcode-card-plan .cheatcode-card-bottom i,
+.cheatcode-card-plan .cheatcode-card-bottom > svg {
+  background: #101012;
+  color: #ffffff;
+}
+
+.cheatcode-card-call .cheatcode-card-bottom i,
+.cheatcode-card-call .cheatcode-card-bottom > svg {
+  background: #ffffff;
+  color: #101012;
+}
+
+.cheatcode-card-bottom span {
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.7px;
+}
+
+.cheatcode-card-bottom i,
+.cheatcode-card-bottom > svg {
+  width: 50px;
+  height: 50px;
+  padding: 13px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: #101012;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.cheatcode-card-plan:hover .cheatcode-card-bottom,
+.cheatcode-card-call:hover .cheatcode-card-bottom {
+  background: #101012;
+  color: #ffffff;
+}
+
+.cheatcode-card-plan:hover .cheatcode-card-bottom i,
+.cheatcode-card-call:hover .cheatcode-card-bottom i,
+.cheatcode-card-plan:hover .cheatcode-card-bottom > svg,
+.cheatcode-card-call:hover .cheatcode-card-bottom > svg {
+  background: #ffffff;
+  color: #101012;
+}
+
+.cheatcode-card-bottom svg {
+  stroke-width: 1.75;
+}
+
+.cheatcode-plan-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cheatcode-plan-stack {
+  position: absolute;
+  width: 104px;
+  height: 148px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  opacity: 0.48;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.cheatcode-plan-stack span {
+  margin-bottom: 14px;
+  color: #6b6b6c;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.cheatcode-plan-stack i {
+  width: 100%;
+  height: 5px;
+  margin-bottom: 7px;
+  border-radius: 999px;
+  background: #eeeeed;
+}
+
+.cheatcode-plan-stack b {
+  margin-top: auto;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #eeeeed;
+  color: rgba(16, 16, 18, 0.32);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.cheatcode-plan-stack-left {
+  transform: translate(-76px, 8px);
+}
+
+.cheatcode-plan-stack-right {
+  transform: translate(76px, 8px);
+}
+
+.cheatcode-plan-stack-main {
+  z-index: 2;
+  width: 118px;
+  height: 174px;
+  border-radius: 10px;
+  background: #ffffff;
+  opacity: 1;
+  padding: 20px 16px;
+  box-shadow: 0 16px 32px rgba(16, 16, 18, 0.05);
+}
+
+.cheatcode-plan-stack-main span {
+  color: #101012;
+  font-size: 16px;
+}
+
+.cheatcode-plan-stack-main i {
+  height: 6px;
+  background: #f1f1f0;
+}
+
+.cheatcode-plan-stack-main b {
+  align-self: center;
+  background: #a0e92a;
+  color: #101012;
+  font-size: 13px;
+  padding: 9px 14px;
+}
+
+.cheatcode-call-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.cheatcode-note {
+  margin: clamp(72px, 8.5vh, 96px) auto 0;
+  max-width: 730px;
+  color: #4e4e4e;
+  font-size: clamp(20px, 1.1vw, 22px);
+  line-height: 1.24;
+  font-weight: 400;
+  letter-spacing: -0.2px;
+}
+
+/* ─── Plan card: carousel rotation (JS-driven via data-cycle) ── */
+
+/* Transitions for smooth movement between states */
+.cheatcode-plan-stack {
+  transition: transform 0.32s ease, opacity 0.32s ease, background 0.32s ease, box-shadow 0.32s ease;
+}
+
+.cheatcode-plan-stack span {
+  transition: color 0.32s ease;
+}
+
+.cheatcode-plan-stack i {
+  transition: background 0.32s ease;
+}
+
+.cheatcode-plan-stack b {
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* State 1: left (Startup) at center */
+.cheatcode-card-plan[data-cycle="1"] .cheatcode-plan-stack-left {
+  transform: translate(0, 0) scale(1.135);
+  opacity: 1;
+  z-index: 3;
+  background: #ffffff;
+  box-shadow: 0 16px 32px rgba(16, 16, 18, 0.05);
+}
+.cheatcode-card-plan[data-cycle="1"] .cheatcode-plan-stack-left span {
+  color: #101012;
+}
+.cheatcode-card-plan[data-cycle="1"] .cheatcode-plan-stack-left i {
+  background: #f1f1f0;
+}
+.cheatcode-card-plan[data-cycle="1"] .cheatcode-plan-stack-main {
+  transform: translate(76px, 8px) scale(0.88);
+  opacity: 0.48;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: none;
+}
+.cheatcode-card-plan[data-cycle="1"] .cheatcode-plan-stack-main span {
+  color: #6b6b6c;
+}
+.cheatcode-card-plan[data-cycle="1"] .cheatcode-plan-stack-main i {
+  background: #eeeeed;
+}
+.cheatcode-card-plan[data-cycle="1"] .cheatcode-plan-stack-right {
+  transform: translate(-76px, 8px) scale(1);
+  opacity: 0.48;
+  z-index: 1;
+}
+.cheatcode-card-plan[data-cycle="1"] .cheatcode-plan-stack-left b {
+  background: #a0e92a;
+  color: #101012;
+}
+.cheatcode-card-plan[data-cycle="1"] .cheatcode-plan-stack-main b {
+  background: #eeeeed;
+  color: rgba(16, 16, 18, 0.32);
+}
+
+/* State 2: right (Business) at center */
+.cheatcode-card-plan[data-cycle="2"] .cheatcode-plan-stack-right {
+  transform: translate(0, 0) scale(1.135);
+  opacity: 1;
+  z-index: 3;
+  background: #ffffff;
+  box-shadow: 0 16px 32px rgba(16, 16, 18, 0.05);
+}
+.cheatcode-card-plan[data-cycle="2"] .cheatcode-plan-stack-right span {
+  color: #101012;
+}
+.cheatcode-card-plan[data-cycle="2"] .cheatcode-plan-stack-right i {
+  background: #f1f1f0;
+}
+.cheatcode-card-plan[data-cycle="2"] .cheatcode-plan-stack-main {
+  transform: translate(-76px, 8px) scale(0.88);
+  opacity: 0.48;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: none;
+}
+.cheatcode-card-plan[data-cycle="2"] .cheatcode-plan-stack-main span {
+  color: #6b6b6c;
+}
+.cheatcode-card-plan[data-cycle="2"] .cheatcode-plan-stack-main i {
+  background: #eeeeed;
+}
+.cheatcode-card-plan[data-cycle="2"] .cheatcode-plan-stack-left {
+  transform: translate(76px, 8px) scale(1);
+  opacity: 0.48;
+  z-index: 1;
+}
+.cheatcode-card-plan[data-cycle="2"] .cheatcode-plan-stack-right b {
+  background: #a0e92a;
+  color: #101012;
+}
+.cheatcode-card-plan[data-cycle="2"] .cheatcode-plan-stack-main b {
+  background: #eeeeed;
+  color: rgba(16, 16, 18, 0.32);
+}
+
+
+@media (max-width: 900px) {
+  .cheatcode-section {
+    padding: 72px 16px 72px;
+  }
+
+  .cheatcode-copy h2 {
+    font-size: clamp(42px, 10.8vw, 64px);
+  }
+
+  .cheatcode-copy h2:not(.cheatcode-mobile-title) {
+    display: none;
+  }
+
+  .cheatcode-copy .cheatcode-mobile-title {
+    display: block;
+  }
+
+  .cheatcode-copy p:not(.cheatcode-mobile-subtitle) {
+    display: none;
+  }
+
+  .cheatcode-copy .cheatcode-mobile-subtitle {
+    display: block;
+    font-size: 22px;
+  }
+
+  .cheatcode-actions {
+    grid-template-columns: 1fr;
+    width: min(430px, 100%);
+    margin-top: 80px;
+  }
+
+  .cheatcode-card {
+    height: 340px;
+  }
+}

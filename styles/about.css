@@ -82,6 +82,14 @@
   z-index: 1;
 }
 
+.about-icon-bubble img {
+  width: clamp(34px, 3.7vw, 44px);
+  height: clamp(34px, 3.7vw, 44px);
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
 .about-copy {
   max-width: 1180px;
   text-align: center;
@@ -327,7 +335,7 @@
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
-  background: #101010;
+  background: #121212;
   color: #ffffff;
   text-decoration: none;
   font-size: 21px;
@@ -348,14 +356,14 @@
 }
 
 .about-trust-cta:hover {
-  background: #a0e92a;
+  background: #ffffff;
   color: #111111;
   transform: translateY(-2px);
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
 }
 
 .about-trust-cta:hover > span:first-child {
-  transform: translateX(28px);
+  transform: translateX(40px);
 }
 
 .about-trust-cta-icon {
@@ -378,6 +386,8 @@
 
 .about-trust-cta:hover .about-trust-cta-icon {
   right: calc(100% - 61px);
+  background: #a0e92a;
+  color: #111111;
 }
 
 .about-trust-cta-icon svg {
@@ -488,7 +498,7 @@
 }
 
 .about-trust-system-node-dark {
-  background: #111111;
+  background: #121212;
   color: #a0e92a;
 }
 
@@ -580,7 +590,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .about-strength-card:hover {
-    background: #111111;
+    background: #121212;
     color: #ffffff;
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.16);
     transform: translateY(-8px);
@@ -621,6 +631,11 @@
   .about-icon-bubble svg {
     width: clamp(31px, 7.8vw, 38px);
     height: clamp(31px, 7.8vw, 38px);
+  }
+
+  .about-icon-bubble img {
+    width: clamp(30px, 7.6vw, 37px);
+    height: clamp(30px, 7.6vw, 37px);
   }
 
   .about-title {
@@ -729,7 +744,7 @@
   }
 
   .about-strength-card.is-mobile-active {
-    background: #111111;
+    background: #121212;
     color: #ffffff;
     overflow: visible;
   }
