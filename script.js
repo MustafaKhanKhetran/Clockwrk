@@ -10,12 +10,16 @@
   // 1) Smooth Scroll + Active Link Tracking
   // ---------------------------------------------------------
   const links = Array.from(document.querySelectorAll(".nav-link"));
-  const sections = links
+  const hashLinks = links.filter((a) => {
+    const href = a.getAttribute("href") || "";
+    return href.startsWith("#");
+  });
+  const sections = hashLinks
     .map((a) => document.querySelector(a.getAttribute("href")))
     .filter(Boolean);
 
   // Smooth scroll on link click
-  links.forEach((link) => {
+  hashLinks.forEach((link) => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
       const targetId = link.getAttribute("href");
@@ -32,6 +36,17 @@
         if (history.replaceState) {
           history.replaceState(null, "", targetId);
         }
+      }
+    });
+  });
+
+  document.querySelectorAll('.site-footer-top[href="#top"]').forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      if (history.replaceState) {
+        history.replaceState(null, "", window.location.pathname);
       }
     });
   });
@@ -101,23 +116,22 @@
       if (!mqMobile.matches && !isScrolledPastLogo) navPill.classList.remove("is-expanded");
     });
 
+    const setScrollExpandedState = (shouldExpand) => {
+      isScrolledPastLogo = shouldExpand;
+      if (!mqMobile.matches) {
+        navPill.classList.toggle("is-expanded", shouldExpand);
+      }
+    };
+
     // Auto-expand navbar when scrolled past logo (Desktop only)
     if (logoStage) {
       const logoObserver = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
-              // User scrolled past the logo - expand navbar
-              isScrolledPastLogo = true;
-              if (!mqMobile.matches) {
-                navPill.classList.add("is-expanded");
-              }
+              setScrollExpandedState(true);
             } else if (entry.isIntersecting) {
-              // Logo is visible again - collapse navbar
-              isScrolledPastLogo = false;
-              if (!mqMobile.matches) {
-                navPill.classList.remove("is-expanded");
-              }
+              setScrollExpandedState(false);
             }
           });
         },
@@ -129,6 +143,13 @@
       );
 
       logoObserver.observe(logoStage);
+    } else {
+      const updateNavScrollState = () => {
+        setScrollExpandedState(window.scrollY > 24);
+      };
+
+      updateNavScrollState();
+      window.addEventListener("scroll", updateNavScrollState, { passive: true });
     }
   }
 
@@ -263,7 +284,7 @@
   window.addEventListener(
     "scroll",
     () => {
-      const currentScroll = window.pageYOffset;
+      const currentScroll = window.scrollY;
 
       if (navPill) {
         if (currentScroll > 100) {
@@ -312,7 +333,9 @@
     const planCards = Array.from(
       pricingShell.querySelectorAll("[data-pricing-plan]")
     );
+    const pricingSummary = pricingShell.querySelector(".pricing-summary");
     const summaryTotals = Array.from(pricingShell.querySelectorAll("[data-pricing-summary-total]"));
+    const proceedButtons = Array.from(pricingShell.querySelectorAll("[data-plan]"));
 
     let activeBilling = "weekly";
     let isFirstSync = true;
@@ -443,6 +466,12 @@
         });
       }
 
+      proceedButtons.forEach((button) => {
+        if (activePlan?.dataset.pricingPlan) {
+          button.dataset.plan = activePlan.dataset.pricingPlan;
+        }
+      });
+
       isFirstSync = false;
     }
 
@@ -456,6 +485,7 @@
     addonButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         const isAdded = btn.classList.toggle("is-added");
+        btn.classList.toggle("is-active", isAdded);
         const priceEl = btn.closest(".pricing-addon-action").querySelector(".pricing-addon-price");
         if (priceEl) priceEl.classList.toggle("is-added", isAdded);
 
@@ -489,7 +519,195 @@
       }
     });
 
-    syncPricingUI();
+    syncPricingUI(false);
+
+    const pricingEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function getPricingErrorKey(field) {
+      return field?.id || field?.name || "";
+    }
+
+    function getPricingErrorAnchor(field) {
+      if (field?.type === "checkbox") {
+        return field.closest(".pricing-mobile-front-lower") || field.closest("label") || field;
+      }
+      return field.closest("label") || field;
+    }
+
+    function getPricingErrorMessage(field) {
+      if (!field) return null;
+      const key = getPricingErrorKey(field);
+      if (!key) return null;
+      let msg = pricingShell.querySelector(`[data-pricing-error-for="${key}"]`);
+      if (!msg) {
+        msg = document.createElement("span");
+        msg.className = "bk-error-msg";
+        msg.dataset.pricingErrorFor = key;
+        getPricingErrorAnchor(field).insertAdjacentElement("afterend", msg);
+      }
+      return msg;
+    }
+
+    function pricingShowError(field, message) {
+      if (!field) return;
+      field.classList.add("bk-field-error");
+      field.classList.remove("bk-field-ok");
+      field.addEventListener("input", () => pricingClearError(field), { once: true });
+      field.addEventListener("change", () => pricingClearError(field), { once: true });
+    }
+
+    function pricingClearError(field) {
+      if (!field) return;
+      field.classList.remove("bk-field-error");
+      const key = getPricingErrorKey(field);
+      const msg = key ? pricingShell.querySelector(`[data-pricing-error-for="${key}"]`) : null;
+      if (msg) {
+        msg.classList.remove("is-visible");
+        setTimeout(() => msg.remove(), 200);
+      }
+    }
+
+    function pricingMarkOk(field) {
+      if (!field) return;
+      pricingClearError(field);
+      field.classList.add("bk-field-ok");
+      field.classList.remove("bk-field-error");
+    }
+
+    function pricingShakeButton(button) {
+      if (!button) return;
+      button.classList.add("bk-shake");
+      button.addEventListener("animationend", () => button.classList.remove("bk-shake"), { once: true });
+    }
+
+    function validatePricingInput(field, type, showEmptyError = false) {
+      if (!field) return false;
+      const value = field.value.trim();
+      if (type === "name") {
+        if (!value || value.length < 2) {
+          if (showEmptyError || value) pricingShowError(field, "Please enter your name");
+          return false;
+        }
+        pricingMarkOk(field);
+        return true;
+      }
+      if (type === "email") {
+        if (!value || !pricingEmailRegex.test(value)) {
+          if (showEmptyError || value) pricingShowError(field, "Please enter a valid email");
+          return false;
+        }
+        pricingMarkOk(field);
+        return true;
+      }
+      if (type === "company") {
+        if (!value) {
+          if (showEmptyError) pricingShowError(field, "Please enter your company name");
+          return false;
+        }
+        pricingMarkOk(field);
+        return true;
+      }
+      return true;
+    }
+
+    function validatePricingCheckout(scope, submitButton) {
+      if (!scope) return false;
+      const nameField = scope.querySelector('input[name="pricing-name"], input[name="pricing-mobile-name"]');
+      const emailField = scope.querySelector('input[name="pricing-email"], input[name="pricing-mobile-email"]');
+      const companyField = scope.querySelector('input[name="pricing-company"], input[name="pricing-mobile-company"]');
+      const consentField = scope.querySelector('input[name="pricing-consent"], input[name="pricing-mobile-consent"]');
+      let hasError = false;
+
+      if (!validatePricingInput(nameField, "name", true)) hasError = true;
+      if (!validatePricingInput(emailField, "email", true)) hasError = true;
+      if (!validatePricingInput(companyField, "company", true)) hasError = true;
+      if (!consentField?.checked) {
+        pricingShowError(consentField, "Please accept the terms to continue");
+        hasError = true;
+      } else {
+        pricingMarkOk(consentField);
+      }
+
+      if (hasError) {
+        pricingShakeButton(submitButton);
+        const firstInvalid = [nameField, emailField, companyField, consentField].find(
+          (field) => field?.classList.contains("bk-field-error"),
+        );
+        firstInvalid?.focus();
+        return false;
+      }
+
+      return true;
+    }
+
+    function getPricingCheckoutFields() {
+      const isMobile = window.innerWidth <= 860;
+      return {
+        nameField: document.querySelector(
+          isMobile ? '[name="pricing-mobile-name"]' : '[name="pricing-name"]',
+        ),
+        emailField: document.querySelector(
+          isMobile ? '[name="pricing-mobile-email"]' : '[name="pricing-email"]',
+        ),
+        companyField: document.querySelector(
+          isMobile ? '[name="pricing-mobile-company"]' : '[name="pricing-company"]',
+        ),
+        consentField: document.querySelector(
+          isMobile ? '[name="pricing-mobile-consent"]' : '[name="pricing-consent"]',
+        ),
+      };
+    }
+
+    function redirectToPricingCheckout(button) {
+      const { nameField, emailField, companyField, consentField } = getPricingCheckoutFields();
+      const plan = button?.dataset.plan || activePlan?.dataset.pricingPlan || "startup";
+      const billing = pricingBilling?.dataset.activeBilling || activeBilling || "weekly";
+      const whitelabel = addonButtons.some((btn) => btn.classList.contains("is-active"));
+      const nameVal = nameField?.value.trim() || "";
+      const emailVal = emailField?.value.trim() || "";
+      const companyVal = companyField?.value.trim() || "";
+      const params = new URLSearchParams({
+        plan,
+        billing,
+        whitelabel: String(whitelabel),
+        name: nameVal,
+        email: emailVal,
+        company: companyVal,
+      });
+
+      sessionStorage.setItem("cw_checkout_name", nameVal);
+      sessionStorage.setItem("cw_checkout_company", companyVal);
+      sessionStorage.setItem("cw_checkout_email", emailVal);
+      sessionStorage.setItem("cw_checkout_plan", plan);
+      sessionStorage.setItem("cw_checkout_scroll_y", String(window.scrollY));
+
+      window.location.href = `/checkout?${params.toString()}`;
+    }
+
+    pricingShell
+      .querySelectorAll(
+        '.pricing-checkout-field input, .pricing-mobile-checkout-field input',
+      )
+      .forEach((field) => {
+        field.addEventListener("blur", () => {
+          if (!field.value.trim()) return;
+          const name = field.getAttribute("name") || "";
+          const type = name.includes("email")
+            ? "email"
+            : name.includes("company")
+              ? "company"
+              : "name";
+          validatePricingInput(field, type);
+        });
+      });
+
+    pricingShell
+      .querySelectorAll('input[name="pricing-consent"], input[name="pricing-mobile-consent"]')
+      .forEach((field) => {
+        field.addEventListener("change", () => {
+          if (field.checked) pricingMarkOk(field);
+        });
+      });
 
     // Mobile bottom summary — services-style popup behavior
     const mobileSummary = pricingShell.querySelector(".pricing-mobile-summary");
@@ -497,7 +715,11 @@
     if (mobileSummary && pricingSection) {
       const mobileSummaryLearn = mobileSummary.querySelector(".pricing-mobile-summary-learn");
       const mobileSummaryClose = mobileSummary.querySelector(".pricing-mobile-summary-close");
-      const mobileSummaryDetails = mobileSummary.querySelector(".pricing-mobile-summary-details");
+      const mobileSummaryProceed = mobileSummary.querySelector(".pricing-mobile-summary-cta");
+      const mobileCheckoutBack = mobileSummary.querySelector(".pricing-mobile-checkout-back");
+      const mobileSuccessBack = mobileSummary.querySelector(".pricing-mobile-success-back");
+      const mobileBackPrice = mobileSummary.querySelector(".pricing-mobile-back-price");
+      const mobileSummaryViews = Array.from(mobileSummary.querySelectorAll(".pricing-mobile-summary-view"));
       const mqPricingViewport = window.matchMedia("(max-width: 860px)");
       let pricingMobileActivated = false;
       let pricingMobileShown = false;
@@ -506,16 +728,77 @@
       let pendingPricingExpandTarget = 0;
       let pricingMobileTransitionLockUntil = 0;
       let lastPricingScrollY = window.scrollY;
+      let pricingMobileView = "learn";
+      let pricingMobileResetTimer = null;
+      let pricingMobileCollapsing = false;
+      let pricingMobileScrollLocked = false;
+      let pricingMobileOverlay = pricingShell.querySelector(".pricing-mobile-section-overlay");
 
       const isMobilePricingLayout = () => mqPricingViewport.matches;
-
+      const setMobileProceedLabel = (_text) => {};
+      const clearPricingMobileResetTimer = () => {
+        if (!pricingMobileResetTimer) return;
+        clearTimeout(pricingMobileResetTimer);
+        pricingMobileResetTimer = null;
+      };
+      const preventPricingMobileScroll = (event) => {
+        event.preventDefault();
+      };
+      const lockPricingMobileScroll = () => {
+        if (pricingMobileScrollLocked) return;
+        pricingMobileScrollLocked = true;
+        document.addEventListener("wheel", preventPricingMobileScroll, { passive: false });
+        document.addEventListener("touchmove", preventPricingMobileScroll, { passive: false });
+      };
+      const unlockPricingMobileScroll = () => {
+        if (!pricingMobileScrollLocked) return;
+        pricingMobileScrollLocked = false;
+        document.removeEventListener("wheel", preventPricingMobileScroll);
+        document.removeEventListener("touchmove", preventPricingMobileScroll);
+      };
+      const ensurePricingMobileOverlay = () => {
+        if (pricingMobileOverlay) return pricingMobileOverlay;
+        pricingMobileOverlay = document.createElement("button");
+        pricingMobileOverlay.type = "button";
+        pricingMobileOverlay.className = "pricing-mobile-section-overlay";
+        pricingMobileOverlay.setAttribute("aria-label", "Close pricing popup");
+        pricingShell.appendChild(pricingMobileOverlay);
+        pricingMobileOverlay.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (pricingShell.classList.contains("is-payment-success")) {
+            closeMobileSuccessState();
+          } else {
+            animateSummaryCollapse();
+          }
+        });
+        return pricingMobileOverlay;
+      };
+      const showPricingMobileOverlay = () => {
+        const overlay = ensurePricingMobileOverlay();
+        overlay.classList.remove("is-closing");
+        overlay.classList.add("is-visible");
+      };
+      const hidePricingMobileOverlay = () => {
+        if (!pricingMobileOverlay) return;
+        pricingMobileOverlay.classList.add("is-closing");
+        pricingMobileOverlay.classList.remove("is-visible");
+      };
+      const resetPricingMobileOverlay = () => {
+        if (!pricingMobileOverlay) return;
+        pricingMobileOverlay.classList.remove("is-visible", "is-closing");
+      };
       const updatePricingMobileSummaryPosition = () => {
         if (!mobileSummary || !pricingSection || !pricingShell) return;
 
         if (!isMobilePricingLayout()) {
+          clearPricingMobileResetTimer();
+          unlockPricingMobileScroll();
+          resetPricingMobileOverlay();
           mobileSummary.classList.remove("is-visible", "is-docked", "is-expanded");
+          mobileSummary.dataset.mobileView = "";
           mobileSummary.setAttribute("aria-hidden", "true");
-          if (mobileSummaryDetails) mobileSummaryDetails.setAttribute("aria-hidden", "true");
+          mobileSummaryViews.forEach((view) => view.setAttribute("aria-hidden", "true"));
           pricingShell.style.setProperty("--pricing-mobile-summary-space", "0px");
           mobileSummary.style.removeProperty("left");
           mobileSummary.style.removeProperty("width");
@@ -524,6 +807,9 @@
           pricingMobileShown = false;
           pricingMobileActivated = false;
           pricingMobileExpanded = false;
+          pricingMobileView = "learn";
+          setMobileProceedLabel("Proceed");
+          pendingPricingExpandAfterScroll = false;
           lastPricingScrollY = window.scrollY;
           return;
         }
@@ -535,8 +821,12 @@
         if (pendingPricingExpandAfterScroll && Math.abs(currentScrollY - pendingPricingExpandTarget) <= 2) {
           pendingPricingExpandAfterScroll = false;
           pricingMobileExpanded = true;
+          mobileSummary.dataset.mobileView = pricingMobileView;
           mobileSummary.classList.add("is-expanded");
+          lockPricingMobileScroll();
+          showPricingMobileOverlay();
           setTimeout(updatePricingMobileSummaryPosition, 880);
+          return;
         }
 
         const sectionRect = pricingSection.getBoundingClientRect();
@@ -548,9 +838,24 @@
         const isInPricingViewport = sectionRect.top < window.innerHeight && sectionRect.bottom > 0;
 
         if (isAbovePricingSection) {
+          if (pendingPricingExpandAfterScroll) {
+            mobileSummary.classList.remove("is-visible", "is-docked", "is-expanded");
+            mobileSummary.setAttribute("aria-hidden", "true");
+            mobileSummaryViews.forEach((view) => view.setAttribute("aria-hidden", "true"));
+            pricingShell.style.setProperty("--pricing-mobile-summary-space", "0px");
+            mobileSummary.style.left = "0px";
+            mobileSummary.style.width = `${window.innerWidth}px`;
+            mobileSummary.style.top = "auto";
+            mobileSummary.style.bottom = "0px";
+            return;
+          }
+
+          clearPricingMobileResetTimer();
+          unlockPricingMobileScroll();
+          resetPricingMobileOverlay();
           mobileSummary.classList.remove("is-visible", "is-docked", "is-expanded");
           mobileSummary.setAttribute("aria-hidden", "true");
-          if (mobileSummaryDetails) mobileSummaryDetails.setAttribute("aria-hidden", "true");
+          mobileSummaryViews.forEach((view) => view.setAttribute("aria-hidden", "true"));
           pricingShell.style.setProperty("--pricing-mobile-summary-space", "0px");
           mobileSummary.style.left = "0px";
           mobileSummary.style.width = `${window.innerWidth}px`;
@@ -559,6 +864,8 @@
           pricingMobileShown = false;
           pricingMobileActivated = false;
           pricingMobileExpanded = false;
+          pricingMobileView = "learn";
+          setMobileProceedLabel("Proceed");
           pendingPricingExpandAfterScroll = false;
           return;
         }
@@ -578,9 +885,12 @@
         }
 
         if (!pricingMobileActivated) {
+          clearPricingMobileResetTimer();
+          unlockPricingMobileScroll();
+          resetPricingMobileOverlay();
           mobileSummary.classList.remove("is-visible", "is-docked", "is-expanded");
           mobileSummary.setAttribute("aria-hidden", "true");
-          if (mobileSummaryDetails) mobileSummaryDetails.setAttribute("aria-hidden", "true");
+          mobileSummaryViews.forEach((view) => view.setAttribute("aria-hidden", "true"));
           pricingShell.style.setProperty("--pricing-mobile-summary-space", "0px");
           mobileSummary.style.left = "0px";
           mobileSummary.style.width = `${window.innerWidth}px`;
@@ -588,22 +898,28 @@
           mobileSummary.style.bottom = "0px";
           pricingMobileShown = false;
           pricingMobileExpanded = false;
+          pricingMobileView = "learn";
+          setMobileProceedLabel("Proceed");
           pendingPricingExpandAfterScroll = false;
           return;
         }
 
+        const shouldKeepMobileView = pricingMobileExpanded || pricingMobileCollapsing;
         mobileSummary.classList.add("is-visible");
         mobileSummary.classList.toggle("is-expanded", pricingMobileExpanded);
+        mobileSummary.dataset.mobileView = shouldKeepMobileView ? pricingMobileView : "";
         mobileSummary.setAttribute("aria-hidden", "false");
-        if (mobileSummaryDetails) {
-          mobileSummaryDetails.setAttribute("aria-hidden", String(!pricingMobileExpanded));
-        }
+        mobileSummaryViews.forEach((view) => {
+          const isActiveView = shouldKeepMobileView && view.dataset.pricingMobileView === pricingMobileView;
+          view.setAttribute("aria-hidden", String(!isActiveView));
+        });
         pricingMobileShown = true;
+
+        if (pricingMobileCollapsing) return;
 
         const summaryHeight = mobileSummary.offsetHeight;
         const reservedSpace = summaryHeight;
         const bottomOffset = 0;
-        const floatingTop = window.innerHeight - bottomOffset - summaryHeight;
         const isPastPricingSection = sectionRect.bottom <= 0;
         const shouldDock = isPastPricingSection || shellRect.bottom <= window.innerHeight;
 
@@ -630,13 +946,21 @@
       window.addEventListener("resize", updatePricingMobileSummaryPosition);
       mqPricingViewport.addEventListener("change", updatePricingMobileSummaryPosition);
 
-      function animateSummaryExpand() {
+      function animateSummaryExpand(view = "learn") {
+        clearPricingMobileResetTimer();
+        pricingMobileCollapsing = false;
+        mobileSummary.classList.remove("is-switching-to-checkout", "is-learn-proceeding");
+        pendingPricingExpandAfterScroll = false;
+        pricingMobileView = view;
         const doExpand = () => {
           pricingMobileTransitionLockUntil = Date.now() + 1100;
           pricingMobileActivated = true;
           pricingMobileExpanded = true;
+          mobileSummary.dataset.mobileView = pricingMobileView;
           mobileSummary.classList.add("is-expanded");
           updatePricingMobileSummaryPosition();
+          lockPricingMobileScroll();
+          showPricingMobileOverlay();
           setTimeout(updatePricingMobileSummaryPosition, 880);
         };
 
@@ -647,33 +971,369 @@
         const isPastSectionEnd = window.scrollY > dockScrollTarget + 1;
 
         if (isPastSectionEnd) {
+          pricingMobileTransitionLockUntil = Date.now() + 1100;
+          pricingMobileActivated = true;
+          pricingMobileExpanded = false;
           pendingPricingExpandAfterScroll = true;
           pendingPricingExpandTarget = dockScrollTarget;
+          mobileSummary.dataset.mobileView = "";
+          mobileSummary.classList.remove("is-expanded");
           window.scrollTo({ top: dockScrollTarget, behavior: "smooth" });
         } else {
           doExpand();
         }
       }
 
-      function animateSummaryCollapse() {
+      function switchSummaryToCheckout() {
+        clearPricingMobileResetTimer();
+        const priceStartTop = mobileBackPrice?.getBoundingClientRect().top || 0;
         pricingMobileTransitionLockUntil = Date.now() + 1100;
         pricingMobileActivated = true;
+        pricingMobileExpanded = true;
+        pricingMobileCollapsing = false;
+        pendingPricingExpandAfterScroll = false;
+        pricingMobileView = "checkout";
+        mobileSummary.classList.remove("is-learn-proceeding");
+        mobileSummary.classList.add("is-expanded", "is-switching-to-checkout");
+        mobileSummary.dataset.mobileView = "checkout";
+        updatePricingMobileSummaryPosition();
+        if (mobileBackPrice) {
+          const priceEndTop = mobileBackPrice.getBoundingClientRect().top;
+          const priceDeltaY = priceStartTop - priceEndTop;
+          mobileBackPrice.style.transition = "none";
+          mobileBackPrice.style.transform = `translateY(${priceDeltaY}px)`;
+          mobileBackPrice.offsetHeight;
+          requestAnimationFrame(() => {
+            mobileBackPrice.style.transition = "transform 1.1s cubic-bezier(0.16, 1, 0.3, 1), padding 1.1s cubic-bezier(0.16, 1, 0.3, 1)";
+            mobileBackPrice.style.transform = "translateY(0)";
+          });
+        }
+        setTimeout(() => {
+          mobileSummary.classList.remove("is-switching-to-checkout");
+          if (mobileBackPrice) {
+            mobileBackPrice.style.removeProperty("transition");
+            mobileBackPrice.style.removeProperty("transform");
+          }
+          updatePricingMobileSummaryPosition();
+        }, 1100);
+      }
+
+      function animateSummaryCollapse() {
+        clearPricingMobileResetTimer();
+        pricingMobileTransitionLockUntil = Date.now() + 1080;
+        const isClosingCheckout = pricingMobileView === "checkout";
+        pricingMobileActivated = true;
         pricingMobileExpanded = false;
-        mobileSummary.classList.remove("is-expanded");
-        requestAnimationFrame(updatePricingMobileSummaryPosition);
-        setTimeout(updatePricingMobileSummaryPosition, 880);
+        pricingMobileCollapsing = true;
+        setMobileProceedLabel("Proceed");
+        mobileSummary.dataset.mobileView = pricingMobileView;
+        mobileSummary.classList.toggle("is-returning-from-checkout", isClosingCheckout);
+        mobileSummary.classList.remove("is-expanded", "is-learn-proceeding");
+        hidePricingMobileOverlay();
+        pricingMobileResetTimer = setTimeout(() => {
+          mobileSummary.dataset.mobileView = "";
+          pricingMobileView = "learn";
+          pricingMobileResetTimer = null;
+          pricingMobileCollapsing = false;
+          mobileSummary.classList.remove("is-returning-from-checkout");
+          unlockPricingMobileScroll();
+          resetPricingMobileOverlay();
+          updatePricingMobileSummaryPosition();
+        }, 980);
+      }
+
+      function closeMobileSuccessState() {
+        clearPricingMobileResetTimer();
+        pricingMobileTransitionLockUntil = Date.now() + 1200;
+        pricingMobileActivated = true;
+        pricingMobileExpanded = false;
+        pricingMobileCollapsing = true;
+        pricingMobileView = "learn";
+        pendingPricingExpandAfterScroll = false;
+        setMobileProceedLabel("Proceed");
+        hidePricingMobileOverlay();
+        pricingShell.classList.add("is-mobile-success-closing");
+        mobileSummary.dataset.mobileView = "success";
+        mobileSummary.classList.remove(
+          "is-expanded",
+          "is-returning-from-checkout",
+          "is-switching-to-checkout",
+          "is-learn-proceeding"
+        );
+        mobileSummary.setAttribute("aria-hidden", "false");
+        mobileSummaryViews.forEach((view) => {
+          view.setAttribute(
+            "aria-hidden",
+            view.dataset.pricingMobileView === "success" ? "false" : "true"
+          );
+        });
+        updatePricingMobileSummaryPosition();
+        pricingMobileResetTimer = setTimeout(() => {
+          pricingShell.classList.remove(
+            "is-checkout-open",
+            "is-payment-success",
+            "is-mobile-success-closing"
+          );
+          mobileSummary.dataset.mobileView = "";
+          pricingMobileCollapsing = false;
+          pricingMobileResetTimer = null;
+          mobileSummaryViews.forEach((view) => view.setAttribute("aria-hidden", "true"));
+          unlockPricingMobileScroll();
+          resetPricingMobileOverlay();
+          updatePricingMobileSummaryPosition();
+        }, 1120);
+      }
+
+      function openMobileSuccessState(scrollY) {
+        clearPricingMobileResetTimer();
+        pricingMobileTransitionLockUntil = Date.now() + 1100;
+        pricingMobileActivated = true;
+        pricingMobileExpanded = true;
+        pricingMobileCollapsing = false;
+        pricingMobileView = "success";
+        pendingPricingExpandAfterScroll = false;
+        mobileSummary.dataset.mobileView = "success";
+        mobileSummary.classList.add("is-visible", "is-expanded");
+        mobileSummary.classList.remove(
+          "is-returning-from-checkout",
+          "is-switching-to-checkout",
+          "is-learn-proceeding"
+        );
+        mobileSummary.setAttribute("aria-hidden", "false");
+        mobileSummaryViews.forEach((view) => {
+          view.setAttribute(
+            "aria-hidden",
+            view.dataset.pricingMobileView === "success" ? "false" : "true"
+          );
+        });
+        if (Number.isFinite(scrollY)) {
+          window.scrollTo({ top: Math.max(0, scrollY), behavior: "auto" });
+        }
+        lockPricingMobileScroll();
+        showPricingMobileOverlay();
+        updatePricingMobileSummaryPosition();
+      }
+
+      pricingShell.addEventListener("pricing:success-open", (event) => {
+        openMobileSuccessState(event.detail?.scrollY);
+      });
+
+      if (pricingShell.classList.contains("is-payment-success") && isMobilePricingLayout()) {
+        openMobileSuccessState();
       }
 
       if (mobileSummaryLearn) {
-        mobileSummaryLearn.addEventListener("click", animateSummaryExpand);
+        mobileSummaryLearn.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          animateSummaryExpand("learn");
+        });
+      }
+
+	      if (mobileSummaryProceed) {
+	        mobileSummaryProceed.addEventListener("click", (event) => {
+	          if (!isMobilePricingLayout()) return;
+	          event.preventDefault();
+	          event.stopPropagation();
+	          if (pricingShell.classList.contains("is-payment-success")) {
+	            window.location.href = "/portal";
+	            return;
+	          }
+	          if (Date.now() < pricingMobileTransitionLockUntil) return;
+	          if (pricingMobileExpanded && pricingMobileView === "learn") {
+            switchSummaryToCheckout();
+            setMobileProceedLabel("Subscribe");
+          } else if (pricingMobileExpanded && pricingMobileView === "checkout") {
+            if (validatePricingCheckout(mobileSummary, mobileSummaryProceed)) {
+              redirectToPricingCheckout(mobileSummaryProceed);
+            }
+          } else {
+            animateSummaryExpand("checkout");
+            setMobileProceedLabel("Subscribe");
+          }
+        });
       }
 
       if (mobileSummaryClose) {
-        mobileSummaryClose.addEventListener("click", animateSummaryCollapse);
+        mobileSummaryClose.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          animateSummaryCollapse();
+          setMobileProceedLabel("Proceed");
+        });
       }
+
+      if (mobileCheckoutBack) {
+        mobileCheckoutBack.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          animateSummaryCollapse();
+          setMobileProceedLabel("Proceed");
+        });
+      }
+
+      if (mobileSuccessBack) {
+        mobileSuccessBack.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          closeMobileSuccessState();
+        });
+      }
+
+      pricingShell.addEventListener("click", (event) => {
+        if (
+          !isMobilePricingLayout() ||
+          !pricingShell.classList.contains("is-payment-success") ||
+          !pricingMobileExpanded ||
+          mobileSummary.contains(event.target)
+        ) {
+          return;
+        }
+        event.preventDefault();
+        closeMobileSuccessState();
+      });
 
       updatePricingMobileSummaryPosition();
     }
+
+    // ─── Pricing Checkout Transition ──────────────────────────────────────────
+    (function () {
+      const desktopPricingQuery = window.matchMedia("(min-width: 861px)");
+      let closeTimer = null;
+      let desktopCheckoutReady = false;
+      let desktopCheckoutReadyTimer = null;
+
+      function setPricingCheckoutOpen(isOpen, sourceButton) {
+        if (isOpen) {
+          if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+          if (desktopCheckoutReadyTimer) clearTimeout(desktopCheckoutReadyTimer);
+          desktopCheckoutReady = false;
+          pricingShell.classList.remove("is-checkout-closing", "is-payment-success");
+          pricingShell.classList.add("is-checkout-open");
+          desktopCheckoutReadyTimer = setTimeout(() => {
+            desktopCheckoutReady = true;
+            desktopCheckoutReadyTimer = null;
+          }, 760);
+        } else {
+          if (desktopCheckoutReadyTimer) clearTimeout(desktopCheckoutReadyTimer);
+          desktopCheckoutReady = false;
+          pricingShell.classList.add("is-checkout-closing");
+          closeTimer = setTimeout(() => {
+            pricingShell.classList.remove("is-checkout-open", "is-checkout-closing", "is-payment-success");
+            sourceButton?.focus?.();
+            closeTimer = null;
+          }, 920);
+        }
+      }
+
+	      proceedButtons.forEach((btn) => {
+	        btn.addEventListener("click", function (event) {
+	          event.preventDefault();
+	          if (!desktopPricingQuery.matches || !this.closest(".pricing-summary")) return;
+	          if (pricingShell.classList.contains("is-payment-success")) {
+	            window.location.href = "/portal";
+	            return;
+	          }
+	          if (pricingShell.classList.contains("is-checkout-open")) {
+	            if (!desktopCheckoutReady) return;
+	            if (validatePricingCheckout(pricingSummary, this)) {
+              redirectToPricingCheckout(this);
+            }
+            return;
+          }
+          setPricingCheckoutOpen(true, this);
+        });
+      });
+
+      const pricingMain = pricingShell.querySelector(".pricing-main");
+      if (pricingMain) {
+        pricingMain.addEventListener("click", function () {
+          if (!desktopPricingQuery.matches) return;
+          if (!pricingShell.classList.contains("is-checkout-open")) return;
+          setPricingCheckoutOpen(false, null);
+        });
+      }
+
+      desktopPricingQuery.addEventListener("change", function (event) {
+        if (!event.matches) setPricingCheckoutOpen(false);
+      });
+
+      function clearStalePricingSuccessState() {
+        pricingShell.classList.remove(
+          "is-checkout-open",
+          "is-checkout-closing",
+          "is-payment-success",
+          "is-mobile-success-closing"
+        );
+        const staleMobileSummary = pricingShell.querySelector(".pricing-mobile-summary");
+        if (staleMobileSummary?.dataset.mobileView === "success") {
+          staleMobileSummary.dataset.mobileView = "";
+        }
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasPaymentSuccess = urlParams.get("payment") === "success";
+
+      if (!hasPaymentSuccess) {
+        clearStalePricingSuccessState();
+      }
+
+      window.addEventListener("pageshow", function (event) {
+        if (!event.persisted) return;
+        const restoredParams = new URLSearchParams(window.location.search);
+        if (restoredParams.get("payment") !== "success") {
+          clearStalePricingSuccessState();
+        }
+      });
+
+      if (hasPaymentSuccess) {
+        const cwName = sessionStorage.getItem("cw_checkout_name") || "";
+        const cwCompany = sessionStorage.getItem("cw_checkout_company") || "";
+        const cwPlan = sessionStorage.getItem("cw_checkout_plan") || "";
+        const cwScrollY = Number(sessionStorage.getItem("cw_checkout_scroll_y"));
+
+        sessionStorage.removeItem("cw_checkout_name");
+        sessionStorage.removeItem("cw_checkout_company");
+        sessionStorage.removeItem("cw_checkout_email");
+        sessionStorage.removeItem("cw_checkout_plan");
+        sessionStorage.removeItem("cw_checkout_scroll_y");
+
+        const firstName = cwName ? cwName.trim().split(/\s+/)[0] : "";
+        const greeting = firstName ? `You've got one now, ${firstName}.` : "You've got one now.";
+        const planLine = cwPlan
+          ? `${cwPlan.charAt(0).toUpperCase() + cwPlan.slice(1)}`
+          : "";
+        const projectLine = cwCompany
+          ? `${cwCompany} is set up${planLine ? ` on our ${planLine} plan` : ""},`
+          : `You're set up${planLine ? ` on our ${planLine} plan` : ""},`;
+	        const successBody = document.querySelector(".pricing-success-body");
+	        if (successBody) {
+	          successBody.textContent = `${greeting} ${projectLine} let's build something great!`;
+	        }
+	        const mobileSuccessBody = document.querySelector(".pricing-mobile-success-body");
+	        if (mobileSuccessBody) {
+	          mobileSuccessBody.textContent = `${greeting} ${projectLine} let's build something great!`;
+	        }
+        const isMobileSuccess = window.innerWidth <= 860;
+        if (isMobileSuccess) {
+          pricingShell.dispatchEvent(new CustomEvent("pricing:success-open", {
+            detail: {
+              scrollY: Number.isFinite(cwScrollY) ? cwScrollY : undefined,
+            },
+          }));
+        }
+
+        if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+        if (desktopCheckoutReadyTimer) clearTimeout(desktopCheckoutReadyTimer);
+        desktopCheckoutReady = false;
+        pricingShell.classList.remove("is-checkout-closing");
+        pricingShell.classList.add("is-checkout-open", "is-payment-success");
+        window.history.replaceState({}, "", window.location.pathname);
+        if (!isMobileSuccess) {
+          document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    })();
   }
 
   // ---------------------------------------------------------
@@ -1076,12 +1736,18 @@
     let _tooltipActiveBtn = null;
 
     function showServiceInfoTooltip(btn) {
-      const desc = btn.dataset.tooltipDesc || "";
+      const desc = btn.dataset.tooltipDesc || btn.dataset.tooltip || "";
       if (!desc) return;
       serviceInfoTooltip.querySelector(".services-drop-tooltip-desc").textContent = desc;
       serviceInfoTooltip.classList.add("is-visible");
       _tooltipActiveBtn = btn;
       positionServiceInfoTooltip(btn);
+    }
+
+    function isMobileServiceHintTap(event, pill) {
+      if (!isMobileServicesLayout()) return false;
+      const rect = pill.getBoundingClientRect();
+      return event.clientX >= rect.right - 72;
     }
 
     function positionServiceInfoTooltip(btn) {
@@ -1571,6 +2237,16 @@
       });
 
       pill.addEventListener("click", (event) => {
+        if (isMobileServiceHintTap(event, pill)) {
+          event.stopPropagation();
+          if (_tooltipActiveBtn === pill && serviceInfoTooltip.classList.contains("is-visible")) {
+            hideServiceInfoTooltip();
+          } else {
+            showServiceInfoTooltip(pill);
+          }
+          return;
+        }
+
         if (!event.target.closest(".services-request-plus")) return;
 
         hideServiceInfoTooltip();
@@ -1901,7 +2577,6 @@
       });
 
       entry.itemEl = itemEl;
-      entry.itemEl = itemEl;
       activeDroppedServices.push(entry);
       if (servicesDropSelectedList) servicesDropSelectedList.appendChild(itemEl);
 
@@ -2018,7 +2693,7 @@
   }
 
   // ---------------------------------------------------------
-  // 8) Discovery Card — complete animation cycle on hover
+  // 13) Discovery Card — complete animation cycle on hover
   //    Panels slide + green circle + ring draw = ~1.1s total.
   //    Class stays active until full cycle finishes so mouse-out
   //    mid-animation doesn't cut it short.
@@ -2373,7 +3048,7 @@
     {
       quote: "Clockwrk built out both our finance app and web platform, and honestly, the whole experience was smooth from start to finish. The UI feels clean and intuitive, and everything just works the way it should. They understood what we needed without us having to over-explain - which made a big difference.",
       name: "Saadulev Khan",
-      role: "",
+      role: "CEO @ HKK",
     },
     {
       quote: "Clockwrk really understood what we were trying to build with Lagom from day one. They translated our vision into a brand and website that felt right immediately. The team is sharp, quick to respond, and easy to collaborate with. I'd definitely work with them again.",
@@ -2780,3 +3455,73 @@
   }
 
 })();
+
+// ─── Newsletter Form ──────────────────────────────────────────────────────
+
+function initNewsletterForm(formId, inputId, btnId, type, source) {
+  const form = document.getElementById(formId);
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (!form || !input || !btn) return;
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  async function submitEmail(emailType) {
+    const email = input.value.trim();
+
+    if (!email || !emailRegex.test(email)) {
+      input.style.outline = '2px solid #ff4444';
+      setTimeout(() => input.style.outline = '', 2000);
+      return;
+    }
+
+    btn.disabled = true;
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '...';
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+
+      const res = await fetch('https://n8n.clockwrk.io/webhook/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, type: emailType || type, source }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+      const data = await res.json();
+
+      if (data.success) {
+        input.value = '';
+        input.placeholder = data.message === 'already_subscribed'
+          ? 'Already subscribed'
+          : "You're in ✓";
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+      } else {
+        throw new Error('failed');
+      }
+    } catch {
+      btn.innerHTML = originalContent;
+      btn.disabled = false;
+      input.value = '';
+      input.style.outline = '2px solid #ff4444';
+      input.placeholder = 'Something went wrong, try again';
+      setTimeout(() => {
+        input.style.outline = '';
+        input.placeholder = 'Your email';
+      }, 3000);
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitEmail(type);
+  });
+
+  btn.addEventListener('click', () => submitEmail(type));
+}
+
+initNewsletterForm('footerNewsletterForm', 'footerEmailInput', 'footerEmailBtn', 'marketing', 'footer-index');

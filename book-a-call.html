@@ -1,0 +1,2185 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Schedule a free 30-minute discovery call with Clockwrk. We'll answer your questions and show you how we can accelerate your design and development." />
+    <meta property="og:title" content="Book a Call – Clockwrk" />
+    <meta property="og:description" content="Schedule a free 30-minute discovery call. Get all your questions answered and see how Clockwrk can accelerate your business." />
+    <meta property="og:image" content="https://clockwrk.io/assets/misc/OG.png" />
+    <meta property="og:url" content="https://clockwrk.io/book-a-call" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Book a Call – Clockwrk" />
+    <meta name="twitter:description" content="Schedule a free 30-minute discovery call. Get all your questions answered and see how Clockwrk can accelerate your business." />
+    <meta name="twitter:image" content="https://clockwrk.io/assets/misc/OG.png" />
+    <title>Book a Call – Clockwrk</title>
+    <link rel="canonical" href="https://clockwrk.io/book-a-call" />
+    <link
+      rel="icon"
+      href="assets/favicon/favicon-96x96.png"
+      type="image/png"
+      sizes="96x96"
+    />
+    <link rel="icon" href="assets/favicon/favicon.ico" sizes="any" />
+    <link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="assets/favicon/site.webmanifest" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="styles/global.css?v=20260530" />
+    <link rel="stylesheet" href="styles/about.css" />
+    <link rel="stylesheet" href="styles/footer.css" />
+    <link rel="stylesheet" href="styles/bookcall.css" />
+  </head>
+
+  <body class="book-call-page" id="top">
+    <main class="book-call-main">
+      <section class="book-call-shell" aria-labelledby="book-call-title">
+        <a class="book-call-logo" href="/" aria-label="Clockwrk home"
+          >clockwrk</a
+        >
+
+        <!-- ── Step 1: Intro + contact form ── -->
+        <div class="book-call-layout">
+          <div class="book-call-copy">
+            <h1 class="book-call-title" id="book-call-title">Let's schedule</h1>
+            <div class="book-call-title-row">
+              <img
+                class="book-call-portrait"
+                src="assets/misc/Founder-Feeback.svg"
+                alt=""
+                aria-hidden="true"
+              />
+              <span class="book-call-highlight">a call</span>
+              <span class="book-call-title-small"
+                >that will put an end<br />to your search</span
+              >
+            </div>
+            <p class="book-call-description">
+              A Zoom meeting will help you get all your questions answered and
+              let us know your challenges. Get a complete understanding of how
+              Clockwrk works and can accelerate your business's design and
+              development needs.
+            </p>
+          </div>
+
+          <aside class="book-call-form-card" aria-label="Schedule a call form">
+            <!-- ── Offline banner (hidden until n8n unreachable) ── -->
+            <div
+              class="bk-offline-banner"
+              id="bkOfflineBanner"
+              role="alert"
+              aria-live="assertive"
+            >
+              <div class="bk-offline-banner-inner">
+                <div class="bk-offline-banner-icon">
+                  <i data-lucide="clock" aria-hidden="true"></i>
+                </div>
+                <div class="bk-offline-banner-body">
+                  <p class="bk-offline-banner-title">
+                    We’ll be in touch shortly
+                  </p>
+                  <p class="bk-offline-banner-sub">
+                    Our scheduling system is momentarily offline. Leave your
+                    details and we’ll reach out within one business day — or
+                    email us at
+                    <a href="mailto:hello@clockwrk.io">hello@clockwrk.io</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <h2>Schedule a call</h2>
+            <form class="book-call-form" action="#" data-book-call-form>
+              <label class="sr-only" for="call-name">Name</label>
+              <input
+                id="call-name"
+                name="name"
+                type="text"
+                placeholder="Name"
+                required
+              />
+
+              <label class="sr-only" for="call-email">Email</label>
+              <input
+                id="call-email"
+                name="email"
+                type="email"
+                placeholder="Email"
+                autocomplete="email"
+                required
+              />
+
+              <label class="sr-only" for="call-company">Company name</label>
+              <input
+                id="call-company"
+                name="company"
+                type="text"
+                placeholder="Company name"
+                required
+              />
+
+              <button
+                class="book-call-submit"
+                type="submit"
+                id="bookCallFormSubmit"
+              >
+                <span id="bookCallSubmitLabel">Select your services</span>
+                <span class="book-call-submit-icon" aria-hidden="true"
+                  ><i data-lucide="arrow-right" id="bookCallSubmitIcon"></i
+                ></span>
+              </button>
+
+              <label class="book-call-consent" for="bookingConsent">
+                <input type="checkbox" id="bookingConsent" name="accept" required />
+                <span
+                  >I accept the <a href="/terms">Terms and Conditions</a> and
+                  <a href="/privacy">Privacy Policy</a></span
+                >
+              </label>
+            </form>
+          </aside>
+        </div>
+
+        <!-- ── Step 2: Service picker ── -->
+        <div
+          class="book-call-service-step"
+          aria-live="polite"
+          data-book-call-service-step
+        >
+          <div class="book-call-service-heading">
+            <h2>Great!</h2>
+            <p>Select your required services:</p>
+          </div>
+          <div class="book-call-service-picker">
+            <div class="book-call-services-box">
+              <div
+                class="book-call-mobile-tabs"
+                aria-label="Service categories tabs"
+              >
+                <button
+                  class="book-call-mobile-tab book-call-mobile-tab-active"
+                  type="button"
+                  data-book-call-mobile-tab="0"
+                >
+                  <span class="book-call-mobile-tab-label">Development</span>
+                  <span class="book-call-mobile-tab-badge">0</span>
+                </button>
+                <button
+                  class="book-call-mobile-tab"
+                  type="button"
+                  data-book-call-mobile-tab="1"
+                >
+                  <span class="book-call-mobile-tab-label">Design</span>
+                  <span class="book-call-mobile-tab-badge">0</span>
+                </button>
+                <button
+                  class="book-call-mobile-tab"
+                  type="button"
+                  data-book-call-mobile-tab="2"
+                >
+                  <span class="book-call-mobile-tab-label">Branding</span>
+                  <span class="book-call-mobile-tab-badge">0</span>
+                </button>
+                <button
+                  class="book-call-mobile-tab"
+                  type="button"
+                  data-book-call-mobile-tab="3"
+                >
+                  <span class="book-call-mobile-tab-label">Presence</span>
+                  <span class="book-call-mobile-tab-badge">0</span>
+                </button>
+                <button
+                  class="book-call-mobile-tab"
+                  type="button"
+                  data-book-call-mobile-tab="4"
+                >
+                  <span class="book-call-mobile-tab-label"
+                    >Outdoor & Print</span
+                  >
+                  <span class="book-call-mobile-tab-badge">0</span>
+                </button>
+              </div>
+              <div
+                class="book-call-services-list"
+                aria-label="Service categories"
+              ></div>
+            </div>
+            <button
+              class="book-call-submit book-call-service-submit"
+              type="button"
+            >
+              <span>Pick a day and time</span>
+              <span class="book-call-submit-icon" aria-hidden="true"
+                ><i data-lucide="arrow-right"></i
+              ></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Step 3: Custom date picker ── -->
+        <div class="book-call-date-step" aria-live="polite">
+          <div class="book-call-date-heading" id="bookCallDateHeading">
+            <div class="book-call-date-heading-inner" id="bookCallHeadingPick">
+              <h2>Perfect!</h2>
+              <p>Pick a day and time, please:</p>
+            </div>
+            <div
+              class="book-call-date-heading-inner book-call-date-heading-booked"
+              id="bookCallHeadingBooked"
+              aria-hidden="true"
+            >
+              <h2>Booked!</h2>
+              <p>Let's build something great</p>
+            </div>
+          </div>
+
+          <div class="book-call-date-embed">
+            <div class="bk-outer" id="bkOuter">
+              <!-- Screen 1: Calendar + time slots -->
+              <div class="bk-screen" id="bkScreen1">
+                <div class="bk-nav">
+                  <div class="bk-month-label" id="bkMonthLabel"></div>
+                  <div class="bk-nav-btns">
+                    <button
+                      class="bk-nav-btn"
+                      id="bkPrev"
+                      aria-label="Previous month"
+                    >
+                      &#8592;
+                    </button>
+                    <button
+                      class="bk-nav-btn"
+                      id="bkNext"
+                      aria-label="Next month"
+                    >
+                      &#8594;
+                    </button>
+                  </div>
+                </div>
+
+                <div class="bk-weekdays" aria-hidden="true">
+                  <div class="bk-wd">MON</div>
+                  <div class="bk-wd">TUE</div>
+                  <div class="bk-wd">WED</div>
+                  <div class="bk-wd">THU</div>
+                  <div class="bk-wd">FRI</div>
+                  <div class="bk-wd">SAT</div>
+                  <div class="bk-wd">SUN</div>
+                </div>
+
+                <div
+                  class="bk-days"
+                  id="bkDays"
+                  role="grid"
+                  aria-label="Select a date"
+                ></div>
+
+                <div class="bk-time-section" id="bkTimeSection" hidden>
+                  <div class="bk-time-header">
+                    <div class="bk-time-day" id="bkTimeDay"></div>
+                    <div
+                      class="bk-time-fmt"
+                      role="group"
+                      aria-label="Time format"
+                    >
+                      <button
+                        class="bk-fmt-btn is-active"
+                        id="bkFmt12"
+                        aria-pressed="true"
+                      >
+                        12h
+                      </button>
+                      <button
+                        class="bk-fmt-btn"
+                        id="bkFmt24"
+                        aria-pressed="false"
+                      >
+                        24h
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="bk-slots"
+                    id="bkSlots"
+                    role="list"
+                    aria-label="Available time slots"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Screen 2: Confirmation form -->
+              <div
+                class="bk-screen bk-screen--confirm"
+                id="bkScreen2"
+                aria-hidden="true"
+              >
+                <button
+                  class="bk-cf-back-icon"
+                  id="bkCfBack"
+                  type="button"
+                  aria-label="Back"
+                >
+                  <i data-lucide="arrow-left" aria-hidden="true"></i>
+                </button>
+                <h3 class="bk-cf-title">Clockwrk Discovery Call</h3>
+                <div class="bk-cf-summary" id="bkCfSummary"></div>
+
+                <div class="bk-cf-field">
+                  <input
+                    class="bk-cf-input"
+	                    id="bkCfName"
+	                    type="text"
+	                    placeholder="Your full name"
+	                    autocomplete="name"
+	                    required
+	                  />
+                </div>
+
+                <div class="bk-cf-field">
+                  <input
+                    class="bk-cf-input"
+	                    id="bkCfEmail"
+	                    type="email"
+	                    placeholder="Email address"
+	                    autocomplete="email"
+	                    required
+	                  />
+                </div>
+
+                <div class="bk-cf-field">
+                  <textarea
+                    class="bk-cf-textarea"
+                    id="bkCfNotes"
+                    placeholder="Additional notes&#8230;"
+                  ></textarea>
+                </div>
+
+                <div
+                  class="bk-cf-field bk-cf-field--readonly"
+                  hidden
+                >
+                  <div class="bk-cf-readonly" id="bkCfCompany"></div>
+                </div>
+
+                <div class="bk-cf-field bk-cf-field--readonly">
+                  <p class="bk-cf-services-label">Services</p>
+                  <div class="bk-cf-pills" id="bkCfServices"></div>
+                </div>
+
+                <div class="bk-cf-guests" id="bkCfGuests">
+                  <p class="bk-cf-guest-above-label" aria-hidden="true">
+                    Guests
+                  </p>
+                  <div class="bk-cf-guest-list" id="bkCfGuestList"></div>
+                  <div class="bk-cf-guest-row" id="bkCfGuestRow">
+                    <div class="bk-cf-guest-pill" id="bkCfGuestPill">
+                      <button
+                        class="bk-cf-guest-pill-label"
+                        id="bkCfGuestsBtn"
+                        type="button"
+                        aria-label="Add guests"
+                      >
+                        <i data-lucide="plus" aria-hidden="true"></i>
+                        <span>Add guests</span>
+                      </button>
+                      <input
+                        class="bk-cf-guest-pill-input"
+                        id="bkCfGuestEmail"
+                        type="email"
+                        placeholder="guest@example.com"
+                        autocomplete="off"
+                        tabindex="-1"
+                      />
+                    </div>
+                    <button
+                      class="bk-cf-guest-add-btn"
+                      id="bkCfGuestAdd"
+                      type="button"
+                      aria-label="Add guest"
+                    >
+                      <i data-lucide="plus" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="bk-cf-actions">
+                  <button
+                    class="book-call-submit bk-cf-confirm"
+                    id="bkCfConfirm"
+                    type="button"
+                  >
+                    <span>Confirm</span>
+                    <span class="book-call-submit-icon" aria-hidden="true">
+                      <i data-lucide="arrow-right"></i>
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Screen 3: Success -->
+              <div
+                class="bk-screen bk-screen--success"
+                id="bkScreen3"
+                aria-hidden="true"
+              >
+                <img class="bk-success-ring" src="assets/misc/Submitted.svg" alt="" aria-hidden="true" />
+                <h3 class="bk-success-title">
+                  You&#8217;re <span>booked.</span>
+                </h3>
+                <p class="bk-success-sub">
+                  Confirmation &amp; Zoom link sent to your inbox.
+                </p>
+                <div class="bk-success-pill">
+                  <span class="bk-success-pill-dot" aria-hidden="true"></span>
+                  <span id="bkSuccessPill"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer-shell">
+        <div class="site-footer-brand">
+          <a
+            class="site-footer-logo"
+            href="/"
+            aria-label="Clockwrk home"
+            >Clockwrk</a
+          >
+          <p>A digital agency that delivers</p>
+        </div>
+        <nav class="site-footer-nav" aria-label="Footer navigation">
+          <a href="/#process">Process</a>
+          <a href="/#services">Services</a>
+          <a href="/#showcase">Showcase</a>
+          <a href="/#pricing">Pricing</a>
+        </nav>
+        <nav class="site-footer-social" aria-label="Social links">
+          <a href="/careers" aria-label="Careers">Careers</a>
+          <a href="/referral" aria-label="Referrals">Referrals</a>
+          <a href="#" aria-label="X">X</a>
+          <a href="#" aria-label="LinkedIn">Linkedin</a>
+        </nav>
+        <nav class="site-footer-legal" aria-label="Legal links">
+          <a href="/terms">Terms &amp; Conditions</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/cookies">Cookie Policy</a>
+        </nav>
+        <a class="about-trust-cta site-footer-top" href="#top">
+          <span>Back to top</span>
+          <span class="about-trust-cta-icon" aria-hidden="true"
+            ><i data-lucide="arrow-up"></i
+          ></span>
+        </a>
+        <form class="site-footer-mailbox" id="footerNewsletterForm" aria-label="Newsletter">
+          <label for="footerEmailInput">Clockwrk<br />in your mailbox</label>
+          <div class="site-footer-input">
+            <input
+              id="footerEmailInput"
+              type="email"
+              placeholder="name@example.com"
+              autocomplete="email"
+            />
+            <button type="button" id="footerEmailBtn" aria-label="Submit email">
+              <i data-lucide="arrow-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </form>
+        <div class="site-footer-contact">
+          <a href="mailto:hello@clockwrk.io">hello@clockwrk.io</a>
+          <p>Clockwrk<br />2026 &copy; All rights reserved</p>
+        </div>
+      </div>
+    </footer>
+
+    <section class="cookie-consent" data-cookie-consent aria-label="Cookie consent">
+      <div class="cookie-consent-inner">
+        <div class="cookie-consent-copy">
+          <h2 class="cookie-consent-title">We use cookies. Don’t you mind?</h2>
+          <p class="cookie-consent-text">
+            We use cookies to collect and analyse information on site performance
+            and usage, to provide social media features and to enhance and
+            customise content and advertisements.
+            <a href="/cookies">Read our Cookie Policy.</a>
+          </p>
+        </div>
+        <div class="cookie-consent-actions">
+          <button class="cookie-consent-btn" type="button" data-cookie-deny>
+            Deny all
+          </button>
+          <button class="cookie-consent-btn" type="button" data-cookie-allow>
+            Allow all cookies
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+
+      // ═══════════════════════════════════════════════════════════
+      // STEPS 1 & 2 — contact form + service picker (unchanged)
+      // ═══════════════════════════════════════════════════════════
+      const bookCallShell = document.querySelector(".book-call-shell");
+      const bookCallForm = document.querySelector("[data-book-call-form]");
+      const bookCallServicesList = document.querySelector(
+        ".book-call-services-list",
+      );
+      const bookCallMobileTabs = Array.from(
+        document.querySelectorAll("[data-book-call-mobile-tab]"),
+      );
+      const bookCallDateStep = document.querySelector(".book-call-date-step");
+
+      const bookCallServices = [
+        {
+          category: "Development",
+          services: [
+            "Web App",
+            "Website",
+            "SaaS",
+            "E-commerce",
+            "Mobile App",
+            "MVP",
+            "API & Integrations",
+            "Extension",
+            "Backend & DB",
+            "DevOps",
+            "CMS",
+            "Bug Fixes",
+          ],
+        },
+        {
+          category: "Design",
+          services: [
+            "MVP",
+            "Website",
+            "Landing Page",
+            "E-commerce",
+            "Mobile App",
+            "SaaS",
+            "Extension",
+            "UI Design",
+            "UX Design",
+          ],
+        },
+        {
+          category: "Branding",
+          services: [
+            "Logo",
+            "Brand Identity",
+            "Design System",
+            "Illustrations",
+            "Mockups",
+            "Icon Set",
+          ],
+        },
+        {
+          category: "Presence",
+          services: [
+            "Pitch Deck",
+            "Slide Deck",
+            "Ad Creatives",
+            "Email Templates",
+            "Infographic",
+            "Social Graphics",
+            "Brochure",
+            "Business Card",
+          ],
+        },
+        {
+          category: "Outdoor & Print",
+          services: [
+            "Packaging",
+            "Stationery",
+            "Billboard",
+            "Event Banner",
+            "Resume",
+          ],
+        },
+      ];
+
+      const selectedBookCallServices = new Set();
+      let activeBookCallCategory = 0;
+      let bookCallServicesBoxTimer = null;
+
+      const BK_CATEGORY_ICONS = {
+        Development: "code-2",
+        Design: "pen-tool",
+        Branding: "star",
+        Presence: "megaphone",
+        "Outdoor & Print": "printer",
+      };
+
+      function bkServicePillHTML(serviceStr) {
+        const colonIdx = serviceStr.indexOf(":");
+        const cat = colonIdx > -1 ? serviceStr.slice(0, colonIdx).trim() : "";
+        const name =
+          colonIdx > -1 ? serviceStr.slice(colonIdx + 1).trim() : serviceStr;
+        const icon = BK_CATEGORY_ICONS[cat] || "sparkles";
+        return (
+          `<span class="bk-cf-pill">` +
+          `<span class="bk-cf-pill-icon"><i data-lucide="${icon}"></i></span>` +
+          `${name}` +
+          `</span>`
+        );
+      }
+
+      function layoutBookCallServicesAccordion() {
+        if (!bookCallServicesList) return;
+        const items = Array.from(
+          bookCallServicesList.querySelectorAll(".book-call-services-item"),
+        );
+        const totalHeaderHeight = items.reduce((sum, item) => {
+          const bar = item.querySelector(".book-call-services-item-bar");
+          return sum + (bar ? bar.offsetHeight : 0);
+        }, 0);
+        const panelHeight = Math.max(
+          0,
+          bookCallServicesList.clientHeight - totalHeaderHeight,
+        );
+        items.forEach((item, i) => {
+          item.style.setProperty(
+            "--book-call-services-panel-height",
+            i === activeBookCallCategory ? `${panelHeight}px` : "0px",
+          );
+        });
+      }
+
+      function getBookCallServicesBoxHeight(box) {
+        if (!box) return 0;
+        const boxStyle = getComputedStyle(box);
+        const paddingY =
+          parseFloat(boxStyle.paddingTop || 0) +
+          parseFloat(boxStyle.paddingBottom || 0);
+        const childrenHeight = Array.from(box.children).reduce((sum, child) => {
+          const childStyle = getComputedStyle(child);
+          if (childStyle.display === "none") return sum;
+          return (
+            sum +
+            child.getBoundingClientRect().height +
+            parseFloat(childStyle.marginTop || 0) +
+            parseFloat(childStyle.marginBottom || 0)
+          );
+        }, 0);
+        return Math.ceil(paddingY + childrenHeight);
+      }
+
+      function updateBookCallScrollbar(item) {
+        const scroller = item?.querySelector(
+          ".book-call-services-panel-scroller",
+        );
+        const thumb = item?.querySelector(".book-call-services-scrollbar span");
+        if (!scroller || !thumb) return;
+        const maxScroll = Math.max(
+          0,
+          scroller.scrollHeight - scroller.clientHeight,
+        );
+        const trackHeight = scroller.clientHeight;
+        const thumbHeight =
+          maxScroll > 0
+            ? Math.max(
+                44,
+                (scroller.clientHeight / scroller.scrollHeight) * trackHeight,
+              )
+            : trackHeight;
+        const thumbTravel = Math.max(0, trackHeight - thumbHeight);
+        const thumbTop =
+          maxScroll > 0 ? (scroller.scrollTop / maxScroll) * thumbTravel : 0;
+        thumb.style.height = `${thumbHeight}px`;
+        thumb.style.transform = `translate(-50%, ${thumbTop}px)`;
+      }
+
+      function updateBookCallSelectedServices() {
+        if (!bookCallServicesList) return;
+        bookCallServicesList
+          .querySelectorAll("[data-book-call-service]")
+          .forEach((pill) => {
+            pill.classList.toggle(
+              "is-selected",
+              selectedBookCallServices.has(pill.dataset.bookCallService),
+            );
+          });
+        bookCallServices.forEach((group, index) => {
+          const item = bookCallServicesList.querySelector(
+            `[data-book-call-category="${index}"]`,
+          );
+          const badge = item?.querySelector(
+            ".book-call-services-item-selected",
+          );
+          if (!badge) return;
+          const count = group.services.filter((s) =>
+            selectedBookCallServices.has(`${index}:${s}`),
+          ).length;
+          badge.textContent = String(count);
+          badge.classList.toggle("is-hidden", count === 0);
+          const countEl = item?.querySelector(".book-call-services-item-count");
+          if (countEl)
+            countEl.textContent = String(group.services.length - count);
+          const mobileTab = bookCallMobileTabs[index];
+          const mobileBadge = mobileTab?.querySelector(
+            ".book-call-mobile-tab-badge",
+          );
+          if (mobileBadge) mobileBadge.textContent = String(count);
+          mobileTab?.classList.toggle(
+            "book-call-mobile-tab-has-count",
+            count > 0,
+          );
+        });
+        updateServiceCtaState();
+      }
+
+      function setBookCallActiveCategory(nextIndex) {
+        if (!bookCallServicesList || nextIndex === activeBookCallCategory)
+          return;
+        const items = Array.from(
+          bookCallServicesList.querySelectorAll(".book-call-services-item"),
+        );
+        const servicesBox = document.querySelector(".book-call-services-box");
+        const previousBoxHeight =
+          servicesBox?.getBoundingClientRect().height || 0;
+        if (servicesBox && previousBoxHeight) {
+          clearTimeout(bookCallServicesBoxTimer);
+          servicesBox.style.height = `${previousBoxHeight}px`;
+          servicesBox.style.overflow = "hidden";
+          servicesBox.getBoundingClientRect();
+        }
+        items.forEach((item) => {
+          item.querySelectorAll(".book-call-service-pill").forEach((pill) => {
+            pill.getAnimations().forEach((animation) => animation.cancel());
+          });
+        });
+
+        activeBookCallCategory = nextIndex;
+        items.forEach((item, index) => {
+          const isActive = index === activeBookCallCategory;
+          const bar = item.querySelector(".book-call-services-item-bar");
+          const panel = item.querySelector(".book-call-services-item-panel");
+          const scroller = item.querySelector(
+            ".book-call-services-panel-scroller",
+          );
+          item.classList.toggle("book-call-services-item-active", isActive);
+          if (bar) bar.setAttribute("aria-expanded", String(isActive));
+          if (panel) panel.setAttribute("aria-hidden", String(!isActive));
+          bookCallMobileTabs[index]?.classList.toggle(
+            "book-call-mobile-tab-active",
+            isActive,
+          );
+          if (!isActive && scroller) scroller.scrollTop = 0;
+        });
+        layoutBookCallServicesAccordion();
+        updateBookCallScrollbar(items[activeBookCallCategory]);
+
+        if (servicesBox && previousBoxHeight) {
+          const nextBoxHeight = getBookCallServicesBoxHeight(servicesBox);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              servicesBox.style.height = `${nextBoxHeight}px`;
+            });
+          });
+          bookCallServicesBoxTimer = setTimeout(() => {
+            servicesBox.style.height = "";
+            servicesBox.style.overflow = "";
+          }, 720);
+        }
+      }
+
+      function renderBookCallServices() {
+        if (!bookCallServicesList) return;
+        bookCallServicesList.innerHTML = bookCallServices
+          .map((group, index) => {
+            const selectedCount = group.services.filter((s) =>
+              selectedBookCallServices.has(`${index}:${s}`),
+            ).length;
+            const isActive = index === activeBookCallCategory;
+            const servicesMarkup = group.services
+              .map((service) => {
+                const key = `${index}:${service}`;
+                const isSelected = selectedBookCallServices.has(key);
+                return `<button class="book-call-service-pill${isSelected ? " is-selected" : ""}" type="button" data-book-call-service="${key}">
+              <span class="book-call-pill-icon" aria-hidden="true"></span>
+              <span>${service}</span>
+            </button>`;
+              })
+              .join("");
+            return `<article class="book-call-services-item${isActive ? " book-call-services-item-active" : ""}" data-book-call-category="${index}">
+            <button class="book-call-services-item-bar" type="button" aria-expanded="${isActive}" data-book-call-tab="${index}">
+              <span class="bar-label">${group.category}</span>
+              <span class="book-call-services-item-selected${selectedCount ? "" : " is-hidden"}">${selectedCount}</span>
+              <span class="book-call-services-item-count">${group.services.length - selectedCount}</span>
+            </button>
+            <div class="book-call-services-item-panel" aria-hidden="${!isActive}">
+              <div class="book-call-services-panel-scroller">
+                <div class="book-call-services-request-list">${servicesMarkup}</div>
+              </div>
+              <div class="book-call-services-scrollbar" aria-hidden="true"><span></span></div>
+            </div>
+          </article>`;
+          })
+          .join("");
+
+        bookCallServicesList
+          .querySelectorAll("[data-book-call-tab]")
+          .forEach((tab) => {
+            tab.addEventListener("click", () =>
+              setBookCallActiveCategory(Number(tab.dataset.bookCallTab || 0)),
+            );
+          });
+        bookCallServicesList
+          .querySelectorAll("[data-book-call-service]")
+          .forEach((pill) => {
+            pill.addEventListener("click", () => {
+              const service = pill.dataset.bookCallService;
+              if (!service) return;
+              selectedBookCallServices.has(service)
+                ? selectedBookCallServices.delete(service)
+                : selectedBookCallServices.add(service);
+              updateBookCallSelectedServices();
+            });
+          });
+        bookCallServicesList
+          .querySelectorAll(".book-call-services-panel-scroller")
+          .forEach((scroller) => {
+            scroller.addEventListener("scroll", () =>
+              updateBookCallScrollbar(
+                scroller.closest(".book-call-services-item"),
+              ),
+            );
+          });
+
+        layoutBookCallServicesAccordion();
+        requestAnimationFrame(() =>
+          updateBookCallScrollbar(
+            bookCallServicesList.querySelector(
+              ".book-call-services-item-active",
+            ),
+          ),
+        );
+      }
+
+      renderBookCallServices();
+
+      bookCallMobileTabs.forEach((tab) => {
+        tab.addEventListener("click", () =>
+          setBookCallActiveCategory(Number(tab.dataset.bookCallMobileTab || 0)),
+        );
+      });
+
+      window.addEventListener("resize", () => {
+        layoutBookCallServicesAccordion();
+        updateBookCallScrollbar(
+          bookCallServicesList?.querySelector(
+            ".book-call-services-item-active",
+          ),
+        );
+      });
+
+      const bookCallLayout = document.querySelector(".book-call-layout");
+      const bookCallServiceCta = document.querySelector(
+        ".book-call-service-submit",
+      );
+      let formData = { name: "", email: "", company: "", services: "" };
+
+      function updateServiceCtaState() {
+        if (!bookCallServiceCta) return;
+        const hasSelection = selectedBookCallServices.size > 0;
+        bookCallServiceCta.disabled = !hasSelection;
+        bookCallServiceCta.classList.toggle("is-disabled", !hasSelection);
+      }
+      updateServiceCtaState();
+
+      let n8nReachable = true; // optimistic default
+      const bookCallEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      function bkGetErrorAnchor(field) {
+        if (field?.type === "checkbox") return field.closest("label") || field;
+        return field;
+      }
+
+      function bkGetErrorMessage(field) {
+        if (!field) return null;
+        const errorId = field.id ? `${field.id}-error` : "";
+        let msg = errorId ? document.getElementById(errorId) : null;
+        if (!msg) {
+          msg = document.createElement("span");
+          msg.className = "bk-error-msg";
+          if (errorId) msg.id = errorId;
+          msg.dataset.bkErrorFor = field.id || "";
+          bkGetErrorAnchor(field).insertAdjacentElement("afterend", msg);
+        }
+        return msg;
+      }
+
+      function bkShowError(field, message) {
+        if (!field) return;
+        field.classList.add("bk-field-error");
+        field.classList.remove("bk-field-ok");
+        const msg = bkGetErrorMessage(field);
+        if (!msg) return;
+        msg.textContent = message;
+        requestAnimationFrame(() => msg.classList.add("is-visible"));
+        field.addEventListener("input", () => bkClearError(field), {
+          once: true,
+        });
+        field.addEventListener("change", () => bkClearError(field), {
+          once: true,
+        });
+      }
+
+      function bkClearError(field) {
+        if (!field) return;
+        field.classList.remove("bk-field-error");
+        const msg = field.id
+          ? document.getElementById(`${field.id}-error`)
+          : null;
+        if (msg) {
+          msg.classList.remove("is-visible");
+          setTimeout(() => msg.remove(), 200);
+        }
+      }
+
+      function bkMarkOk(field) {
+        if (!field) return;
+        bkClearError(field);
+        field.classList.add("bk-field-ok");
+        field.classList.remove("bk-field-error");
+      }
+
+      function bkShakeButton(button) {
+        if (!button) return;
+        button.classList.add("bk-shake");
+        button.addEventListener(
+          "animationend",
+          () => button.classList.remove("bk-shake"),
+          { once: true },
+        );
+      }
+
+      function bkValidateStep1Field(field, showEmptyError = false) {
+        if (!field) return false;
+        const value = field.value.trim();
+        if (field.id === "call-name") {
+          if (!value) {
+            if (showEmptyError) bkShowError(field, "Please enter your name");
+            return false;
+          }
+          if (value.length < 2) {
+            bkShowError(field, "Please enter your name");
+            return false;
+          }
+          bkMarkOk(field);
+          return true;
+        }
+        if (field.id === "call-email") {
+          if (!value) {
+            if (showEmptyError) bkShowError(field, "Please enter a valid email");
+            return false;
+          }
+          if (!bookCallEmailRegex.test(value)) {
+            bkShowError(field, "Please enter a valid email");
+            return false;
+          }
+          bkMarkOk(field);
+          return true;
+        }
+        if (field.id === "call-company") {
+          if (!value) {
+            if (showEmptyError)
+              bkShowError(field, "Please enter your company name");
+            return false;
+          }
+          bkMarkOk(field);
+          return true;
+        }
+        return true;
+      }
+
+      function bkValidateConfirmField(field, showEmptyError = false) {
+        if (!field) return false;
+        const value = field.value.trim();
+        if (field.id === "bkCfName") {
+          if (!value) {
+            if (showEmptyError) bkShowError(field, "Please enter your name");
+            return false;
+          }
+          bkMarkOk(field);
+          return true;
+        }
+        if (field.id === "bkCfEmail") {
+          if (!value) {
+            if (showEmptyError) bkShowError(field, "Please enter a valid email");
+            return false;
+          }
+          if (!bookCallEmailRegex.test(value)) {
+            bkShowError(field, "Please enter a valid email");
+            return false;
+          }
+          bkMarkOk(field);
+          return true;
+        }
+        return true;
+      }
+
+      if (bookCallShell && bookCallForm && bookCallLayout) {
+        const nameField = document.getElementById("call-name");
+        const emailField = document.getElementById("call-email");
+        const companyField = document.getElementById("call-company");
+        const consentField = document.getElementById("bookingConsent");
+        const step1Fields = [nameField, emailField, companyField].filter(Boolean);
+
+        step1Fields.forEach((field) => {
+          field.addEventListener("blur", () => {
+            if (field.value.trim()) bkValidateStep1Field(field);
+          });
+        });
+
+        consentField?.addEventListener("change", () => {
+          if (consentField.checked) bkMarkOk(consentField);
+        });
+
+        bookCallForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const name = nameField?.value.trim() || "";
+          const email = emailField?.value.trim() || "";
+          const company = companyField?.value.trim() || "";
+          const submitBtn = document.getElementById("bookCallFormSubmit");
+          let hasError = false;
+
+          if (!bkValidateStep1Field(nameField, true)) hasError = true;
+          if (!bkValidateStep1Field(emailField, true)) hasError = true;
+          if (!bkValidateStep1Field(companyField, true)) hasError = true;
+          if (!consentField?.checked) {
+            bkShowError(consentField, "Please accept the terms to continue");
+            hasError = true;
+          } else {
+            bkMarkOk(consentField);
+          }
+
+          if (hasError) {
+            bkShakeButton(submitBtn);
+            const firstInvalid = [nameField, emailField, companyField, consentField].find(
+              (field) => field?.classList.contains("bk-field-error"),
+            );
+            firstInvalid?.focus();
+            return;
+          }
+
+          formData.name = name;
+          formData.email = email;
+          formData.company = company;
+
+          // If n8n is offline, send a lead capture email via our Worker and show
+          // a smooth CW overlay → shrink → thank-you state
+          if (!n8nReachable) {
+            if (submitBtn) submitBtn.disabled = true;
+
+            const formCard = document.querySelector(".book-call-form-card");
+
+            // 1. Show CW overlay
+            formCard.classList.add("is-sending");
+
+            // 2. Fire the lead-capture Worker in the background
+            const sendLead = fetch(
+              "https://missedbookingalert.mustafakhankhetran1.workers.dev",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  name: formData.name,
+                  email: formData.email,
+                  company: formData.company || "",
+                }),
+              },
+            ).catch(() => {});
+
+            // 3. Wait at least 900ms so the CW overlay feels intentional, then transition
+            await Promise.all([
+              sendLead,
+              new Promise((res) => setTimeout(res, 900)),
+            ]);
+
+            // 4. Pin the current height so we can animate it down after swapping content
+            const currentHeight = formCard.getBoundingClientRect().height;
+            formCard.style.height = `${currentHeight}px`;
+            formCard.style.overflow = "hidden";
+
+            // 5. Build thank-you content (hidden off-screen first)
+            const firstName = formData.name.split(" ")[0];
+            const thankyouHTML = `<div class="bk-offline-thankyou" style="padding:18px 0 4px;">
+              <p style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#8d8d8f;margin:0 0 14px;font-weight:500;">We’ve got you</p>
+              <h2 style="font-size:clamp(28px,3vw,36px);font-weight:500;letter-spacing:-1.2px;color:#101012;line-height:1.05;margin:0 0 14px;">Someone will<br>reach out soon.</h2>
+              <p style="font-size:15px;color:#5f5f61;letter-spacing:-0.15px;line-height:1.5;margin:0;">We’ve noted your details, ${firstName}. Expect a message at <strong style="color:#101012;">${formData.email}</strong> within one business day.</p>
+            </div>`;
+
+            // 6. Swap inner content while overlay is still showing
+            requestAnimationFrame(() => {
+              formCard.innerHTML = thankyouHTML;
+
+              // 7. Measure the new natural height while the old height is pinned
+              const cardStyle = getComputedStyle(formCard);
+              const paddingY =
+                parseFloat(cardStyle.paddingTop || 0) +
+                parseFloat(cardStyle.paddingBottom || 0);
+              const contentHeight =
+                formCard.firstElementChild?.getBoundingClientRect().height || 0;
+              const targetHeight = Math.ceil(contentHeight + paddingY);
+
+              // 8. Animate to new height — CSS transition handles the smooth resize
+              requestAnimationFrame(() => {
+                formCard.style.height = `${targetHeight}px`;
+              });
+
+              // 9. After resize settles, fade the overlay away and release to auto
+              setTimeout(() => {
+                formCard.classList.remove("is-sending");
+                setTimeout(() => {
+                  formCard.style.height = "";
+                  formCard.style.overflow = "";
+                }, 320);
+              }, 680);
+            });
+
+            return;
+          }
+
+          window.scrollTo({ top: 0, behavior: "instant" });
+          bookCallLayout.classList.add("is-exiting");
+          setTimeout(() => {
+            bookCallLayout.classList.remove("is-exiting");
+            bookCallShell.classList.add("is-selecting");
+          }, 460);
+        });
+      }
+
+      if (bookCallServiceCta && bookCallDateStep) {
+        bookCallServiceCta.addEventListener("click", () => {
+          formData.services = Array.from(selectedBookCallServices)
+            .map((k) => {
+              const [catIndex, ...rest] = k.split(":");
+              const catName =
+                bookCallServices[Number(catIndex)]?.category || "";
+              return `${catName}: ${rest.join(":")}`;
+            })
+            .join(", ");
+          // Snap viewport to top instantly so the slide-out/slide-in plays from a fixed frame
+          window.scrollTo({ top: 0, behavior: "instant" });
+          bookCallShell.classList.remove("is-date-settled");
+          bookCallShell.classList.add("is-service-exiting");
+          // Reset screen 1 in case a prior confirm transition left it hidden
+          const _s1 = document.getElementById("bkScreen1");
+          const _s2 = document.getElementById("bkScreen2");
+          const _outer = document.getElementById("bkOuter");
+          if (_s1) {
+            _s1.style.cssText = "";
+          }
+          if (_s2) {
+            _s2.style.display = "none";
+            _s2.setAttribute("aria-hidden", "true");
+          }
+          if (_outer) {
+            _outer.style.height = "";
+            _outer.classList.remove(
+              "is-transitioning",
+              "is-loading",
+              "is-confirming",
+            );
+          }
+          setTimeout(() => {
+            bookCallShell.classList.remove("is-service-exiting");
+            bookCallShell.classList.add("is-dating");
+            // After entrance animation, release to auto height so slots push the footer
+            setTimeout(
+              () => bookCallShell.classList.add("is-date-settled"),
+              1150,
+            );
+          }, 460);
+          setTimeout(() => {
+            const nameEl = document.getElementById("bkCfName");
+            const emailEl = document.getElementById("bkCfEmail");
+            const companyEl = document.getElementById("bkCfCompany");
+            const servicesEl = document.getElementById("bkCfServices");
+            if (nameEl && formData.name) nameEl.value = formData.name;
+            if (emailEl && formData.email) emailEl.value = formData.email;
+            if (companyEl && formData.company)
+              companyEl.textContent = formData.company;
+            if (servicesEl && formData.services) {
+              servicesEl.innerHTML = formData.services
+                .split(", ")
+                .map((s) => bkServicePillHTML(s))
+                .join("");
+              lucide.createIcons({ nodes: [servicesEl] });
+            }
+          }, 650);
+        });
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // STEP 3 — Custom calendar + booking picker
+      // ═══════════════════════════════════════════════════════════
+      const BK_MONTHS = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      const BK_DAYS_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+      let bkToday = new Date();
+      bkToday.setHours(0, 0, 0, 0);
+      let bkYear = bkToday.getFullYear();
+      let bkMonth = bkToday.getMonth();
+      let bkSelDate = null;
+      let bkSelSlot = null;
+      let bkUse24 = false;
+
+      // ── Clockwrk Booking Config ────────────────────────────────
+      // n8n webhook — your Cloudflare tunnel URL
+      const N8N_BASE = "https://n8n.clockwrk.io";
+      const N8N_BOOKING_URL = `${N8N_BASE}/webhook/booking`;
+      const N8N_SLOTS_URL = `${N8N_BASE}/webhook/slots`;
+
+      const BK_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const _bkCache = {};
+      let _bkFlight = {};
+
+      // ── n8n health check on page load ─────────────────────────
+      function bkSetOfflineMode() {
+        n8nReachable = false;
+
+        requestAnimationFrame(function () {
+          var banner = document.getElementById("bkOfflineBanner");
+          if (banner) {
+            if (typeof lucide !== "undefined")
+              lucide.createIcons({ nodes: [banner] });
+            requestAnimationFrame(function () {
+              banner.classList.add("is-visible");
+            });
+          }
+          var submitLabel = document.getElementById("bookCallSubmitLabel");
+          var submitIcon = document.getElementById("bookCallSubmitIcon");
+          var submitBtn = document.getElementById("bookCallFormSubmit");
+          if (submitLabel) submitLabel.textContent = "We’ll be in touch";
+          if (submitIcon) submitIcon.setAttribute("data-lucide", "mail");
+          if (submitBtn && typeof lucide !== "undefined")
+            lucide.createIcons({ nodes: [submitBtn] });
+        });
+      }
+
+      window.addEventListener("load", function () {
+        (async function bkHealthCheck() {
+          try {
+            var res = await fetch(
+              N8N_BASE + "/webhook/slots?year=2000&month=1",
+              { signal: AbortSignal.timeout(4000) },
+            );
+            if (!res.ok) bkSetOfflineMode();
+          } catch (_e) {
+            bkSetOfflineMode();
+          }
+        })();
+      });
+
+      // Fetch slots from n8n
+      async function bkFetchMonth(year, month) {
+        const key = `${year}-${month}`;
+        if (_bkCache[key]) return _bkCache[key];
+        if (_bkFlight[key]) return _bkFlight[key];
+
+        _bkFlight[key] = (async () => {
+          try {
+            const res = await fetch(
+              `${N8N_SLOTS_URL}?year=${year}&month=${month}`,
+              { signal: AbortSignal.timeout(5000) },
+            );
+            if (!res.ok) throw new Error("slots unavailable");
+            const data = await res.json();
+            _bkCache[key] = data.slots || {};
+            delete _bkFlight[key];
+            bkRenderCal();
+            return _bkCache[key];
+          } catch (_) {
+            delete _bkFlight[key];
+            return {};
+          }
+        })();
+
+        return _bkFlight[key];
+      }
+
+      async function bkLoadMonth() {
+        await bkFetchMonth(bkYear, bkMonth + 1);
+        const nm = bkMonth === 11 ? 1 : bkMonth + 2;
+        const ny = bkMonth === 11 ? bkYear + 1 : bkYear;
+        bkFetchMonth(ny, nm).catch(() => {});
+      }
+
+      function bkFmtTime(t) {
+        const [h, m] = t.split(":").map(Number);
+        if (bkUse24)
+          return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+        const ap = h >= 12 ? "pm" : "am";
+        const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
+        return `${h12}:${m.toString().padStart(2, "0")}${ap}`;
+      }
+
+      function bkFmtRange(t) {
+        const [h, m] = t.split(":").map(Number);
+        const endM = m + 30;
+        const endH = h + (endM >= 60 ? 1 : 0);
+        const endMin = endM % 60;
+        const fmt = (hh, mm) => {
+          if (bkUse24)
+            return `${hh.toString().padStart(2, "0")}:${mm.toString().padStart(2, "0")}`;
+          const h12 = hh > 12 ? hh - 12 : hh === 0 ? 12 : hh;
+          return `${h12}:${mm.toString().padStart(2, "0")}`;
+        };
+        const ap = h >= 12 ? "pm" : "am";
+        return `${fmt(h, m)} \u2013 ${fmt(endH, endMin)} ${ap}`;
+      }
+
+      function bkSameDay(a, b) {
+        return (
+          a &&
+          b &&
+          a.getFullYear() === b.getFullYear() &&
+          a.getMonth() === b.getMonth() &&
+          a.getDate() === b.getDate()
+        );
+      }
+
+      function bkDateKey(date) {
+        return [
+          date.getFullYear(),
+          String(date.getMonth() + 1).padStart(2, "0"),
+          String(date.getDate()).padStart(2, "0"),
+        ].join("-");
+      }
+
+      function bkMondayOffset(date) {
+        const dow = date.getDay();
+        return dow === 0 ? 6 : dow - 1;
+      }
+
+      function bkUpdateSelectedDay() {
+        const selectedKey = bkSelDate ? bkDateKey(bkSelDate) : "";
+        document.querySelectorAll(".bk-day[data-date]").forEach((day) => {
+          day.classList.toggle("bk-day--sel", day.dataset.date === selectedKey);
+        });
+      }
+
+      function bkRenderCal() {
+        const monthEl = document.getElementById("bkMonthLabel");
+        if (!monthEl) return;
+        monthEl.classList.add("is-fading");
+        setTimeout(() => {
+          monthEl.innerHTML = `${BK_MONTHS[bkMonth]} <span>${bkYear}</span>`;
+          monthEl.classList.remove("is-fading");
+        }, 180);
+
+        const wrap = document.getElementById("bkDays");
+        if (!wrap) return;
+        wrap.innerHTML = "";
+
+        const firstOfMonth = new Date(bkYear, bkMonth, 1);
+        const offset = bkMondayOffset(firstOfMonth);
+        const total = new Date(bkYear, bkMonth + 1, 0).getDate();
+
+        for (let i = 0; i < offset; i++) {
+          const el = document.createElement("div");
+          el.className = "bk-day bk-day--empty";
+          el.setAttribute("role", "gridcell");
+          el.setAttribute("aria-hidden", "true");
+          el.style.animationDelay = "0ms";
+          wrap.appendChild(el);
+        }
+
+        for (let d = 1; d <= total; d++) {
+          const date = new Date(bkYear, bkMonth, d);
+          const el = document.createElement("div");
+          el.className = "bk-day";
+          el.setAttribute("role", "gridcell");
+          el.textContent = d;
+          el.style.animationDelay = `${(offset + d - 1) * 14}ms`;
+
+          const dow = date.getDay();
+          const isWeekend = dow === 0 || dow === 6;
+          const isPast = date < bkToday;
+          const monthKey = `${bkYear}-${bkMonth + 1}`;
+          const dateKey = bkDateKey(date);
+          const availableSlots = _bkCache[monthKey] || {};
+          const hasSlots = Array.isArray(availableSlots[dateKey]) && availableSlots[dateKey].length > 0;
+
+          if (!isPast && !isWeekend && hasSlots) {
+            el.classList.add("bk-day--avail");
+            el.dataset.date = dateKey;
+            el.setAttribute("tabindex", "0");
+            el.setAttribute(
+              "aria-label",
+              date.toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              }),
+            );
+            if (bkSameDay(date, bkToday)) el.classList.add("bk-day--today");
+            if (bkSameDay(date, bkSelDate)) el.classList.add("bk-day--sel");
+            el.addEventListener("click", () => bkPickDate(new Date(date)));
+            el.addEventListener("keydown", (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                bkPickDate(new Date(date));
+              }
+            });
+          } else {
+            el.setAttribute("disabled", "");
+            el.setAttribute("aria-disabled", "true");
+            el.classList.add("bk-day-disabled");
+            if (!isPast && !isWeekend) el.classList.add("bk-day--no-slots");
+          }
+          wrap.appendChild(el);
+        }
+      }
+
+      function bkPickDate(date) {
+        bkSelDate = date;
+        bkSelSlot = null;
+        bkUpdateSelectedDay();
+
+        const section = document.getElementById("bkTimeSection");
+        if (section) {
+          const wasHidden = section.hidden;
+          section.hidden = false;
+          if (wasHidden) {
+            requestAnimationFrame(() => section.classList.add("is-open"));
+          } else {
+            section.classList.add("is-open");
+          }
+        }
+
+        const idx = date.getDay() === 0 ? 6 : date.getDay() - 1;
+        const dd = date.getDate().toString().padStart(2, "0");
+        const dayEl = document.getElementById("bkTimeDay");
+        if (dayEl) dayEl.innerHTML = `${BK_DAYS_SHORT[idx]} <span>${dd}</span>`;
+
+        bkRenderSlots(date);
+      }
+
+      function bkRenderSlots(date) {
+        const wrap = document.getElementById("bkSlots");
+        if (!wrap) return;
+
+        const previousHeight = wrap.offsetHeight;
+        if (previousHeight > 0) {
+          wrap.style.minHeight = `${previousHeight}px`;
+          wrap.classList.add("is-switching");
+        }
+
+        wrap.innerHTML = `
+          <div class="bk-skeleton" aria-hidden="true"></div>
+          <div class="bk-skeleton" aria-hidden="true"></div>
+          <div class="bk-skeleton" aria-hidden="true"></div>
+        `;
+
+        const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+        const dateKey = bkDateKey(date);
+
+        const renderTimes = (times) => {
+          // Filter out slots that have already passed (when viewing today)
+          const now = new Date();
+          const filtered = times.filter((t) => {
+            if (!bkSameDay(date, now)) return true;
+            const [h, m] = t.split(":").map(Number);
+            return (
+              h > now.getHours() ||
+              (h === now.getHours() && m > now.getMinutes())
+            );
+          });
+
+          wrap.innerHTML = "";
+          if (!filtered.length) {
+            wrap.innerHTML = `<p class="bk-placeholder">No availability on this day</p>`;
+            bkSettleSlotHeight(wrap, previousHeight);
+            return;
+          }
+          filtered.forEach((t, i) => {
+            const el = document.createElement("button");
+            el.className = "bk-slot";
+            el.setAttribute("role", "listitem");
+            el.setAttribute("type", "button");
+            el.style.animationDelay = `${i * 45}ms`;
+            el.textContent = bkFmtTime(t);
+            el.addEventListener("click", () => {
+              wrap
+                .querySelectorAll(".bk-slot")
+                .forEach((s) => s.classList.remove("bk-slot--sel"));
+              el.classList.add("bk-slot--sel");
+              bkSelSlot = t;
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              setTimeout(() => bkGoToConfirm(), 300);
+            });
+            wrap.appendChild(el);
+          });
+          bkSettleSlotHeight(wrap, previousHeight);
+        };
+
+        if (_bkCache[monthKey]) {
+          setTimeout(() => renderTimes(_bkCache[monthKey][dateKey] || []), 420);
+        } else {
+          bkFetchMonth(date.getFullYear(), date.getMonth() + 1)
+            .then((slots) =>
+              setTimeout(() => renderTimes(slots[dateKey] || []), 420),
+            )
+            .catch(() => {
+              wrap.innerHTML = `<p class="bk-placeholder">Could not load slots. Please try again.</p>`;
+            });
+        }
+      }
+
+      function bkSettleSlotHeight(wrap, previousHeight) {
+        const nextHeight = wrap.scrollHeight;
+        if (!previousHeight) {
+          wrap.classList.remove("is-switching");
+          return;
+        }
+
+        wrap.style.minHeight = `${Math.max(previousHeight, nextHeight)}px`;
+        requestAnimationFrame(() => {
+          wrap.style.minHeight = `${nextHeight}px`;
+          wrap.classList.remove("is-switching");
+          setTimeout(() => {
+            wrap.style.minHeight = "";
+          }, 460);
+        });
+      }
+
+      function bkGoToConfirm() {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const dateStr = bkSelDate.toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        });
+        const timeRange = bkFmtRange(bkSelSlot);
+
+        document.getElementById("bkCfSummary").innerHTML = `
+          <div class="bk-cf-summary-row" style="animation-delay:0s">
+            <span class="bk-cf-summary-icon" aria-hidden="true"><i data-lucide="calendar-days"></i></span>
+            <div class="bk-cf-summary-text">
+              <strong>${dateStr}</strong>
+              <span>${timeRange}</span>
+            </div>
+          </div>
+          <div class="bk-cf-summary-row" style="animation-delay:0.06s">
+            <span class="bk-cf-summary-icon" aria-hidden="true"><i data-lucide="clock-3"></i></span>
+            <span>30 minutes</span>
+          </div>
+          <div class="bk-cf-summary-row" style="animation-delay:0.08s">
+            <span class="bk-cf-summary-icon bk-cf-summary-icon--zoom" aria-hidden="true">
+              <img class="bk-zoom-mark" src="assets/logos/zoom.png" alt="" />
+            </span>
+            <span>Zoom meeting</span>
+          </div>
+          <div class="bk-cf-summary-row" style="animation-delay:0.1s">
+            <span class="bk-cf-summary-icon" aria-hidden="true"><i data-lucide="globe-2"></i></span>
+            <span>${tz.replace(/_/g, " ")}</span>
+          </div>
+        `;
+        lucide.createIcons();
+
+        const outer = document.getElementById("bkOuter");
+        const s1 = document.getElementById("bkScreen1");
+        const s2 = document.getElementById("bkScreen2");
+        if (
+          !outer ||
+          !s1 ||
+          !s2 ||
+          outer.classList.contains("is-transitioning")
+        )
+          return;
+
+        outer.classList.add("is-transitioning", "is-loading");
+        outer.style.height = `${s1.offsetHeight}px`;
+
+        setTimeout(() => {
+          s1.style.transition = "none";
+          s1.style.opacity = "0";
+          s1.style.position = "absolute";
+          s1.style.top = "0";
+          s1.style.left = "0";
+          s1.style.width = "100%";
+          s1.setAttribute("aria-hidden", "true");
+
+          s2.style.transition = "none";
+          s2.style.transform = "translateY(0)";
+          s2.style.opacity = "1";
+          s2.style.display = "block";
+          s2.setAttribute("aria-hidden", "false");
+
+          requestAnimationFrame(() => {
+            outer.style.height = `${s2.offsetHeight}px`;
+          });
+
+          setTimeout(() => {
+            outer.classList.remove("is-loading");
+            outer.style.height = "";
+            outer.classList.remove("is-transitioning");
+          }, 520);
+        }, 320);
+      }
+
+      function bkGoBack() {
+        const outer = document.getElementById("bkOuter");
+        const s1 = document.getElementById("bkScreen1");
+        const s2 = document.getElementById("bkScreen2");
+        if (
+          !outer ||
+          !s1 ||
+          !s2 ||
+          outer.classList.contains("is-transitioning")
+        )
+          return;
+
+        outer.classList.add("is-transitioning", "is-loading");
+        outer.style.height = `${s2.offsetHeight}px`;
+
+        setTimeout(() => {
+          s2.style.transition = "none";
+          s2.style.opacity = "0";
+          s2.style.transform = "translateY(8px)";
+          s2.style.display = "none";
+          s2.setAttribute("aria-hidden", "true");
+
+          s1.style.transition = "none";
+          s1.style.transform = "translateY(0)";
+          s1.style.opacity = "1";
+          s1.style.position = "";
+          s1.style.top = s1.style.left = s1.style.width = "";
+          s1.setAttribute("aria-hidden", "false");
+
+          requestAnimationFrame(() => {
+            outer.style.height = `${s1.offsetHeight}px`;
+          });
+
+          setTimeout(() => {
+            outer.classList.remove("is-loading");
+            outer.style.height = "";
+            outer.classList.remove("is-transitioning");
+          }, 520);
+        }, 320);
+      }
+
+      document.getElementById("bkCfBack")?.addEventListener("click", bkGoBack);
+
+      const bkConfirmNameField = document.getElementById("bkCfName");
+      const bkConfirmEmailField = document.getElementById("bkCfEmail");
+
+      [bkConfirmNameField, bkConfirmEmailField].forEach((field) => {
+        field?.addEventListener("blur", () => {
+          if (field.value.trim()) bkValidateConfirmField(field);
+        });
+      });
+
+      document.getElementById("bkCfConfirm")?.addEventListener("click", () => {
+        const nameEl = document.getElementById("bkCfName");
+        const emailEl = document.getElementById("bkCfEmail");
+        const btn = document.getElementById("bkCfConfirm");
+        let hasError = false;
+
+        if (!bkValidateConfirmField(nameEl, true)) hasError = true;
+        if (!bkValidateConfirmField(emailEl, true)) hasError = true;
+
+        if (hasError) {
+          bkShakeButton(btn);
+          const firstInvalid = [nameEl, emailEl].find((field) =>
+            field?.classList.contains("bk-field-error"),
+          );
+          firstInvalid?.focus();
+          return;
+        }
+
+        const nameVal = nameEl.value.trim();
+        const emailVal = emailEl.value.trim();
+        const outer = document.getElementById("bkOuter");
+        const notesEl = document.getElementById("bkCfNotes");
+        const notesVal = notesEl?.value.trim() || "";
+        btn.disabled = true;
+        outer.classList.add("is-confirming");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        // ── Cal.com booking POST ──────────────────────────────────
+        const [sh, sm] = bkSelSlot.split(":").map(Number);
+        // Build ISO string in the user's timezone, then convert to UTC
+        const y = bkSelDate.getFullYear();
+        const mo = String(bkSelDate.getMonth() + 1).padStart(2, "0");
+        const d = String(bkSelDate.getDate()).padStart(2, "0");
+        const hh = String(sh).padStart(2, "0");
+        const mm = String(sm).padStart(2, "0");
+        // Parse as local time then get UTC ISO
+        const startISO = new Date(
+          `${y}-${mo}-${d}T${hh}:${mm}:00`,
+        ).toISOString();
+
+        // Slide heading out immediately on confirm
+        const headingPick = document.getElementById("bookCallHeadingPick");
+        if (headingPick) headingPick.classList.add("is-exiting");
+
+        // ── Booking payload ───────────────────────────────────────
+        const bookingPayload = {
+          name: nameVal,
+          email: emailVal,
+          company: formData.company || "",
+          services: formData.services || "",
+          notes: notesVal,
+          guests: bkGuestEmails,
+          date: `${y}-${mo}-${d}`,
+          time: `${hh}:${mm}`,
+        };
+
+        // If n8n was unreachable at page load, block and show error.
+        // Cal.com fallback is intentionally disabled — it has no access to our
+        // MySQL slot database and would cause double-bookings.
+        if (!n8nReachable) {
+          outer.classList.remove("is-confirming");
+          btn.disabled = false;
+          if (headingPick) headingPick.classList.remove("is-exiting");
+          let errEl = document.getElementById("bkBookErr");
+          if (!errEl) {
+            errEl = document.createElement("p");
+            errEl.id = "bkBookErr";
+            errEl.style.cssText =
+              "margin-top:12px;font-size:13px;color:rgba(220,50,50,0.9);text-align:center;";
+            document
+              .getElementById("bkCfConfirm")
+              ?.closest(".bk-cf-actions")
+              ?.insertAdjacentElement("afterend", errEl);
+          }
+          errEl.innerHTML =
+            "Our booking system is temporarily offline.<br>Please try again shortly or email us at <a href=\'mailto:hello@clockwrk.io\' style=\'color:inherit;text-decoration:underline;\'>hello@clockwrk.io</a>";
+          return;
+        }
+
+        fetch(N8N_BOOKING_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bookingPayload),
+          signal: AbortSignal.timeout(10000),
+        })
+          .then((r) => {
+            if (!r.ok) throw new Error(`n8n error ${r.status}`);
+            return r.json();
+          })
+          .then((data) => {
+            if (data?.status === "error")
+              throw new Error(data?.error?.message || "Booking failed");
+            const s2 = document.getElementById("bkScreen2");
+
+            // Pin current height so the resize animates smoothly
+            outer.style.height = `${s2.offsetHeight}px`;
+
+            const toRemove = Array.from(
+              s2.querySelectorAll(
+                ".bk-cf-back-icon, .bk-cf-field, .bk-cf-guests, .bk-cf-actions",
+              ),
+            );
+            toRemove.forEach((el, i) => {
+              el.style.transition = `opacity 0.22s ease ${i * 0.06}s, transform 0.22s ease ${i * 0.06}s`;
+              el.style.opacity = "0";
+              el.style.transform = "translateY(-10px)";
+            });
+
+            const removeDuration = 220 + toRemove.length * 60;
+            setTimeout(() => {
+              toRemove.forEach((el) => el.remove());
+              const servicesRow = formData.services
+                ? `<div class="bk-confirmed-row"><span class="bk-confirmed-label">Services</span><div class="bk-cf-pills" style="margin-top:8px;">${formData.services
+                    .split(", ")
+                    .map((s) => bkServicePillHTML(s))
+                    .join("")}</div></div>`
+                : "";
+
+              // Build the static wrapper and fixed rows via innerHTML (no user data here)
+              const confirmedRows = document.createElement("div");
+              confirmedRows.className = "bk-confirmed-rows";
+              confirmedRows.innerHTML = `
+                <div class="bk-confirmed-row">
+                  <span class="bk-confirmed-label">Name</span>
+                  <span class="bk-confirmed-value" id="bkConfirmedName"></span>
+                </div>
+                <div class="bk-confirmed-row">
+                  <span class="bk-confirmed-label">Email</span>
+                  <span class="bk-confirmed-value" id="bkConfirmedEmail"></span>
+                </div>
+                ${formData.company ? `<div class="bk-confirmed-row"><span class="bk-confirmed-label">Company</span><span class="bk-confirmed-value" id="bkConfirmedCompany"></span></div>` : ""}
+                ${servicesRow}
+              `;
+
+              // Set user-supplied values safely via textContent
+              confirmedRows.querySelector("#bkConfirmedName").textContent = nameVal;
+              confirmedRows.querySelector("#bkConfirmedEmail").textContent = emailVal;
+              if (formData.company) {
+                confirmedRows.querySelector("#bkConfirmedCompany").textContent = formData.company;
+              }
+
+              // Build guest tags safely
+              if (bkGuestEmails.length > 0) {
+                const guestsRow = document.createElement("div");
+                guestsRow.className = "bk-confirmed-row";
+                const guestsLabel = document.createElement("span");
+                guestsLabel.className = "bk-confirmed-label";
+                guestsLabel.textContent = "Guests";
+                const guestsWrap = document.createElement("div");
+                guestsWrap.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;";
+                bkGuestEmails.forEach((g) => {
+                  const tag = document.createElement("div");
+                  tag.className = "bk-cf-guest-tag bk-cf-guest-tag--static";
+                  const tagSpan = document.createElement("span");
+                  tagSpan.textContent = g;
+                  tag.appendChild(tagSpan);
+                  guestsWrap.appendChild(tag);
+                });
+                guestsRow.appendChild(guestsLabel);
+                guestsRow.appendChild(guestsWrap);
+                confirmedRows.appendChild(guestsRow);
+              }
+
+              s2.appendChild(confirmedRows);
+
+              // Slide "Booked!" heading in
+              const headingBooked = document.getElementById(
+                "bookCallHeadingBooked",
+              );
+              if (headingBooked) {
+                headingBooked.classList.add("is-entering");
+                headingBooked.removeAttribute("aria-hidden");
+              }
+
+              // Animate to new height, then fade overlay out after resize settles
+              requestAnimationFrame(() => {
+                outer.style.height = `${s2.scrollHeight}px`;
+              });
+              setTimeout(() => {
+                outer.classList.remove("is-confirming");
+                outer.style.height = "";
+              }, 680);
+
+              lucide.createIcons();
+            }, removeDuration + 80);
+          })
+          .catch((err) => {
+            outer.classList.remove("is-confirming");
+            btn.disabled = false;
+            if (headingPick) headingPick.classList.remove("is-exiting");
+            let errEl = document.getElementById("bkBookErr");
+            if (!errEl) {
+              errEl = document.createElement("p");
+              errEl.id = "bkBookErr";
+              errEl.style.cssText =
+                "margin-top:12px;font-size:13px;color:rgba(220,50,50,0.9);text-align:center;";
+              document
+                .getElementById("bkCfConfirm")
+                ?.closest(".bk-cf-actions")
+                ?.insertAdjacentElement("afterend", errEl);
+            }
+            errEl.textContent = "Something went wrong — please try again.";
+          });
+      });
+
+      // ── Guest logic ──────────────────────────────────────────
+      const bkGuestEmails = [];
+
+      function bkRenderGuests() {
+        const list = document.getElementById("bkCfGuestList");
+        if (!list) return;
+        list.innerHTML = bkGuestEmails
+          .map(
+            (email, i) =>
+              `<div class="bk-cf-guest-tag">
+                <span>${email}</span>
+                <button class="bk-cf-guest-remove" type="button" data-guest-index="${i}" aria-label="Remove ${email}">
+                  <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+              </div>`,
+          )
+          .join("");
+        list.querySelectorAll("[data-guest-index]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            bkGuestEmails.splice(Number(btn.dataset.guestIndex), 1);
+            bkRenderGuests();
+          });
+        });
+        lucide.createIcons();
+      }
+
+      function bkAddGuest() {
+        const input = document.getElementById("bkCfGuestEmail");
+        const addBtn = document.getElementById("bkCfGuestAdd");
+        if (!input) return;
+        const email = input.value.trim();
+        if (!email || !bookCallEmailRegex.test(email)) {
+          bkShowError(input, "Please enter a valid email");
+          bkShakeButton(addBtn);
+          input.focus();
+          return;
+        }
+        if (
+          bkGuestEmails.some(
+            (guestEmail) => guestEmail.toLowerCase() === email.toLowerCase(),
+          )
+        ) {
+          bkShowError(input, "This email has already been added");
+          bkShakeButton(addBtn);
+          input.focus();
+          return;
+        }
+        bkMarkOk(input);
+        bkGuestEmails.push(email);
+        bkRenderGuests();
+        input.value = "";
+        input.focus();
+      }
+
+      function bkOpenGuestPill() {
+        const pill = document.getElementById("bkCfGuestPill");
+        const row = document.getElementById("bkCfGuestRow");
+        const input = document.getElementById("bkCfGuestEmail");
+        const lbl = document.querySelector(".bk-cf-guest-above-label");
+        if (!pill) return;
+        pill.classList.add("is-open");
+        row?.classList.add("is-open");
+        lbl?.classList.add("is-open");
+        input.tabIndex = 0;
+        setTimeout(() => input.focus(), 50);
+      }
+
+      function bkCloseGuestPill() {
+        const pill = document.getElementById("bkCfGuestPill");
+        const row = document.getElementById("bkCfGuestRow");
+        const input = document.getElementById("bkCfGuestEmail");
+        const lbl = document.querySelector(".bk-cf-guest-above-label");
+        if (pill) pill.classList.remove("is-open");
+        if (row) row.classList.remove("is-open");
+        if (lbl) lbl.classList.remove("is-open");
+        if (input) {
+          input.value = "";
+          input.tabIndex = -1;
+        }
+      }
+
+      document
+        .getElementById("bkCfGuestsBtn")
+        ?.addEventListener("click", bkOpenGuestPill);
+
+      document
+        .getElementById("bkCfGuestAdd")
+        ?.addEventListener("click", bkAddGuest);
+
+      document
+        .getElementById("bkCfGuestEmail")
+        ?.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            bkAddGuest();
+          }
+          if (e.key === "Escape") bkCloseGuestPill();
+        });
+
+      document.getElementById("bkCfGuestEmail")?.addEventListener("blur", (e) => {
+        const input = e.currentTarget;
+        const value = input.value.trim();
+        if (!value) return;
+        if (!bookCallEmailRegex.test(value)) {
+          bkShowError(input, "Please enter a valid email");
+          return;
+        }
+        if (
+          bkGuestEmails.some(
+            (guestEmail) => guestEmail.toLowerCase() === value.toLowerCase(),
+          )
+        ) {
+          bkShowError(input, "This email has already been added");
+          return;
+        }
+        bkMarkOk(input);
+      });
+
+      document.getElementById("bkPrev")?.addEventListener("click", () => {
+        bkMonth--;
+        if (bkMonth < 0) {
+          bkMonth = 11;
+          bkYear--;
+        }
+        bkSelDate = null;
+        const ts = document.getElementById("bkTimeSection");
+        if (ts) {
+          ts.classList.remove("is-open");
+          setTimeout(() => {
+            ts.hidden = true;
+          }, 520);
+        }
+        bkRenderCal();
+      });
+
+      document.getElementById("bkNext")?.addEventListener("click", () => {
+        bkMonth++;
+        if (bkMonth > 11) {
+          bkMonth = 0;
+          bkYear++;
+        }
+        bkSelDate = null;
+        const ts = document.getElementById("bkTimeSection");
+        if (ts) {
+          ts.classList.remove("is-open");
+          setTimeout(() => {
+            ts.hidden = true;
+          }, 520);
+        }
+        bkRenderCal();
+      });
+
+      document
+        .getElementById("bkFmt12")
+        ?.addEventListener("click", function () {
+          bkUse24 = false;
+          this.classList.add("is-active");
+          this.setAttribute("aria-pressed", "true");
+          document.getElementById("bkFmt24")?.classList.remove("is-active");
+          document
+            .getElementById("bkFmt24")
+            ?.setAttribute("aria-pressed", "false");
+          if (bkSelDate) bkRenderSlots(bkSelDate);
+        });
+
+      document
+        .getElementById("bkFmt24")
+        ?.addEventListener("click", function () {
+          bkUse24 = true;
+          this.classList.add("is-active");
+          this.setAttribute("aria-pressed", "true");
+          document.getElementById("bkFmt12")?.classList.remove("is-active");
+          document
+            .getElementById("bkFmt12")
+            ?.setAttribute("aria-pressed", "false");
+          if (bkSelDate) bkRenderSlots(bkSelDate);
+        });
+
+	      bkRenderCal();
+	      bkLoadMonth();
+
+	      function initNewsletterForm(formId, inputId, btnId, type, source) {
+	        const form = document.getElementById(formId);
+	        const input = document.getElementById(inputId);
+	        const btn = document.getElementById(btnId);
+	        if (!form || !input || !btn) return;
+
+	        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+		        async function submitEmail(emailType) {
+		          const email = input.value.trim();
+
+		          if (!email || !emailRegex.test(email)) {
+		            bkShowError(input, "Please enter a valid email");
+		            bkShakeButton(btn);
+		            return;
+		          }
+              bkMarkOk(input);
+
+		          btn.disabled = true;
+		          const originalContent = btn.innerHTML;
+	          btn.innerHTML = "...";
+
+	          try {
+	            const controller = new AbortController();
+	            const timeout = setTimeout(() => controller.abort(), 10000);
+
+	            const res = await fetch("https://n8n.clockwrk.io/webhook/newsletter", {
+	              method: "POST",
+	              headers: { "Content-Type": "application/json" },
+	              body: JSON.stringify({ email, type: emailType || type, source }),
+	              signal: controller.signal,
+	            });
+
+	            clearTimeout(timeout);
+	            const data = await res.json();
+
+		            if (data.success) {
+		              input.value = "";
+                  input.classList.remove("bk-field-ok");
+		              input.placeholder =
+		                data.message === "already_subscribed"
+		                  ? "Already subscribed"
+	                  : "You're in ✓";
+	              btn.innerHTML = originalContent;
+	              btn.disabled = false;
+	            } else {
+	              throw new Error("failed");
+	            }
+	          } catch {
+		            btn.innerHTML = originalContent;
+		            btn.disabled = false;
+		            input.value = "";
+		            input.classList.remove("bk-field-ok");
+                bkShowError(input, "Something went wrong, try again");
+		            input.placeholder = "Something went wrong, try again";
+		            setTimeout(() => {
+		              bkClearError(input);
+		              input.placeholder = "Your email";
+		            }, 3000);
+		          }
+		        }
+
+            input.addEventListener("blur", () => {
+              const email = input.value.trim();
+              if (!email) return;
+              if (!emailRegex.test(email)) {
+                bkShowError(input, "Please enter a valid email");
+                return;
+              }
+              bkMarkOk(input);
+            });
+
+		        form.addEventListener("submit", (e) => {
+	          e.preventDefault();
+	          submitEmail(type);
+	        });
+
+	        btn.addEventListener("click", () => submitEmail(type));
+	      }
+
+	      initNewsletterForm('footerNewsletterForm', 'footerEmailInput', 'footerEmailBtn', 'marketing', 'footer-bookcall');
+	    </script>
+    <script src="cookie-consent.js?v=20260530"></script>
+    <script>
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get("ref");
+        if (ref) {
+          const expires = new Date();
+          expires.setDate(expires.getDate() + 30);
+          document.cookie = `cw_ref=${encodeURIComponent(ref)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+          const clean = new URL(window.location.href);
+          clean.searchParams.delete("ref");
+          history.replaceState(null, "", clean.pathname + (clean.search || ""));
+        }
+      })();
+    </script>
+  </body>
+</html>

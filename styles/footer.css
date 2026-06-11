@@ -1,6 +1,25 @@
 .site-footer {
   background: #ffffff;
-  padding: clamp(120px, 14vh, 170px) 20px 28px;
+  padding: clamp(48px, 6vh, 80px) 20px 28px;
+}
+
+.site-footer.cw-footer-hidden {
+  opacity: 0;
+  transform: translateY(60px);
+  pointer-events: none;
+  transition:
+    opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Arriving — slow spring from the hidden position into place */
+.site-footer.cw-footer-arriving {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition:
+    opacity 0.70s cubic-bezier(0.16, 1, 0.3, 1) 0.10s,
+    transform 0.70s cubic-bezier(0.16, 1, 0.3, 1) 0.10s;
 }
 
 .site-footer-shell {
@@ -21,6 +40,21 @@
 .site-footer a {
   color: inherit;
   text-decoration: none;
+  transition:
+    color 0.22s ease,
+    text-decoration-color 0.22s ease;
+}
+
+.site-footer-nav a:hover,
+.site-footer-nav a:focus-visible,
+.site-footer-social a:hover,
+.site-footer-social a:focus-visible {
+  color: var(--tick-green-bg);
+}
+
+.site-footer-legal a:hover,
+.site-footer-legal a:focus-visible {
+  color: #ffffff;
 }
 
 .site-footer-brand {
@@ -82,6 +116,78 @@
   min-width: 260px;
   margin-top: 0;
   background: #1d1d1d;
+}
+
+.site-footer-top.about-trust-cta {
+  position: relative;
+  width: fit-content;
+  height: 70px;
+  padding: 0 90px 0 44px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+  overflow: hidden;
+  transition:
+    background 0.45s cubic-bezier(0.22, 0.9, 0.3, 1),
+    color 0.45s cubic-bezier(0.22, 0.9, 0.3, 1),
+    transform 0.25s ease,
+    box-shadow 0.35s ease;
+}
+
+.site-footer-top.about-trust-cta > span:first-child {
+  display: inline-block;
+  white-space: nowrap;
+  transition: transform 0.45s cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+
+.site-footer-top.about-trust-cta:hover,
+.site-footer-top.about-trust-cta:focus-visible {
+  background: #ffffff;
+  color: #111111;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+}
+
+.site-footer-top.about-trust-cta:hover > span:first-child,
+.site-footer-top.about-trust-cta:focus-visible > span:first-child {
+  transform: translateX(40px);
+}
+
+.site-footer-top .about-trust-cta-icon {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  color: #111111;
+  transition:
+    right 0.45s cubic-bezier(0.22, 0.9, 0.3, 1),
+    background 0.45s ease,
+    color 0.45s ease;
+}
+
+.site-footer-top.about-trust-cta:hover .about-trust-cta-icon,
+.site-footer-top.about-trust-cta:focus-visible .about-trust-cta-icon {
+  right: calc(100% - 61px);
+  background: #a0e92a;
+  color: #111111;
+}
+
+.site-footer-top .about-trust-cta-icon svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 1.8;
 }
 
 .site-footer-input button {
@@ -158,6 +264,12 @@
   cursor: pointer;
 }
 
+.site-footer-input button:hover,
+.site-footer-input button:focus-visible {
+  background: var(--tick-green-bg);
+  color: #101012;
+}
+
 .site-footer-contact {
   grid-column: 4;
   grid-row: 3;
@@ -172,6 +284,14 @@
   line-height: 1;
   font-weight: 400;
   letter-spacing: -0.3px;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+}
+
+.site-footer-contact > a:hover,
+.site-footer-contact > a:focus-visible {
+  text-decoration-color: currentColor;
 }
 
 .site-footer-contact p {

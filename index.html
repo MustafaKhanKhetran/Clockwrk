@@ -1,13 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Clockwrk - Dedicated team of professional designers and developers for your project"
+      content="Clockwrk is a subscription-based design and development agency. Get your first deliverable in 2–3 days. No contracts, no interviews — just results."
     />
-    <title>Clockwrk - Pro Designers & Developers</title>
+    <meta
+      name="keywords"
+      content="clockwrk, clockwrk.io, clockwork agency, design agency, development agency, subscription design"
+    />
+    <title>Clockwrk – A Digital Agency That Delivers</title>
+    <link rel="canonical" href="https://clockwrk.io" />
+    <link
+      rel="icon"
+      href="assets/favicon/favicon-96x96.png"
+      type="image/png"
+      sizes="96x96"
+    />
+    <link rel="icon" href="assets/favicon/favicon.ico" sizes="any" />
+    <link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="assets/favicon/site.webmanifest" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -18,7 +33,7 @@
     />
 
     <!-- Styles -->
-    <link rel="stylesheet" href="styles/global.css" />
+    <link rel="stylesheet" href="styles/global.css?v=20260530" />
     <link rel="stylesheet" href="styles/navbar.css" />
     <link rel="stylesheet" href="styles/landing.css" />
     <link rel="stylesheet" href="styles/comparison.css" />
@@ -27,10 +42,65 @@
     <link rel="stylesheet" href="styles/quickcall.css" />
     <link rel="stylesheet" href="styles/about.css" />
     <link rel="stylesheet" href="styles/showcase.css" />
-    <link rel="stylesheet" href="styles/pricing.css" />
+    <link rel="stylesheet" href="styles/pricing.css?v=20260530" />
     <link rel="stylesheet" href="styles/feedback.css" />
     <link rel="stylesheet" href="styles/cheatcode.css" />
     <link rel="stylesheet" href="styles/footer.css" />
+
+    <meta
+      property="og:title"
+      content="Clockwrk – A Digital Agency That Delivers"
+    />
+    <meta
+      property="og:description"
+      content="Skip the hiring process. Get a full design & dev team on your side, delivering real work in 2–3 days for less than what you'd pay one employee. No contracts. No fluff. Just results."
+    />
+    <meta
+      property="og:image"
+      content="https://clockwrk.io/assets/misc/OG.png"
+    />
+    <meta property="og:url" content="https://clockwrk.io" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Clockwrk – A Digital Agency That Delivers"
+    />
+    <meta
+      name="twitter:description"
+      content="Skip the hiring process. Get a full design & dev team on your side, delivering real work in 2–3 days for less than what you'd pay one employee. No contracts. No fluff. Just results."
+    />
+    <meta
+      name="twitter:image"
+      content="https://clockwrk.io/assets/misc/OG.png"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": "Clockwrk",
+        "url": "https://clockwrk.io",
+        "logo": "https://clockwrk.io/assets/misc/OG.png",
+        "description": "Subscription-based design and development agency. Unlimited requests, fixed monthly fee, first results in 2–3 days.",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "PK"
+        },
+        "serviceType": [
+          "Web Design",
+          "Web Development",
+          "Branding",
+          "Webflow Development",
+          "UI/UX Design"
+        ],
+        "priceRange": "$$",
+        "email": "hello@clockwrk.io",
+        "sameAs": [
+          "https://twitter.com/clockwrk",
+          "https://linkedin.com/company/clockwrk"
+        ]
+      }
+    </script>
   </head>
 
   <body>
@@ -53,6 +123,12 @@
             <a class="nav-link" href="#showcase">Showcase</a>
             <a class="nav-link" href="#feedback">Feedback</a>
             <a class="nav-link" href="#pricing">Pricing</a>
+            <a class="nav-link nav-link--expanded-only" href="/referral"
+              >Referral</a
+            >
+            <a class="nav-link nav-link--expanded-only" href="/careers"
+              >Careers</a
+            >
           </div>
 
           <!-- Desktop CTA -->
@@ -87,6 +163,8 @@
             <a class="mobile-menu-link" href="#showcase">Showcase</a>
             <a class="mobile-menu-link" href="#feedback">Feedback</a>
             <a class="mobile-menu-link" href="#pricing">Pricing</a>
+            <a class="mobile-menu-link" href="/referral">Referral</a>
+            <a class="mobile-menu-link" href="/careers">Careers</a>
           </nav>
         </div>
       </div>
@@ -191,7 +269,14 @@
              ========================= -->
         <div class="logo-stage" aria-label="Clockwrk">
           <div class="hero-logo-wrap">
-            <h1 class="hero-logo-text" data-word="clockwrk">clockwrk</h1>
+            <p
+              class="hero-logo-text"
+              data-word="clockwrk"
+              role="presentation"
+              aria-hidden="true"
+            >
+              clockwrk
+            </p>
           </div>
 
           <div class="float-icons" aria-hidden="true">
@@ -239,7 +324,7 @@
           </div>
 
           <div class="hero-right">
-            <h2 class="hero-title">
+            <h2 class="hero-title" aria-hidden="true">
               Dedicated team of pro<br />designers &amp; developers
             </h2>
             <p class="hero-sub">
@@ -768,6 +853,13 @@
                     </div>
                   </div>
                 </div>
+                <button
+                  class="pricing-checkout-overlay"
+                  type="button"
+                  aria-label="Return to pricing options"
+                  aria-hidden="true"
+                  tabindex="-1"
+                ></button>
               </div>
 
               <div class="process-copy">
@@ -947,11 +1039,17 @@
               </div>
             </article>
 
-            <a class="process-card process-card-cta" href="#pricing">
+            <a
+              class="process-card process-card-cta"
+              href="#pricing"
+              aria-label="Get started with Clockwrk pricing"
+            >
               <div class="process-cta-row">
                 <h4 class="process-cta-title">
                   <span class="process-cta-title-main">Get started</span>
-                  <span class="process-cta-title-hover">now!</span>
+                  <span class="process-cta-title-hover" aria-hidden="true"
+                    >now!</span
+                  >
                 </h4>
                 <span class="process-cta-arrow" aria-hidden="true">→</span>
               </div>
@@ -1034,7 +1132,7 @@
                     <span>Development</span>
                     <span class="services-item-count">12</span>
                   </button>
-                  <div class="services-item-panel" aria-hidden="false">
+                  <div class="services-item-panel">
                     <div class="services-panel-scroller">
                       <div class="services-request-list">
                         <button
@@ -1548,11 +1646,6 @@
                       >&#8594;</span
                     >
                   </a>
-
-                  <button class="services-mobile-compare-dev" type="button">
-                    <span>Need development?</span>
-                    <span class="services-mobile-compare-dev-help">?</span>
-                  </button>
                 </div>
               </div>
 
@@ -1638,10 +1731,6 @@
                             >&#8594;</span
                           >
                         </a>
-                        <button class="services-drop-dev" type="button">
-                          <span>Need development?</span>
-                          <span class="services-drop-dev-help">?</span>
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -1719,7 +1808,9 @@
               or just aren’t sure what
               <span class="quick-call-highlight">fits best</span>?
             </h2>
-            <a class="quick-call-link" href="#pricing">Book a quick session</a>
+            <a class="quick-call-link" href="/book-a-call"
+              >Book a quick session</a
+            >
           </div>
         </div>
       </section>
@@ -1729,31 +1820,31 @@
           <div class="about-shell">
             <div class="about-icon-row" aria-hidden="true">
               <span class="about-icon-bubble about-icon-bubble-lime">
-                <img src="assets/logos/figma.png" alt="" />
+                <img src="assets/logos/figma.png" alt="" loading="lazy" />
               </span>
               <span class="about-icon-bubble about-icon-bubble-blue">
-                <img src="assets/logos/ps.png" alt="" />
+                <img src="assets/logos/ps.png" alt="" loading="lazy" />
               </span>
               <span class="about-icon-bubble about-icon-bubble-sand">
-                <img src="assets/logos/ai.png" alt="" />
+                <img src="assets/logos/ai.png" alt="" loading="lazy" />
               </span>
               <span class="about-icon-bubble about-icon-bubble-green">
-                <img src="assets/logos/js.png" alt="" />
+                <img src="assets/logos/js.png" alt="" loading="lazy" />
               </span>
               <span class="about-icon-bubble about-icon-bubble-cyan">
-                <img src="assets/logos/html.png" alt="" />
+                <img src="assets/logos/html.png" alt="" loading="lazy" />
               </span>
               <span class="about-icon-bubble about-icon-bubble-violet">
-                <img src="assets/logos/css.png" alt="" />
+                <img src="assets/logos/css.png" alt="" loading="lazy" />
               </span>
             </div>
             <div class="about-people-row" aria-hidden="true">
-              <img src="assets/icons/portrait1.png" alt="" />
-              <img src="assets/icons/portrait2.png" alt="" />
-              <img src="assets/icons/portrait3.png" alt="" />
-              <img src="assets/icons/portrait1.png" alt="" />
-              <img src="assets/icons/portrait2.png" alt="" />
-              <img src="assets/icons/portrait3.png" alt="" />
+              <img src="assets/icons/portrait1.png" alt="" loading="lazy" />
+              <img src="assets/icons/portrait2.png" alt="" loading="lazy" />
+              <img src="assets/icons/portrait3.png" alt="" loading="lazy" />
+              <img src="assets/icons/portrait1.png" alt="" loading="lazy" />
+              <img src="assets/icons/portrait2.png" alt="" loading="lazy" />
+              <img src="assets/icons/portrait3.png" alt="" loading="lazy" />
             </div>
 
             <div class="about-copy">
@@ -1872,7 +1963,7 @@
                   digital team: strategy, design, development, integrations, and
                   support moving together under one clear process.
                 </p>
-                <a class="about-trust-cta" href="#quick-call">
+                <a class="about-trust-cta" href="/book-a-call">
                   <span>Book a quick call</span>
                   <span class="about-trust-cta-icon" aria-hidden="true">
                     <i data-lucide="arrow-right"></i>
@@ -1919,6 +2010,7 @@
                         src="assets/misc/card2.svg"
                         alt=""
                         class="about-trust-team-art"
+                        loading="lazy"
                       />
                     </div>
                     <h3>
@@ -1934,6 +2026,7 @@
                         src="assets/misc/card3.svg"
                         alt=""
                         class="about-trust-orbit-art"
+                        loading="lazy"
                       />
                     </div>
                     <h3>Outstanding people,<br />shaped by real work</h3>
@@ -1946,6 +2039,7 @@
                         src="assets/misc/Group 74.svg"
                         alt=""
                         class="about-trust-focus-art"
+                        loading="lazy"
                       />
                     </div>
                     <h3>
@@ -1960,6 +2054,7 @@
                         src="assets/misc/card5.svg"
                         alt=""
                         class="about-trust-relation-art"
+                        loading="lazy"
                       />
                     </div>
                     <h3>
@@ -1998,6 +2093,7 @@
                   class="showcase-card-image"
                   src="assets/showcase/PCC_Showcase_mockup.png"
                   alt="PCC showcase mockup"
+                  loading="lazy"
                 />
                 <div class="showcase-neutral-overlay">
                   <div class="showcase-neutral-copy">
@@ -2032,6 +2128,7 @@
                   class="showcase-card-image"
                   src="assets/showcase/LagomDesignWork.png"
                   alt="Lagom Studio showcase"
+                  loading="lazy"
                 />
                 <div class="showcase-neutral-overlay">
                   <div class="showcase-neutral-copy">
@@ -2068,6 +2165,7 @@
                   class="showcase-card-image"
                   src="assets/showcase/Rift.png"
                   alt="Rift showcase"
+                  loading="lazy"
                 />
                 <div class="showcase-neutral-overlay">
                   <div class="showcase-neutral-copy">
@@ -2104,6 +2202,7 @@
                   class="showcase-card-image"
                   src="assets/showcase/FeroxShowcase.png"
                   alt="Ferox showcase"
+                  loading="lazy"
                 />
                 <div class="showcase-neutral-overlay">
                   <div class="showcase-neutral-copy">
@@ -2138,6 +2237,7 @@
                   class="showcase-card-image"
                   src="assets/showcase/KanzoShowcase.png"
                   alt="Kanzo showcase"
+                  loading="lazy"
                 />
                 <div class="showcase-neutral-overlay">
                   <div class="showcase-neutral-copy">
@@ -2172,6 +2272,7 @@
                   class="showcase-card-image"
                   src="assets/showcase/elythea.png"
                   alt="Elythea showcase"
+                  loading="lazy"
                 />
                 <div class="showcase-neutral-overlay">
                   <div class="showcase-neutral-copy">
@@ -2231,7 +2332,7 @@
                       </h3>
                       <p>
                         Can’t decide?
-                        <a href="#quick-call">Book a 15-minute call</a>
+                        <a href="/book-a-call">Book a 15-minute call</a>
                       </p>
                     </div>
 
@@ -2353,6 +2454,7 @@
                           data-addon-price="550"
                           data-addon-weekly-price="550"
                           data-addon-monthly-price="1670"
+                          data-pricing-addon="whitelabel"
                         ></button>
                       </div>
                     </div>
@@ -2362,53 +2464,154 @@
 
               <!-- Mobile fixed bottom summary -->
               <div class="pricing-mobile-summary" aria-label="Pricing summary">
-                <button
-                  class="pricing-mobile-summary-close"
-                  type="button"
-                  aria-label="Close plan details"
-                >
-                  ×
-                </button>
+                <!-- Back layer: price + expandable sections -->
+                <div class="pricing-mobile-back">
+                  <div class="pricing-mobile-back-price">
+                    <div class="pricing-mobile-summary-amount">
+                      <div class="pricing-mobile-summary-amount-inner">
+                        <strong data-pricing-summary-total>$870</strong>
+                        <span>Total</span>
+                      </div>
+                    </div>
+                    <button
+                      class="pricing-mobile-summary-close"
+                      type="button"
+                      aria-label="Close"
+                    >
+                      ×
+                    </button>
+                  </div>
 
-                <div class="pricing-mobile-summary-total">
-                  <strong data-pricing-summary-total>$870</strong>
-                  <span>Total</span>
-                </div>
+                  <div class="pricing-mobile-back-sections">
+                    <div class="pricing-mobile-back-sections-inner">
+                      <div
+                        class="pricing-mobile-summary-view pricing-mobile-summary-details"
+                        data-pricing-mobile-view="learn"
+                        aria-hidden="true"
+                      >
+                        <div
+                          class="pricing-mobile-summary-divider"
+                          aria-hidden="true"
+                        ></div>
+                        <ul class="pricing-mobile-summary-list">
+                          <li>2-3 business days delivery time</li>
+                          <li>Whole team input</li>
+                          <li>Satisfaction guarantee</li>
+                          <li>Unlimited brands</li>
+                          <li>Unlimited revisions</li>
+                        </ul>
+                        <p class="pricing-mobile-summary-copy">
+                          Regardless of the request, you can do as much
+                          revisions as you want to get it perfect. Just give it
+                          a go, and we’ll make sure you get what you want.
+                        </p>
+                      </div>
 
-                <div class="pricing-mobile-summary-expandable">
-                  <div
-                    class="pricing-mobile-summary-details"
-                    aria-hidden="true"
+	                      <div
+	                        class="pricing-mobile-summary-view pricing-mobile-checkout"
+	                        data-pricing-mobile-view="checkout"
+	                        aria-hidden="true"
+                      >
+                        <div class="pricing-mobile-checkout-head">
+                          <button
+                            class="pricing-mobile-checkout-back"
+                            type="button"
+                            aria-label="Back"
+                          >
+                            &#8592;
+                          </button>
+                          <h3>One more step!</h3>
+                        </div>
+                        <label class="pricing-mobile-checkout-field">
+                          <span>Name</span>
+                          <input
+                            type="text"
+                            name="pricing-mobile-name"
+                            placeholder="Name"
+                            autocomplete="name"
+                          />
+                        </label>
+                        <label class="pricing-mobile-checkout-field">
+                          <span>Email</span>
+                          <input
+                            type="email"
+                            name="pricing-mobile-email"
+                            placeholder="Email"
+                            autocomplete="email"
+                          />
+                        </label>
+                        <label class="pricing-mobile-checkout-field">
+                          <span>Company/project name</span>
+                          <input
+                            type="text"
+                            name="pricing-mobile-company"
+                            placeholder="Company/project name"
+                            autocomplete="organization"
+                          />
+	                        </label>
+	                      </div>
+	                      <div
+	                        class="pricing-mobile-summary-view pricing-mobile-success"
+	                        data-pricing-mobile-view="success"
+	                        aria-hidden="true"
+	                      >
+	                        <div class="pricing-mobile-success-head">
+	                          <button
+	                            class="pricing-mobile-checkout-back pricing-mobile-success-back"
+	                            type="button"
+	                            aria-label="Back"
+	                          >
+	                            &#8592;
+	                          </button>
+	                          <p class="pricing-mobile-success-eyebrow">You're in</p>
+	                        </div>
+	                        <h3>Good things<br />take a team.</h3>
+	                        <p class="pricing-mobile-success-body">
+	                          You've got one now, Mustafa. M94 Group is set up on our
+	                          Startup plan, let's build something great!
+	                        </p>
+	                        <p class="pricing-mobile-success-sub">
+	                          Check your inbox for your portal access code. If you don't
+	                          see it, check your spam folder.
+	                        </p>
+	                      </div>
+	                    </div>
+	                  </div>
+	                </div>
+
+                <!-- Front layer: CTA + learn more / consent -->
+                <div class="pricing-mobile-front">
+                  <button
+                    class="pricing-summary-cta pricing-mobile-summary-cta pricing-proceed-btn"
+                    type="button"
+                    data-plan="startup"
                   >
-                    <div
-                      class="pricing-mobile-summary-divider"
-                      aria-hidden="true"
-                    ></div>
-                    <ul class="pricing-mobile-summary-list">
-                      <li>2-3 business days delivery time</li>
-                      <li>Whole team input</li>
-                      <li>Satisfaction guarantee</li>
-                      <li>Unlimited brands</li>
-                      <li>Unlimited revisions</li>
-                    </ul>
-                    <p class="pricing-mobile-summary-copy">
-                      Regardless of the request, you can do as much revisions as
-                      you want to get it perfect. Just give it a go, and we’ll
-                      make sure you get what you want.
-                    </p>
+                    <span class="cta-text pricing-cta-proceed">Proceed</span>
+	                    <span class="cta-text pricing-cta-subscribe"
+	                      >Subscribe</span
+	                    >
+	                    <span class="cta-text pricing-cta-success"
+	                      >Submit your first request</span
+	                    >
+	                    <span class="cta-icon pricing-summary-cta-icon"
+	                      >&#8594;</span
+                    >
+                  </button>
+
+                  <div class="pricing-mobile-front-lower">
+                    <button class="pricing-mobile-summary-learn" type="button">
+                      Learn more about the plan <span>?</span>
+                    </button>
+                    <label class="pricing-mobile-checkout-consent">
+                      <input type="checkbox" name="pricing-mobile-consent" />
+                      <span>
+                        I accept the <a href="/terms">Terms and Conditions</a
+                        ><br />
+                        and <a href="/privacy">Privacy Policy</a>
+                      </span>
+                    </label>
                   </div>
                 </div>
-
-                <a
-                  class="pricing-summary-cta pricing-mobile-summary-cta"
-                  href="#top"
-                >
-                  <span>Proceed</span>
-                  <span class="pricing-summary-cta-icon">&#8594;</span>
-                </a>
-                <button class="pricing-mobile-summary-learn" type="button">
-                  Learn more about the plan <span>?</span>
-                </button>
               </div>
 
               <aside class="pricing-summary">
@@ -2425,15 +2628,84 @@
                 </ul>
 
                 <div class="pricing-summary-footer">
+                  <div
+                    class="pricing-summary-success"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <p class="pricing-summary-success-eyebrow">You're in</p>
+                    <h3>Good things take a team.</h3>
+	                    <p class="pricing-success-body">
+	                      You've got one now, Mustafa. M94 Group is set up on our
+	                      Startup plan, let's build something great!
+	                    </p>
+	                    <p class="pricing-summary-success-sub">
+	                      Check your inbox for your portal access code. If you don't
+	                      see it, check your spam folder.
+	                    </p>
+	                  </div>
+
+                  <div class="pricing-checkout-form">
+                    <h3>One more step to it!</h3>
+                    <label class="pricing-checkout-field">
+                      <span>Name</span>
+                      <input
+                        type="text"
+                        name="pricing-name"
+                        placeholder="Name"
+                        autocomplete="name"
+                      />
+                    </label>
+                    <label class="pricing-checkout-field">
+                      <span>Email</span>
+                      <input
+                        type="email"
+                        name="pricing-email"
+                        placeholder="Email"
+                        autocomplete="email"
+                      />
+                    </label>
+                    <label class="pricing-checkout-field">
+                      <span>Company</span>
+                      <input
+                        type="text"
+                        name="pricing-company"
+                        placeholder="Company/project name"
+                        autocomplete="organization"
+                      />
+                    </label>
+                  </div>
+
                   <div class="pricing-summary-total">
                     <strong data-pricing-summary-total>$870</strong>
                     <span>Total</span>
                   </div>
 
-                  <a class="pricing-summary-cta" href="#top">
-                    <span>Proceed</span>
-                    <span class="pricing-summary-cta-icon">&#8594;</span>
-                  </a>
+                  <button
+                    class="pricing-summary-cta pricing-proceed-btn"
+                    type="button"
+                    data-plan="startup"
+                  >
+	                    <span class="cta-text pricing-cta-proceed">Proceed</span>
+	                    <span class="cta-text pricing-cta-subscribe"
+	                      >Subscribe</span
+	                    >
+	                    <span class="cta-text pricing-cta-success"
+	                      >Submit your first request</span
+	                    >
+	                    <span class="cta-icon pricing-summary-cta-icon">→</span>
+	                  </button>
+
+                  <div class="pricing-cta-underbar">
+                    <label class="pricing-checkout-consent">
+                      <input type="checkbox" name="pricing-consent" />
+                      <span
+                        >I accept the
+                        <a href="/terms">Terms and Conditions</a> and
+                        <a href="/privacy">Privacy Policy</a></span
+                      >
+                    </label>
+	                  </div>
                 </div>
               </aside>
             </div>
@@ -2492,7 +2764,11 @@
                         class="feedback-card-media feedback-card-media-solid"
                         aria-hidden="true"
                       >
-                        <img src="assets/misc/Card1-Feedback.svg" alt="" />
+                        <img
+                          src="assets/misc/Card1-Feedback.svg"
+                          alt=""
+                          loading="lazy"
+                        />
                       </div>
                       <div class="feedback-card-copy">
                         <h3>Solid team</h3>
@@ -2592,7 +2868,11 @@
                   <div class="feedback-track">
                     <article class="feedback-card feedback-card-three">
                       <div class="feedback-card-media" aria-hidden="true">
-                        <img src="assets/misc/Card3-Feedback.svg" alt="" />
+                        <img
+                          src="assets/misc/Card3-Feedback.svg"
+                          alt=""
+                          loading="lazy"
+                        />
                       </div>
                       <div class="feedback-card-copy">
                         <h3>Goal-driven approach</h3>
@@ -2618,7 +2898,11 @@
                   <div class="feedback-track">
                     <article class="feedback-card feedback-card-four">
                       <div class="feedback-card-media" aria-hidden="true">
-                        <img src="assets/misc/card4-Feedback.svg" alt="" />
+                        <img
+                          src="assets/misc/card4-Feedback.svg"
+                          alt=""
+                          loading="lazy"
+                        />
                       </div>
                       <div class="feedback-card-copy">
                         <h3>Happy vibes, delivered</h3>
@@ -2644,7 +2928,11 @@
                   <div class="feedback-track">
                     <article class="feedback-card feedback-card-five">
                       <div class="feedback-card-media" aria-hidden="true">
-                        <img src="assets/misc/card5-Feedback.svg" alt="" />
+                        <img
+                          src="assets/misc/card5-Feedback.svg"
+                          alt=""
+                          loading="lazy"
+                        />
                       </div>
                       <div class="feedback-card-copy">
                         <h3>Start ASAP</h3>
@@ -2670,7 +2958,11 @@
                   <div class="feedback-track">
                     <article class="feedback-card feedback-card-six">
                       <div class="feedback-card-media" aria-hidden="true">
-                        <img src="assets/misc/card6-Feedback.svg" alt="" />
+                        <img
+                          src="assets/misc/card6-Feedback.svg"
+                          alt=""
+                          loading="lazy"
+                        />
                       </div>
                       <div class="feedback-card-copy">
                         <h3>Security driven</h3>
@@ -2702,6 +2994,7 @@
                         src="assets/misc/Founder-Feeback.svg"
                         alt=""
                         aria-hidden="true"
+                        loading="lazy"
                       />
                       <p>
                         From idea to launch, from launch to growth, from growth
@@ -2763,9 +3056,7 @@
                         understood what we needed without us having to
                         over-explain - which made a big difference.
                       </p>
-                      <h3 class="feedback-block-client-name">
-                        Saadulev Khan
-                      </h3>
+                      <h3 class="feedback-block-client-name">Saadulev Khan</h3>
                       <p class="feedback-block-client-role"></p>
                     </div>
                   </div>
@@ -2773,7 +3064,6 @@
               </div>
             </div>
           </div>
-
 
           <section
             class="feedback-mobile-testimonials"
@@ -2862,7 +3152,10 @@
 
         <div class="cheatcode-actions">
           <a class="cheatcode-card cheatcode-card-plan" href="#pricing">
-            <div class="cheatcode-card-visual cheatcode-plan-visual" aria-hidden="true">
+            <div
+              class="cheatcode-card-visual cheatcode-plan-visual"
+              aria-hidden="true"
+            >
               <div class="cheatcode-plan-stack cheatcode-plan-stack-left">
                 <span>Startup</span>
                 <i></i><i></i><i></i><i></i><i></i>
@@ -2885,8 +3178,11 @@
             </div>
           </a>
 
-          <a class="cheatcode-card cheatcode-card-call" href="#pricing">
-            <div class="cheatcode-card-visual cheatcode-call-visual" aria-hidden="true">
+          <a class="cheatcode-card cheatcode-card-call" href="/book-a-call">
+            <div
+              class="cheatcode-card-visual cheatcode-call-visual"
+              aria-hidden="true"
+            >
               <div class="process-panels-wrap">
                 <div class="process-panel">
                   <div class="process-panel-head">
@@ -2895,14 +3191,33 @@
                   </div>
                   <div class="process-avatars">
                     <span class="process-avatar-icon">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="16 18 22 12 16 6" />
+                        <polyline points="8 6 2 12 8 18" />
                       </svg>
                     </span>
                     <span class="process-avatar-cw">cw</span>
                     <span class="process-avatar-icon">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                       </svg>
                     </span>
                   </div>
@@ -2913,18 +3228,54 @@
                     <span>You</span>
                   </div>
                   <div class="process-avatars">
-                    <img src="assets/icons/portrait1.png" alt="" class="process-avatar-img"/>
-                    <img src="assets/icons/portrait2.png" alt="" class="process-avatar-img"/>
-                    <img src="assets/icons/portrait3.png" alt="" class="process-avatar-img"/>
+                    <img
+                      src="assets/icons/portrait1.png"
+                      alt=""
+                      class="process-avatar-img"
+                    />
+                    <img
+                      src="assets/icons/portrait2.png"
+                      alt=""
+                      class="process-avatar-img"
+                    />
+                    <img
+                      src="assets/icons/portrait3.png"
+                      alt=""
+                      class="process-avatar-img"
+                    />
                   </div>
                 </div>
                 <div class="process-connect">
                   <div class="process-connect-inner">
-                    <svg class="process-ring-svg" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                      <circle class="process-ring-circle" cx="20" cy="20" r="17" stroke="white" stroke-width="34"/>
+                    <svg
+                      class="process-ring-svg"
+                      viewBox="0 0 40 40"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        class="process-ring-circle"
+                        cx="20"
+                        cy="20"
+                        r="17"
+                        stroke="white"
+                        stroke-width="34"
+                      />
                     </svg>
-                    <svg class="process-connect-check" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                      <polyline class="process-check-path" points="4,11 8,15 16,6" stroke="#0b0b0c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg
+                      class="process-connect-check"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <polyline
+                        class="process-check-path"
+                        points="4,11 8,15 16,6"
+                        stroke="#0b0b0c"
+                        stroke-width="2.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
                     </svg>
                   </div>
                 </div>
@@ -2938,8 +3289,9 @@
         </div>
 
         <p class="cheatcode-note">
-          Save time and $ on hiring someone, interviews, and trying to find great work<br />
-          for peanuts. Try Undercat and get first results in 2-3 business days.
+          Save time and $ on hiring someone, interviews, and trying to find
+          great work<br />
+          for peanuts. Try Clockwrk and get first results in 2-3 business days.
         </p>
       </div>
     </section>
@@ -2961,16 +3313,16 @@
         </nav>
 
         <nav class="site-footer-social" aria-label="Social links">
+          <a href="/careers" aria-label="Careers">Careers</a>
+          <a href="/referral" aria-label="Referrals">Referrals</a>
           <a href="#" aria-label="X">X</a>
-          <a href="#" aria-label="Dribbble">Dribbble</a>
-          <a href="#" aria-label="Pinterest">Pinterest</a>
           <a href="#" aria-label="LinkedIn">Linkedin</a>
         </nav>
 
         <nav class="site-footer-legal" aria-label="Legal links">
-          <a href="#">Terms &amp; Conditions</a>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Cookie Policy</a>
+          <a href="/terms">Terms &amp; Conditions</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/cookies">Cookie Policy</a>
         </nav>
 
         <a class="about-trust-cta site-footer-top" href="#top">
@@ -2980,34 +3332,74 @@
           </span>
         </a>
 
-        <form class="site-footer-mailbox" action="#" aria-label="Newsletter">
-          <label for="footer-email">Clockwrk<br />in your mailbox</label>
+        <form
+          class="site-footer-mailbox"
+          id="footerNewsletterForm"
+          aria-label="Newsletter"
+        >
+          <label for="footerEmailInput">Clockwrk<br />in your mailbox</label>
           <div class="site-footer-input">
             <input
-              id="footer-email"
+              id="footerEmailInput"
               type="email"
               placeholder="name@example.com"
               autocomplete="email"
             />
-            <button type="button" aria-label="Submit email">
+            <button type="button" id="footerEmailBtn" aria-label="Submit email">
               <i data-lucide="arrow-right" aria-hidden="true"></i>
             </button>
           </div>
         </form>
 
         <div class="site-footer-contact">
-          <a href="mailto:hello@clockwrk.com">hello@clockwrk.com</a>
+          <a href="mailto:hello@clockwrk.io">hello@clockwrk.io</a>
           <p>Clockwrk<br />2026 © All rights reserved</p>
         </div>
       </div>
     </footer>
 
+    <section class="cookie-consent" data-cookie-consent aria-label="Cookie consent">
+      <div class="cookie-consent-inner">
+        <div class="cookie-consent-copy">
+          <h2 class="cookie-consent-title">We use cookies. Don’t you mind?</h2>
+          <p class="cookie-consent-text">
+            We use cookies to collect and analyse information on site performance
+            and usage, to provide social media features and to enhance and
+            customise content and advertisements.
+            <a href="/cookies">Read our Cookie Policy.</a>
+          </p>
+        </div>
+        <div class="cookie-consent-actions">
+          <button class="cookie-consent-btn" type="button" data-cookie-deny>
+            Deny all
+          </button>
+          <button class="cookie-consent-btn" type="button" data-cookie-allow>
+            Allow all cookies
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- Scripts -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
     <script>
-      // Initialize Lucide icons
-      lucide.createIcons();
+      document.addEventListener("DOMContentLoaded", () => lucide.createIcons());
     </script>
-    <script src="script.js"></script>
+    <script src="script.js?v=20260530"></script>
+    <script src="cookie-consent.js?v=20260530"></script>
+    <script>
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get("ref");
+        if (ref) {
+          const expires = new Date();
+          expires.setDate(expires.getDate() + 30);
+          document.cookie = `cw_ref=${encodeURIComponent(ref)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+          const clean = new URL(window.location.href);
+          clean.searchParams.delete("ref");
+          history.replaceState(null, "", clean.pathname + (clean.search || ""));
+        }
+      })();
+    </script>
   </body>
 </html>

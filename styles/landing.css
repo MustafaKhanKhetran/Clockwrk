@@ -71,12 +71,12 @@
   text-align: center;
 
   font-family: var(--brand-font);
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.06em;
   text-transform: lowercase;
   line-height: 1.05;
 
-  font-size: clamp(88px, 27vw, 290px);
+  font-size: clamp(88px, 23vw, 290px);
 
   color: #0a0a0b;
   -webkit-font-smoothing: antialiased;
@@ -271,8 +271,8 @@
   justify-content: center;
   background: #fff;
   color: #000;
-  font-size: 20px;
-  font-weight: 200;
+  font-size: 30px;
+  font-weight: 50;
   transition:
     right 0.45s cubic-bezier(0.22, 0.9, 0.3, 1),
     background 0.45s ease,
@@ -296,7 +296,7 @@
 .hero-title {
   margin: 0;
   font-size: clamp(24px, 3vw, 37px);
-  font-weight: 450;
+  font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.06em;
 }
@@ -304,7 +304,7 @@
 .hero-sub {
   margin: 0;
   color: rgba(8, 8, 8, 0.96);
-  font-weight: 450;
+  font-weight: 400;
   font-size: clamp(17px, 1.5vw, 18px);
   line-height: 1.4;
 }
@@ -319,10 +319,22 @@
   }
 }
 
+@media (max-width: 1399px) {
+  .hero-logo-text {
+    font-size: clamp(150px, 16vw, 220px);
+    transform: translateX(0);
+  }
+}
+
 /* ---------------------------------------------------------
    DESKTOP TABLET (1024px and below)
    --------------------------------------------------------- */
 @media (max-width: 1024px) {
+  .hero-logo-text {
+    font-size: clamp(130px, 18vw, 190px);
+    transform: translateX(0);
+  }
+
   .hero-row {
     grid-template-columns: 260px 1fr 400px;
     gap: 32px;
@@ -580,6 +592,7 @@
   .ghost-bottom {
     bottom: -26px;
   }
+
 }
 
 /* ---------------------------------------------------------

@@ -65,7 +65,7 @@
 
 /* Expanded state */
 .nav-pill.is-expanded {
-  max-width: min(800px, calc(100vw - 92px));
+  max-width: min(1000px, calc(100vw - 72px));
   --reveal: 1;
   box-shadow: 0 18px 55px rgba(0, 0, 0, 0.12);
   backdrop-filter: blur(18px);
@@ -83,7 +83,8 @@
 }
 
 .nav-pill.is-expanded .nav-links {
-  padding: 0 240px;
+  gap: 16px;
+  padding: 0 130px;
 }
 
 /* Individual links */
@@ -99,6 +100,30 @@
 
 .nav-link:hover {
   color: rgba(0, 0, 0, 0.45);
+}
+
+.nav-link--expanded-only {
+  display: none;
+  max-width: 0;
+  opacity: 0;
+  padding-left: 0;
+  padding-right: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateX(-8px);
+  transition: max-width 0.75s var(--nav-ease), opacity 0.35s ease,
+    transform 0.75s var(--nav-ease), padding 0.75s var(--nav-ease),
+    color 0.22s ease;
+}
+
+.nav-pill.is-expanded .nav-link--expanded-only {
+  display: inline-flex;
+  max-width: 84px;
+  opacity: 1;
+  padding-left: 6px;
+  padding-right: 6px;
+  pointer-events: auto;
+  transform: translateX(0);
 }
 
 /* .nav-link.active {
@@ -250,19 +275,26 @@
   position: fixed;
   inset: 0;
   z-index: 2;
-  background: transparent;
+  background: #ffffff;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: clamp(130px, 24vh, 180px) 20px 44px;
   visibility: hidden;
+  opacity: 0;
   transition: visibility 0s 0.72s;
   pointer-events: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-menu.is-open {
   visibility: visible;
-  transition: visibility 0s;
+  opacity: 1;
+  transition:
+    visibility 0s,
+    opacity 0.38s ease;
   pointer-events: auto;
 }
 
@@ -279,7 +311,7 @@ body.mobile-menu-closing::before {
 }
 
 body.mobile-menu-open::before {
-  opacity: 1;
+  opacity: 0;
 }
 
 body.mobile-menu-closing::before {
@@ -294,7 +326,8 @@ body.mobile-menu-closing::before {
   gap: 8px;
   width: 100%;
   max-width: 400px;
-  
+  min-height: min-content;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
 }
 
 .mobile-menu-link {
@@ -358,7 +391,7 @@ body.mobile-menu-closing::before {
    --------------------------------------------------------- */
 @media (max-width: 1024px) {
   .nav-pill.is-expanded {
-    max-width: min(720px, calc(100vw - 80px));
+    max-width: min(944px, calc(100vw - 64px));
   }
 
   .nav-links {
@@ -370,7 +403,8 @@ body.mobile-menu-closing::before {
   }
 
   .nav-pill.is-expanded .nav-links {
-    padding: 0 220px;
+    gap: 10px;
+    padding: 0 118px;
   }
 }
 

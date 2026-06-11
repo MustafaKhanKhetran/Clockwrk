@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout – Clockwrk</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="assets/misc/favicon.ico" />
+    <link rel="stylesheet" href="styles/global.css?v=20260530" />
+    <link rel="stylesheet" href="styles/checkout.css?v=20260530" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="ck-checkout">
+      <div class="ck-summary">
+        <a href="/" class="ck-logo">clockwrk</a>
+
+        <div class="ck-summary-body">
+          <p class="ck-summary-label" id="ckSummaryLabel">You're subscribing to our</p>
+          <h1 class="ck-summary-plan" id="ckPlanName">Startup</h1>
+          <div class="ck-plan-meta-row">
+            <p class="ck-summary-desc" id="ckPlanDesc">One request at a time</p>
+            <span class="ck-plan-price-values">
+              <span class="ck-plan-price-original" id="ckPlanOriginalPrice"></span>
+              <span class="ck-plan-price-pill" id="ckPlanPrice">$870</span>
+            </span>
+          </div>
+
+          <div class="ck-summary-divider" id="ckAddonDivider" style="display: none"></div>
+
+          <div class="ck-whitelabel-row" id="ckWhitelabelRow" style="display: none">
+            <p class="ck-addon-title">Add-on</p>
+            <div class="ck-whitelabel-line">
+              <span>White Label Delivery</span>
+              <span id="ckWhitelabelPrice">+$550</span>
+            </div>
+          </div>
+
+          <div class="ck-summary-divider"></div>
+
+          <div class="ck-summary-total-row">
+            <span>Total</span>
+            <span id="ckTotalPrice">$870 / week</span>
+          </div>
+          <div class="ck-referral-block" id="ckReferralBlock">
+            <button
+              class="ck-referral-toggle"
+              id="ckReferralToggle"
+              type="button"
+              aria-expanded="false"
+            >
+              <span>Have a referral code?</span>
+              <span class="ck-referral-toggle-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="ck-referral-input-wrap">
+              <input
+                type="text"
+                id="ckReferralInput"
+                class="ck-referral-input"
+                placeholder="CW-XXXXXX"
+                maxlength="12"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="ck-summary-footer">
+          <p>Bank transfer via <strong>Merchants Commercial Bank</strong></p>
+          <p>Cancel or pause any time</p>
+        </div>
+      </div>
+
+      <div class="ck-form">
+        <div class="ck-transfer ck-step" id="ckTransferStep">
+          <div class="ck-transfer-header">
+            <img
+              src="assets/misc/elevatepay.svg"
+              alt="Bank transfer"
+              class="ck-bank-icon"
+              onerror="this.style.display='none'"
+            />
+            <div>
+              <h2 class="ck-transfer-title">Bank Transfer</h2>
+              <p class="ck-transfer-sub">Wire the exact amount to the account below</p>
+            </div>
+          </div>
+
+          <div class="ck-bank-details">
+            <div class="ck-bank-row">
+              <span>Beneficiary name</span>
+              <div class="ck-bank-val-wrap">
+                <span id="ckBankName">Mustafa Khan Hassan Khetran</span>
+                <button
+                  type="button"
+                  class="ck-copy-btn"
+                  data-copy="Mustafa Khan Hassan Khetran"
+                  aria-label="Copy beneficiary name"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="ck-bank-row">
+              <span>Bank name</span>
+              <span>Merchants Commercial Bank</span>
+            </div>
+            <div class="ck-bank-row">
+              <span>Account Number</span>
+              <div class="ck-bank-val-wrap">
+                <span id="ckBankAccount">900100708499</span>
+                <button
+                  type="button"
+                  class="ck-copy-btn"
+                  data-copy="900100708499"
+                  aria-label="Copy account number"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="ck-bank-row">
+              <span>Routing Number (ACH / ABA)</span>
+              <div class="ck-bank-val-wrap">
+                <span id="ckBankSwift">021606742</span>
+                <button
+                  type="button"
+                  class="ck-copy-btn"
+                  data-copy="021606742"
+                  aria-label="Copy routing number"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="ck-bank-row ck-bank-row--total">
+              <span>Amount</span>
+              <span id="ckTransferAmount">$870</span>
+            </div>
+          </div>
+
+          <div class="ck-transfer-notice">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>Keep your bank receipt handy. We'll use the transaction ID from your receipt to match the payment to your account.</p>
+          </div>
+
+          <button type="button" class="ck-proceed-btn" id="ckProceedBtn">
+            <span class="ck-proceed-text">I've made the transfer</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+
+        <div class="ck-confirm ck-step" id="ckConfirmStep" style="display: none">
+          <h2 class="ck-confirm-title">Confirm your transfer</h2>
+          <p class="ck-confirm-sub">
+            Fill in your details so we can match your payment and activate your account.
+          </p>
+
+          <div class="ck-confirm-fields">
+            <div class="ck-confirm-field">
+              <input type="text" id="ckConfirmName" placeholder="Full name" autocomplete="name" />
+            </div>
+            <div class="ck-confirm-field">
+              <input type="email" id="ckConfirmEmail" placeholder="Email address" autocomplete="email" />
+            </div>
+            <div class="ck-confirm-field">
+              <input type="text" id="ckConfirmCompany" placeholder="Company name (optional)" autocomplete="organization" />
+            </div>
+            <div class="ck-confirm-field">
+              <input type="text" id="ckConfirmTxn" placeholder="Transaction / reference ID" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="ck-confirm-actions">
+            <button type="button" class="ck-back-btn" id="ckBackBtn" aria-label="Back to transfer details">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </button>
+            <button type="button" class="ck-proceed-btn" id="ckSubmitBtn">
+              <span class="ck-proceed-text">Submit confirmation</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+
+          <p class="ck-confirm-note" id="ckConfirmError" style="display: none; color: #ff4444"></p>
+        </div>
+
+        <div class="ck-success ck-step" id="ckSuccessStep" style="display: none">
+          <div class="ck-success-icon">✓</div>
+          <h2 class="ck-success-title">We've got it.</h2>
+          <p class="ck-success-sub">
+            We'll verify your transfer and send your portal access code to
+            <strong id="ckSuccessEmail"></strong> within 24 hours.
+          </p>
+          <a href="/" class="ck-proceed-btn ck-success-home">
+            <span class="ck-proceed-text">Back to Clockwrk</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      function getCheckoutParam(key) {
+        const value = params.get(key) || "";
+        try {
+          return decodeURIComponent(value);
+        } catch {
+          return value;
+        }
+      }
+
+      function getRefCookie() {
+        const match = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("cw_ref="));
+        return match ? decodeURIComponent(match.split("=")[1]) : null;
+      }
+
+      const plan = params.get("plan") || "startup";
+      const billing = params.get("billing") || "weekly";
+      const hasWhitelabel = params.get("whitelabel") === "true";
+      const customerEmail = getCheckoutParam("email");
+      const customerName = getCheckoutParam("name");
+      const customerCompany = getCheckoutParam("company");
+      const referralCode = getRefCookie();
+
+      const PLAN_DETAILS = {
+        startup: {
+          name: "Startup",
+          description: "One request at a time",
+          weekly: 870,
+          monthly: 2958,
+        },
+        business: {
+          name: "Business",
+          description: "Two requests at a time",
+          weekly: 1550,
+          monthly: 5270,
+        },
+        enterprise: {
+          name: "Enterprise",
+          description: "Three requests at a time",
+          weekly: 2300,
+          monthly: 7820,
+        },
+      };
+
+      const WHITELABEL = { weekly: 550, monthly: 1670 };
+      const safePlan = PLAN_DETAILS[plan] ? plan : "startup";
+      const safeBilling = billing === "monthly" ? "monthly" : "weekly";
+      const detail = PLAN_DETAILS[safePlan];
+      const price = detail[safeBilling];
+      const wlPrice = WHITELABEL[safeBilling];
+      const total = hasWhitelabel ? price + wlPrice : price;
+      const periodLabel = safeBilling === "weekly" ? "/ week" : "/ month";
+      const billingLabel = safeBilling === "weekly" ? "weekly" : "monthly";
+      const originalMonthlyPrice = detail.weekly * 4;
+
+      function generateRef() {
+        const namePart = customerName
+          ? customerName
+              .trim()
+              .split(" ")[0]
+              .toUpperCase()
+              .replace(/[^A-Z]/g, "")
+              .slice(0, 8)
+          : "CLIENT";
+        return `CW-${namePart}-${safePlan.toUpperCase()}`;
+      }
+      const paymentRef = generateRef();
+
+      document.getElementById("ckSummaryLabel").textContent =
+        `You're subscribing to our ${billingLabel}`;
+      document.getElementById("ckPlanName").textContent = `${detail.name} plan`;
+      document.getElementById("ckPlanDesc").textContent = detail.description;
+      document.getElementById("ckPlanPrice").textContent = `$${price.toLocaleString()}`;
+      const originalPriceEl = document.getElementById("ckPlanOriginalPrice");
+      if (safeBilling === "monthly") {
+        originalPriceEl.textContent = `$${originalMonthlyPrice.toLocaleString()}`;
+        originalPriceEl.style.display = "inline-flex";
+      } else {
+        originalPriceEl.textContent = "";
+        originalPriceEl.style.display = "none";
+      }
+      document.getElementById("ckTotalPrice").textContent =
+        `$${total.toLocaleString()} ${periodLabel}`;
+
+      if (hasWhitelabel) {
+        document.getElementById("ckAddonDivider").style.display = "block";
+        document.getElementById("ckWhitelabelRow").style.display = "flex";
+        document.getElementById("ckWhitelabelPrice").textContent =
+          `+$${wlPrice.toLocaleString()}`;
+      }
+
+      if (customerCompany) {
+        const footer = document.querySelector(".ck-summary-footer");
+        if (footer) {
+          const companyEl = document.createElement("p");
+          companyEl.style.cssText =
+            "font-size:13px;color:#8f8f91;margin-bottom:8px;";
+          companyEl.textContent = customerCompany;
+          footer.prepend(companyEl);
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", function () {
+        const refBlock = document.getElementById("ckReferralBlock");
+        const refToggle = document.getElementById("ckReferralToggle");
+        const refInput = document.getElementById("ckReferralInput");
+
+        function setReferralOpen(isOpen) {
+          if (!refBlock || !refToggle) return;
+          refBlock.classList.toggle("is-open", isOpen);
+          refToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        }
+
+        if (refInput) {
+          if (referralCode) {
+            refInput.value = referralCode.toUpperCase();
+            refInput.classList.add("is-valid");
+            setReferralOpen(true);
+          }
+
+          if (refToggle) {
+            refToggle.addEventListener("click", function () {
+              if (refInput.value.trim()) {
+                setReferralOpen(true);
+                return;
+              }
+              setReferralOpen(!refBlock.classList.contains("is-open"));
+            });
+          }
+
+          refInput.addEventListener("input", function () {
+            const val = this.value.trim().toUpperCase();
+            this.value = val;
+            this.classList.toggle("is-valid", val.length >= 6);
+            if (val) setReferralOpen(true);
+          });
+        }
+
+        document.getElementById("ckTransferAmount").textContent =
+          `$${total.toLocaleString()}`;
+
+        if (customerName) document.getElementById("ckConfirmName").value = customerName;
+        if (customerEmail) document.getElementById("ckConfirmEmail").value = customerEmail;
+        if (customerCompany)
+          document.getElementById("ckConfirmCompany").value = customerCompany;
+
+        document.querySelectorAll(".ck-copy-btn").forEach((btn) => {
+          btn.addEventListener("click", async function () {
+            const text = this.dataset.copy;
+            try {
+              await navigator.clipboard.writeText(text);
+              this.classList.add("is-copied");
+              setTimeout(() => this.classList.remove("is-copied"), 1800);
+            } catch (_) {}
+          });
+        });
+
+        const transferStep = document.getElementById("ckTransferStep");
+        const confirmStep = document.getElementById("ckConfirmStep");
+        const successStep = document.getElementById("ckSuccessStep");
+        let stepTransitioning = false;
+
+        const CHECKOUT_OUT_MS = 420;
+        const CHECKOUT_IN_MS = 520;
+        const CHECKOUT_OUT_STAGGER = 35;
+        const CHECKOUT_IN_STAGGER = 45;
+        const CHECKOUT_OUT_Y = "-18px";
+        const CHECKOUT_IN_Y = "20px";
+        const CHECKOUT_OUT_ROTATE = "-1deg";
+        const CHECKOUT_IN_ROTATE = "1deg";
+        const CHECKOUT_EASE_OUT = "cubic-bezier(0.4, 0, 1, 1)";
+        const CHECKOUT_EASE_IN = "cubic-bezier(0.16, 1, 0.3, 1)";
+
+        function getCheckoutStepItems(step) {
+          return Array.from(
+            step.querySelectorAll(
+              ".ck-transfer-header, .ck-bank-details, .ck-transfer-notice, .ck-proceed-btn, .ck-confirm-title, .ck-confirm-sub, .ck-confirm-fields, .ck-confirm-ref-row, .ck-back-btn, .ck-confirm-note, .ck-success-icon, .ck-success-title, .ck-success-sub"
+            )
+          );
+        }
+
+        function resetCheckoutStepItems(step) {
+          getCheckoutStepItems(step).forEach((item) => {
+            item.style.transition = "";
+            item.style.transform = "";
+            item.style.opacity = "";
+            item.style.width = "";
+            const label = item.querySelector && item.querySelector(".ck-proceed-text");
+            if (label) {
+              label.style.transition = "";
+              label.style.transform = "";
+              label.style.opacity = "";
+            }
+            const icon = item.querySelector && item.querySelector("svg");
+            if (icon) {
+              icon.style.transition = "";
+              icon.style.transform = "";
+              icon.style.opacity = "";
+            }
+          });
+          step.querySelectorAll(".ck-confirm-field").forEach((item) => {
+            item.style.transition = "";
+            item.style.transform = "";
+            item.style.opacity = "";
+          });
+        }
+
+        function setStepItems(items, styles) {
+          items.forEach((item) => {
+            Object.assign(item.style, styles);
+          });
+        }
+
+        function animateCtaText(button, text) {
+          const label = button && button.querySelector(".ck-proceed-text");
+          if (!label || !text || label.textContent === text) return;
+
+          label.style.transition = "opacity 180ms ease, transform 300ms cubic-bezier(0.16, 1, 0.3, 1)";
+          label.style.opacity = "0";
+          label.style.transform = "translateY(-6px)";
+
+          setTimeout(() => {
+            label.textContent = text;
+            label.style.transform = "translateY(6px)";
+            requestAnimationFrame(() => {
+              label.style.opacity = "1";
+              label.style.transform = "translateY(0)";
+            });
+          }, 180);
+        }
+
+        const CHECKOUT_ARROW_ICON =
+          '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>';
+        const CHECKOUT_CHECK_ICON = '<polyline points="20 6 9 17 4 12"/>';
+
+        function getCheckoutCtaIconType(step) {
+          return step === confirmStep ? "check" : "arrow";
+        }
+
+        function setCheckoutCtaIcon(button, type, animate) {
+          const icon = button && button.querySelector("svg");
+          if (!icon) return;
+          const markup = type === "check" ? CHECKOUT_CHECK_ICON : CHECKOUT_ARROW_ICON;
+          if (icon.innerHTML.trim() === markup) return;
+
+          if (!animate) {
+            icon.innerHTML = markup;
+            return;
+          }
+
+          icon.style.transition =
+            "opacity 180ms ease, transform 320ms cubic-bezier(0.16, 1, 0.3, 1)";
+          icon.style.opacity = "0";
+          icon.style.transform = "translateY(-50%) rotate(-80deg) scale(0.72)";
+
+          setTimeout(() => {
+            icon.innerHTML = markup;
+            icon.style.transform = "translateY(-50%) rotate(80deg) scale(0.72)";
+            requestAnimationFrame(() => {
+              icon.style.opacity = "1";
+              icon.style.transform = "translateY(-50%) rotate(0deg) scale(1)";
+            });
+          }, 170);
+        }
+
+        function animateCheckoutMorph(fromStep, toStep, isBack) {
+          stepTransitioning = true;
+
+          const fromTitle = fromStep.querySelector(
+            ".ck-transfer-header, .ck-confirm-title, .ck-success-title"
+          );
+          const toTitle = toStep.querySelector(
+            ".ck-transfer-header, .ck-confirm-title, .ck-success-title"
+          );
+          const fromBody = Array.from(
+            fromStep.querySelectorAll(".ck-bank-details, .ck-transfer-notice, .ck-confirm-fields")
+          );
+          const fromNotice = fromStep.querySelector(".ck-transfer-notice");
+          const toNotice = toStep.querySelector(".ck-transfer-notice");
+          const toFields = Array.from(toStep.querySelectorAll(".ck-confirm-field"));
+          const fromFields = Array.from(fromStep.querySelectorAll(".ck-confirm-field"));
+          const toTransferBody = Array.from(
+            toStep.querySelectorAll(".ck-bank-details, .ck-transfer-notice")
+          );
+          const fromCta = fromStep.querySelector(".ck-proceed-btn");
+          const toCta = toStep.querySelector(".ck-proceed-btn");
+          const toCtaText =
+            toStep === transferStep
+              ? "I've made the transfer"
+              : toStep === confirmStep
+                ? "Submit confirmation"
+                : toCta && toCta.querySelector(".ck-proceed-text")
+                  ? toCta.querySelector(".ck-proceed-text").textContent
+                  : "";
+          const fromRest = Array.from(
+            fromStep.querySelectorAll(".ck-confirm-sub, .ck-back-btn, .ck-confirm-note")
+          );
+          const toRest = Array.from(
+            toStep.querySelectorAll(".ck-confirm-sub, .ck-back-btn, .ck-confirm-note")
+          );
+          const fromBackBtn = fromStep.querySelector(".ck-back-btn");
+          const toBackBtn = toStep.querySelector(".ck-back-btn");
+          const outY = isBack ? "16px" : "-16px";
+          const inY = isBack ? "-20px" : "20px";
+          let backColorTimer = null;
+
+          toStep.style.display = "flex";
+          toStep.classList.add("ck-step-layer");
+          fromStep.classList.add("ck-step-under");
+
+          setStepItems([toTitle, ...toRest].filter(Boolean), {
+            transition: "none",
+            opacity: "0",
+            transform: `translateY(${inY})`,
+          });
+          if (!isBack && toBackBtn) {
+            toBackBtn.classList.add("is-transitioning");
+            toBackBtn.style.transition = "none";
+            toBackBtn.style.opacity = "1";
+            toBackBtn.style.transform = "translateY(0)";
+          }
+          if (isBack && fromBackBtn) {
+            fromBackBtn.classList.add("is-transitioning");
+            fromBackBtn.style.transition = "none";
+            fromBackBtn.style.opacity = "1";
+            fromBackBtn.style.transform = "translateY(0)";
+          }
+          setStepItems(toFields, {
+            transition: "none",
+            opacity: "0",
+            transform: "translateY(58px) rotate(1deg)",
+          });
+          setStepItems(toTransferBody, {
+            transition: "none",
+            opacity: "0",
+            transform: "translateY(0)",
+          });
+
+          if (toCta) {
+            toCta.style.transition = "none";
+            toCta.style.opacity = "0";
+            toCta.style.pointerEvents = "none";
+          }
+
+          let ctaDeltaY = 0;
+          let ctaDeltaX = 0;
+          let ctaReturnWidth = 0;
+          let ctaTargetWidth = 0;
+          if (fromCta && toCta) {
+            const fromRect = fromCta.getBoundingClientRect();
+            const toRect = toCta.getBoundingClientRect();
+            ctaDeltaY = toRect.top - fromRect.top;
+            ctaDeltaX = toRect.left - fromRect.left;
+            ctaReturnWidth = fromRect.width;
+            ctaTargetWidth = toRect.width;
+            fromCta.style.width = `${fromRect.width}px`;
+          }
+          let noticeDeltaY = isBack ? -36 : 44;
+          if (fromNotice && fromCta) {
+            const noticeRect = fromNotice.getBoundingClientRect();
+            const ctaRect = fromCta.getBoundingClientRect();
+            noticeDeltaY = ctaRect.top + ctaRect.height * 0.45 - (noticeRect.top + noticeRect.height * 0.5);
+          }
+          let toNoticeStartY = 44;
+          if (toNotice && toCta) {
+            const noticeRect = toNotice.getBoundingClientRect();
+            const ctaRect = toCta.getBoundingClientRect();
+            toNoticeStartY = ctaRect.top + ctaRect.height * 0.45 - (noticeRect.top + noticeRect.height * 0.5);
+            toNotice.style.transform = `translateY(${toNoticeStartY}px)`;
+          }
+
+          requestAnimationFrame(() => {
+            const fadeTransition =
+              "opacity 420ms ease, transform 720ms cubic-bezier(0.16, 1, 0.3, 1)";
+            const bodyTransition =
+              "opacity 280ms ease, transform 760ms cubic-bezier(0.16, 1, 0.3, 1)";
+            const noticeTransition =
+              "opacity 520ms ease, transform 780ms cubic-bezier(0.16, 1, 0.3, 1)";
+            const fieldTransition =
+              "opacity 360ms ease, transform 760ms cubic-bezier(0.16, 1, 0.3, 1)";
+            const ctaTransition =
+              "width 760ms cubic-bezier(0.16, 1, 0.3, 1), transform 760ms cubic-bezier(0.16, 1, 0.3, 1)";
+
+            setStepItems(
+              [fromTitle, ...fromRest].filter((item) => item && item !== fromBackBtn),
+              {
+              transition: fadeTransition,
+              opacity: "0",
+              transform: `translateY(${outY})`,
+              }
+            );
+            if (isBack && toTitle) {
+              toTitle.style.transition = "none";
+              toTitle.style.opacity = "0";
+              toTitle.style.transform = `translateY(${inY})`;
+            }
+            fromBody.forEach((item) => {
+              if (isBack && item.classList.contains("ck-confirm-fields")) {
+                item.style.transition = "none";
+                item.style.opacity = "1";
+                item.style.transform = "translateY(0)";
+                return;
+              }
+              item.style.transition = bodyTransition;
+              item.style.opacity = "0";
+              item.style.transform = item.classList.contains("ck-transfer-notice")
+                ? `translateY(${noticeDeltaY}px)`
+                : item.classList.contains("ck-confirm-fields")
+                ? `translateY(${outY})`
+                : "translateY(0)";
+            });
+            if (fromNotice) {
+              fromNotice.style.transition = noticeTransition;
+              fromNotice.style.opacity = "0";
+              fromNotice.style.transform = `translateY(${noticeDeltaY}px)`;
+            }
+            if (isBack) {
+              fromFields.forEach((item, index) => {
+                const delay = 160 + index * 60;
+                item.style.transition =
+                  `opacity 300ms ease ${delay}ms, ` +
+                  `transform 760ms cubic-bezier(0.4, 0, 1, 1) ${delay}ms`;
+                item.style.opacity = "0";
+                item.style.transform = "translateY(58px) rotate(1deg)";
+              });
+              toTransferBody.forEach((item, index) => {
+                const delay = 620 + index * 70;
+                item.style.transition =
+                  `opacity 420ms ease ${delay}ms, ` +
+                  `transform 780ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`;
+                item.style.opacity = "1";
+                item.style.transform = "translateY(0)";
+              });
+              if (fromCta) {
+                fromCta.style.transition = ctaTransition;
+                fromCta.style.opacity = "1";
+                const fullCtaWidth = ctaTargetWidth || ctaReturnWidth;
+                if (fullCtaWidth) fromCta.style.width = `${fullCtaWidth}px`;
+                fromCta.style.transform = `translate(${ctaDeltaX}px, ${ctaDeltaY}px)`;
+                animateCtaText(fromCta, toCtaText);
+                setCheckoutCtaIcon(fromCta, getCheckoutCtaIconType(toStep), true);
+              }
+            }
+
+            setStepItems(
+              toRest.filter((item) => item !== toBackBtn),
+              {
+              transition: fadeTransition,
+              opacity: "1",
+              transform: "translateY(0)",
+              }
+            );
+            if (!isBack && toTitle) {
+              toTitle.style.transition = fadeTransition;
+              toTitle.style.opacity = "1";
+              toTitle.style.transform = "translateY(0)";
+            }
+            if (!isBack) {
+              toFields.forEach((item, index) => {
+                const delay = 180 + index * 70;
+                item.style.transition =
+                  `opacity 420ms ease ${delay}ms, ` +
+                  `transform 860ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`;
+                item.style.opacity = "1";
+                item.style.transform = "translateY(0) rotate(0deg)";
+              });
+              if (fromCta) {
+                setTimeout(() => {
+                  fromCta.style.transition = ctaTransition;
+                  fromCta.style.opacity = "1";
+                  if (ctaTargetWidth) fromCta.style.width = `${ctaTargetWidth}px`;
+                  fromCta.style.transform = `translate(${ctaDeltaX}px, ${ctaDeltaY - 2}px)`;
+                  animateCtaText(fromCta, toCtaText);
+                  setCheckoutCtaIcon(fromCta, getCheckoutCtaIconType(toStep), true);
+                }, 550);
+              }
+              if (toBackBtn) {
+                backColorTimer = setTimeout(() => {
+                  toBackBtn.style.transition = "";
+                  requestAnimationFrame(() => {
+                    toBackBtn.classList.remove("is-transitioning");
+                  });
+                }, 820);
+              }
+            } else if (toTitle) {
+              setTimeout(() => {
+                toTitle.style.transition = fadeTransition;
+                toTitle.style.opacity = "1";
+                toTitle.style.transform = "translateY(0)";
+              }, 260);
+            }
+          });
+
+          setTimeout(() => {
+            if (backColorTimer) clearTimeout(backColorTimer);
+            fromStep.style.display = "none";
+            fromStep.classList.remove("ck-step-under");
+            toStep.classList.remove("ck-step-layer");
+            if (toCta) {
+              toCta.style.opacity = "";
+              toCta.style.pointerEvents = "";
+              const toLabel = toCta.querySelector(".ck-proceed-text");
+              if (toLabel && toCtaText) toLabel.textContent = toCtaText;
+              setCheckoutCtaIcon(toCta, getCheckoutCtaIconType(toStep), false);
+            }
+            resetCheckoutStepItems(fromStep);
+            resetCheckoutStepItems(toStep);
+            setCheckoutCtaIcon(fromCta, getCheckoutCtaIconType(fromStep), false);
+            if (fromBackBtn) fromBackBtn.classList.remove("is-transitioning");
+            if (toBackBtn) toBackBtn.classList.remove("is-transitioning");
+            if (!isBack && toBackBtn) toBackBtn.style.opacity = "1";
+            stepTransitioning = false;
+          }, isBack ? 1520 : 1420);
+        }
+
+        function showCheckoutStep(fromStep, toStep) {
+          if (stepTransitioning || !fromStep || !toStep || fromStep === toStep) return;
+          if (
+            (fromStep === transferStep && toStep === confirmStep) ||
+            (fromStep === confirmStep && toStep === transferStep)
+          ) {
+            animateCheckoutMorph(fromStep, toStep, fromStep === confirmStep);
+            return;
+          }
+          stepTransitioning = true;
+
+          const outgoing = getCheckoutStepItems(fromStep);
+          const incoming = getCheckoutStepItems(toStep);
+
+          outgoing.forEach((item, index) => {
+            const delay = index * CHECKOUT_OUT_STAGGER;
+            item.style.transition =
+              `transform ${CHECKOUT_OUT_MS}ms ${CHECKOUT_EASE_OUT} ${delay}ms, ` +
+              `opacity 170ms ease ${delay}ms`;
+            item.style.transform =
+              `translateY(${CHECKOUT_OUT_Y}) rotate(${CHECKOUT_OUT_ROTATE})`;
+            item.style.opacity = "0";
+          });
+
+          const outDuration =
+            CHECKOUT_OUT_MS + Math.max(0, outgoing.length - 1) * CHECKOUT_OUT_STAGGER;
+
+          setTimeout(() => {
+            fromStep.style.display = "none";
+            resetCheckoutStepItems(fromStep);
+            toStep.style.display = "flex";
+
+            incoming.forEach((item) => {
+              item.style.transition = "none";
+              item.style.transform =
+                `translateY(${CHECKOUT_IN_Y}) rotate(${CHECKOUT_IN_ROTATE})`;
+              item.style.opacity = "0";
+            });
+
+            requestAnimationFrame(() => {
+              incoming.forEach((item, index) => {
+                const delay = index * CHECKOUT_IN_STAGGER;
+                item.style.transition =
+                  `transform ${CHECKOUT_IN_MS}ms ${CHECKOUT_EASE_IN} ${delay}ms, ` +
+                  `opacity 230ms ease ${delay}ms`;
+                item.style.transform = "translateY(0) rotate(0deg)";
+                item.style.opacity = "1";
+              });
+            });
+
+            const inDuration =
+              CHECKOUT_IN_MS + Math.max(0, incoming.length - 1) * CHECKOUT_IN_STAGGER;
+
+            setTimeout(() => {
+              resetCheckoutStepItems(toStep);
+              stepTransitioning = false;
+            }, inDuration + 80);
+          }, outDuration + 40);
+        }
+
+        document.getElementById("ckProceedBtn").addEventListener("click", () => {
+          showCheckoutStep(transferStep, confirmStep);
+        });
+
+        document.getElementById("ckBackBtn").addEventListener("click", () => {
+          const errEl = document.getElementById("ckConfirmError");
+          if (errEl) {
+            errEl.textContent = "";
+            errEl.style.display = "none";
+          }
+          showCheckoutStep(confirmStep, transferStep);
+        });
+
+        document.getElementById("ckSubmitBtn").addEventListener("click", async () => {
+          const name = document.getElementById("ckConfirmName").value.trim();
+          const email = document.getElementById("ckConfirmEmail").value.trim();
+          const company = document.getElementById("ckConfirmCompany").value.trim();
+          const txn = document.getElementById("ckConfirmTxn").value.trim();
+          const ref = refInput ? refInput.value.trim() : "";
+          const errEl = document.getElementById("ckConfirmError");
+
+          if (!name || !email || !txn) {
+            errEl.textContent =
+              "Please fill in your name, email, and transaction ID.";
+            errEl.style.display = "block";
+            return;
+          }
+          errEl.style.display = "none";
+
+          const submitBtn = document.getElementById("ckSubmitBtn");
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Submitting...";
+
+          try {
+            await fetch("https://n8n.clockwrk.io/webhook/payment-confirm", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name,
+                email,
+                company,
+                plan: safePlan,
+                billing: safeBilling,
+                total,
+                hasWhitelabel,
+                paymentRef,
+                txnId: txn,
+                referralCode: ref || null,
+              }),
+            });
+          } catch (_) {}
+
+          sessionStorage.setItem("cw_checkout_name", name);
+          sessionStorage.setItem("cw_checkout_company", company);
+          sessionStorage.setItem("cw_checkout_email", email);
+          sessionStorage.setItem("cw_checkout_plan", safePlan);
+
+          window.location.href = "/?payment=success#pricing";
+        });
+      });
+    </script>
+    <section class="cookie-consent" data-cookie-consent aria-label="Cookie consent">
+      <div class="cookie-consent-inner">
+        <div class="cookie-consent-copy">
+          <h2 class="cookie-consent-title">We use cookies. Don’t you mind?</h2>
+          <p class="cookie-consent-text">
+            We use cookies to collect and analyse information on site performance
+            and usage, to provide social media features and to enhance and
+            customise content and advertisements.
+            <a href="/cookies">Read our Cookie Policy.</a>
+          </p>
+        </div>
+        <div class="cookie-consent-actions">
+          <button class="cookie-consent-btn" type="button" data-cookie-deny>
+            Deny all
+          </button>
+          <button class="cookie-consent-btn" type="button" data-cookie-allow>
+            Allow all cookies
+          </button>
+        </div>
+      </div>
+    </section>
+    <script src="cookie-consent.js?v=20260530"></script>
+  </body>
+</html>

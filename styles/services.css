@@ -1296,7 +1296,7 @@
     position: relative;
     z-index: 2;
     margin-top: -18px;
-    padding: 26px 22px 8px;
+    padding: 26px 22px 30px;
     border-top-left-radius: 28px;
     border-top-right-radius: 28px;
     border-bottom-left-radius: 0;
@@ -1783,7 +1783,7 @@
     position: relative;
     z-index: 2;
     margin-top: -14px;
-    padding: 22px 18px 6px;
+    padding: 22px 18px 28px;
     border-top-left-radius: 24px;
     border-top-right-radius: 24px;
     border-bottom-left-radius: 0;

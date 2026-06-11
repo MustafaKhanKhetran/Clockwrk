@@ -1,0 +1,117 @@
+@import url("privacy.css");
+
+.cookie-cat,
+.platform-card,
+.legal-warning {
+  margin-bottom: 16px;
+  padding: 24px 30px;
+  border: 1px solid #e6e6e6;
+  border-radius: 16px;
+  background: #f7f7f6;
+}
+
+.cookie-cat-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.cookie-cat-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cookie-cat-dot.required { background: #a0e92a; }
+.cookie-cat-dot.analytics { background: #60a5fa; }
+.cookie-cat-dot.advertising { background: #f87171; }
+.cookie-cat-dot.social { background: #a78bfa; }
+.cookie-cat-dot.functional { background: #f59e0b; }
+
+.cookie-cat-title,
+.platform-card h4 {
+  font-size: 19px;
+  font-weight: 600;
+  color: #111111;
+}
+
+.cookie-cat-badge {
+  margin-left: auto;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cookie-cat-badge.always-on {
+  background: rgba(160, 233, 42, 0.18);
+  color: #111111;
+}
+
+.cookie-cat-badge.optional {
+  background: rgba(99, 102, 241, 0.12);
+  color: #111111;
+}
+
+.cookie-cat p,
+.platform-card p,
+.legal-warning p {
+  margin: 0 0 8px;
+  color: #333333;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.cookie-cat a,
+.platform-card a,
+.legal-warning a {
+  color: #111111;
+  text-decoration: none;
+}
+
+.cookie-cat a:hover,
+.platform-card a:hover,
+.legal-warning a:hover,
+.cookie-cat a:focus-visible,
+.platform-card a:focus-visible,
+.legal-warning a:focus-visible {
+  color: #6fba00;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.browser-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.browser-link {
+  padding: 7px 14px;
+  border: 1px solid rgba(160, 233, 42, 0.35);
+  border-radius: 999px;
+  background: rgba(160, 233, 42, 0.12);
+  color: #111111;
+  font-size: 13px;
+}
+
+.browser-link:hover,
+.browser-link:focus-visible {
+  color: #6fba00;
+}
+
+@media (max-width: 860px) {
+  .platform-grid {
+    grid-template-columns: 1fr;
+  }
+}

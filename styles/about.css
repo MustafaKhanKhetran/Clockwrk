@@ -843,6 +843,7 @@
     overflow-x: auto;
     overflow-y: visible;
     justify-content: flex-start;
+    touch-action: pan-x;
     /* padding-block: 26px; */
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 10vw;

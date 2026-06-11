@@ -1,0 +1,68 @@
+@import url("terms.css");
+
+.legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0 26px;
+  font-size: 15px;
+}
+
+.legal-table th {
+  padding: 14px 16px;
+  background: #f7f7f6;
+  color: #111111;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid #e3e3e1;
+}
+
+.legal-table td {
+  padding: 14px 16px;
+  color: #333333;
+  border-bottom: 1px solid #dddddd;
+  vertical-align: top;
+  line-height: 1.65;
+}
+
+.legal-region {
+  margin-bottom: 18px;
+  padding: 24px 30px;
+  border: 1px solid #e6e6e6;
+  border-radius: 16px;
+  background: #f7f7f6;
+}
+
+.legal-region h3 {
+  margin-top: 0;
+  color: #111111;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.legal-region p,
+.legal-region li {
+  color: #333333;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.legal-region a {
+  color: #111111;
+  text-decoration: none;
+}
+
+.legal-region a:hover,
+.legal-region a:focus-visible {
+  color: #6fba00;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 860px) {
+  .legal-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
