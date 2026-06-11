@@ -716,6 +716,30 @@
   outline: none;
 }
 
+
+.ck-confirm-field.cw-input-hint-shell {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.ck-confirm-field.cw-input-hint-shell input {
+  background: #fff !important;
+  border: 1px solid rgba(16, 16, 18, 0.06);
+  border-radius: 999px;
+  box-shadow: none !important;
+}
+
+.ck-confirm-field.cw-input-hint-shell:focus-within input {
+  background: #fff !important;
+  border-color: #a0e92a;
+}
+
+.ck-confirm-field.cw-input-hint-shell .cw-input-hint-overlay {
+  background: #fff;
+  border-radius: 999px;
+}
+
 .ck-confirm-actions {
   display: flex;
   align-items: center;

@@ -1006,7 +1006,7 @@
    ══════════════════════════════════════════════════════════ */
 .cw-apply-view {
   position: relative;
-  z-index: auto;
+  z-index: 5000;
   padding: clamp(28px, 3vw, 48px) 0 clamp(80px, 9vw, 128px);
 }
 
@@ -1278,7 +1278,7 @@
 .cw-apply-main {
   min-width: 0;
   position: relative;
-  z-index: 20;
+  z-index: 6000;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1290,7 +1290,7 @@
   --cw-step-offset: 280px;
   --cw-first-step-extra-offset: 18px;
   position: relative;
-  z-index: 20;
+  z-index: 7000;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -1312,7 +1312,7 @@
 .cw-step {
   display: none;
   position: relative;
-  z-index: 20;
+  z-index: 8000;
   width: 100%;
   max-width: 560px;
   overflow: visible;
@@ -1345,7 +1345,7 @@
 
 .site-footer {
   position: relative;
-  z-index: 350;
+  z-index: 1;
 }
 
 /* Nav also centered */
@@ -1356,6 +1356,32 @@
   max-width: 560px;
   margin-left: auto;
   margin-right: auto;
+}
+
+
+#cwAppForm .cw-step.is-active {
+  z-index: 9000;
+}
+
+#cwAppForm .cw-group:has(.cw-custom-select.is-open),
+#cwAppForm .cw-group:has(.cw-date-picker.is-open) {
+  position: relative;
+  z-index: 2147482000;
+}
+
+#cwAppForm .cw-custom-select.is-open,
+#cwAppForm .cw-date-picker.is-open {
+  z-index: 2147482001;
+}
+
+#cwAppForm .cw-custom-select.is-open .cw-cs-menu,
+#cwAppForm .cw-date-picker.is-open .cw-date-popover {
+  z-index: 2147482002;
+}
+
+#cwAppForm .cw-nav {
+  position: relative;
+  z-index: 0;
 }
 
 /* Form groups */
@@ -1575,20 +1601,28 @@
   z-index: 2;
   width: 24px;
   height: 24px;
+  border: 0;
   border-radius: 6px;
   background: #0a66c2;
   color: #fff;
   display: none;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  padding: 0;
+  cursor: pointer;
   transform: translateY(-50%);
 }
 
-.cw-linkedin-icon svg {
-  width: 15px;
-  height: 15px;
-  stroke-width: 2.3;
+.cw-linkedin-icon:hover {
+  background: #084f98;
+}
+
+.cw-linkedin-icon::before {
+  content: "in";
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.04em;
 }
 
 .cw-linkedin-field.is-linked .cw-linkedin-icon {
@@ -1646,7 +1680,7 @@
 }
 
 .cw-custom-select.is-open {
-  z-index: 300;
+  z-index: 2147482001;
 }
 
 .cw-cs-trigger {
@@ -1709,7 +1743,7 @@
 }
 
 .cw-skill-input.is-helper-open {
-  z-index: 420;
+  z-index: 430;
 }
 
 .cw-skill-pills {
@@ -1994,6 +2028,27 @@
   color: #101012;
 }
 
+.cw-link-pill-input.has-links {
+  align-items: flex-start;
+  flex-wrap: wrap;
+  border-radius: 30px;
+}
+
+.cw-link-pill-input.has-links .cw-link-pills {
+  order: 1;
+  flex: 1 0 100%;
+}
+
+.cw-link-pill-input.has-links input {
+  order: 2;
+  flex: 1 1 calc(100% - 52px);
+  min-width: 0;
+}
+
+.cw-link-pill-input.has-links .cw-link-add {
+  order: 3;
+}
+
 .cw-link-pill-input input {
   order: 1;
   min-width: 170px;
@@ -2192,7 +2247,7 @@
   border-radius: 16px;
   padding: 6px;
   list-style: none;
-  z-index: 1000;
+  z-index: 2147482002;
   box-shadow:
     0 12px 36px rgba(0, 0, 0, 0.1),
     0 2px 8px rgba(0, 0, 0, 0.05);
@@ -2216,7 +2271,12 @@
 }
 
 .cw-date-picker.is-open {
-  z-index: 320;
+  z-index: 2147482001;
+}
+
+
+#cwAppForm:has(.cw-date-picker.is-open) .cw-nav {
+  z-index: 0;
 }
 
 .cw-date-trigger {

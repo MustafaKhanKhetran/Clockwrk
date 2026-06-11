@@ -798,23 +798,12 @@
                   </div>
                   <div class="cw-group">
                     <div class="cw-linkedin-field">
-                      <span class="cw-linkedin-icon" aria-hidden="true"><i data-lucide="linkedin"></i></span>
+                      <button type="button" class="cw-linkedin-icon" aria-label="Open LinkedIn profile"></button>
                       <input
                         id="appLinkedin"
                         type="url"
                         placeholder="LinkedIn Profile URL *"
                       />
-                    </div>
-                  </div>
-                  <div class="cw-group">
-                    <div class="cw-skill-input" data-for="appSkills">
-                      <div class="cw-skill-pills" aria-label="Selected skills"></div>
-                      <input id="appSkillsEntry" type="text" placeholder="Skills — type and press + to add" autocomplete="off" />
-                      <button type="button" class="cw-skill-add" aria-label="Add skill">
-                        <i data-lucide="plus" aria-hidden="true"></i>
-                      </button>
-                      <div class="cw-skill-menu" role="listbox" aria-label="Skill suggestions"></div>
-                      <input id="appSkills" type="hidden" />
                     </div>
                   </div>
                   <div class="cw-group">
@@ -879,6 +868,17 @@
                         accept=".pdf,.doc,.docx"
                         class="sr-only"
                       />
+                    </div>
+                  </div>
+                  <div class="cw-group">
+                    <div class="cw-skill-input" data-for="appSkills">
+                      <div class="cw-skill-pills" aria-label="Selected skills"></div>
+                      <input id="appSkillsEntry" type="text" placeholder="Skills — type and press + to add" autocomplete="off" />
+                      <button type="button" class="cw-skill-add" aria-label="Add skill">
+                        <i data-lucide="plus" aria-hidden="true"></i>
+                      </button>
+                      <div class="cw-skill-menu" role="listbox" aria-label="Skill suggestions"></div>
+                      <input id="appSkills" type="hidden" />
                     </div>
                   </div>
                   <div class="cw-group">
@@ -2823,7 +2823,10 @@
             <p>Show us the tools you use and the work you’re proud of.</p>
           </div>
           <div class="cw-group">
-            <input id="intLinkedinUrlMain" type="url" placeholder="LinkedIn Profile URL" />
+            <div class="cw-linkedin-field">
+              <button type="button" class="cw-linkedin-icon" aria-label="Open LinkedIn profile"></button>
+              <input id="intLinkedinUrlMain" type="url" placeholder="LinkedIn Profile URL" />
+            </div>
           </div>
           <div class="cw-group">
             <div class="cw-link-pill-input" data-for="intLinksMain">
@@ -3305,13 +3308,25 @@
           const url = new URL(raw);
           const host = url.hostname.replace(/^www\./, "").toLowerCase();
           if (!host.endsWith("linkedin.com")) return null;
-          const parts = url.pathname.split("/").map((part) => part.trim()).filter(Boolean);
-          const markerIndex = parts.findIndex((part) => ["in", "company", "school", "pub"].includes(part.toLowerCase()));
+          const parts = url.pathname
+            .split("/")
+            .map((part) => part.trim())
+            .filter(Boolean);
+          const markerIndex = parts.findIndex((part) =>
+            ["in", "company", "school", "pub"].includes(part.toLowerCase()),
+          );
           const username = markerIndex > -1 ? parts[markerIndex + 1] : parts[0];
           if (!username) return null;
+          const displayName = decodeURIComponent(username)
+            .split(/[-_\s]+/)
+            .filter((part) => part && !/\d/.test(part))
+            .join(" ")
+            .replace(/\s+/g, " ")
+            .trim();
+          if (!displayName) return null;
           return {
             url: url.href,
-            username: decodeURIComponent(username).replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim(),
+            username: displayName,
           };
         } catch (_) {
           return null;
@@ -3515,7 +3530,7 @@
         const field = getInputHintTarget(target);
         if (!field) return;
         const shell = field.closest(".cw-group");
-        if (!getHoverFieldValue(field)) {
+        if (document.activeElement === field || !getHoverFieldValue(field)) {
           clearInputHint(shell);
           return;
         }
@@ -3698,7 +3713,9 @@
             }
           }
           if (n === 3) {
-            if (internLinkedin && !isValidHttpUrl(internLinkedin)) {
+            formatLinkedInField(document.getElementById("intLinkedinUrlMain"));
+            const formattedInternLinkedin = normalizeUrlInput("intLinkedinUrlMain");
+            if (formattedInternLinkedin && (!isValidHttpUrl(formattedInternLinkedin) || !getLinkedInProfileMeta(formattedInternLinkedin))) {
               return showFieldError(
                 "intLinkedinUrlMain",
                 "Please enter a valid LinkedIn URL with http:// or https://.",
@@ -4082,14 +4099,24 @@
       bindApplicationInputEnhancements();
 
       function initLinkedInField() {
-        const field = document.getElementById("appLinkedin");
-        if (!field || field.dataset.linkedinBound) return;
-        field.dataset.linkedinBound = "1";
-        field.addEventListener("focus", () => restoreLinkedInField(field));
-        field.addEventListener("blur", () => formatLinkedInField(field));
-        field.addEventListener("input", () => {
-          delete field.dataset.fullUrl;
-          field.closest(".cw-linkedin-field")?.classList.remove("is-linked");
+        ["appLinkedin", "intLinkedinUrlMain"].forEach((id) => {
+          const field = document.getElementById(id);
+          if (!field || field.dataset.linkedinBound) return;
+          field.dataset.linkedinBound = "1";
+          field.addEventListener("focus", () => restoreLinkedInField(field));
+          field.addEventListener("blur", () => formatLinkedInField(field));
+          field.addEventListener("input", () => {
+            delete field.dataset.fullUrl;
+            field.closest(".cw-linkedin-field")?.classList.remove("is-linked");
+          });
+          field.closest(".cw-linkedin-field")
+            ?.querySelector(".cw-linkedin-icon")
+            ?.addEventListener("click", (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              const url = field.dataset.fullUrl;
+              if (url) window.open(url, "_blank", "noopener,noreferrer");
+            });
         });
       }
 
@@ -5375,7 +5402,7 @@
           availability_start: getValue("intAvailabilityStartMain"),
           availability_duration: getValue("intAvailabilityDuration"),
           hours_per_week: getValue("intHoursPerWeek"),
-          linkedin_url: getValue("intLinkedinUrlMain"),
+          linkedin_url: normalizeUrlInput("intLinkedinUrlMain"),
           portfolio_url: firstNonLinkedInLink(additionalLinks),
           additional_links: additionalLinks.join(", "),
           resume_url: resumeUrl,
@@ -5712,6 +5739,7 @@
         btn.addEventListener("click", submitAll);
       })();
     </script>
+    <script src="input-hints.js?v=20260530"></script>
     <script src="cookie-consent.js?v=20260530"></script>
     <script>
       (function () {

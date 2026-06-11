@@ -2295,7 +2295,7 @@
 }
 
 .bk-field-ok {
-  outline: 2px solid #a0e92a !important;
+  outline: 0 !important;
   transition: outline 0.2s ease;
 }
 
@@ -2343,4 +2343,35 @@
 
 .bk-shake {
   animation: bk-shake 0.35s ease;
+}
+
+/* Book-a-call fields stay white in every value/focus/hint state */
+.book-call-page .book-call-form .cw-input-hint-wrap,
+.book-call-page .book-call-form .cw-input-hint-shell,
+.book-call-page .book-call-form input[type="text"],
+.book-call-page .book-call-form input[type="email"],
+.book-call-page .bk-cf-field.cw-input-hint-shell,
+.book-call-page .bk-cf-field.cw-input-hint-shell input,
+.book-call-page .bk-cf-field.cw-input-hint-shell textarea,
+.book-call-page .bk-cf-input,
+.book-call-page .bk-cf-textarea {
+  background: #ffffff !important;
+}
+
+.book-call-page .book-call-form .cw-input-hint-overlay,
+.book-call-page .bk-cf-field.cw-input-hint-shell .cw-input-hint-overlay {
+  background: #ffffff !important;
+}
+
+.book-call-page .book-call-form input:-webkit-autofill,
+.book-call-page .book-call-form input:-webkit-autofill:hover,
+.book-call-page .book-call-form input:-webkit-autofill:focus,
+.book-call-page .bk-cf-input:-webkit-autofill,
+.book-call-page .bk-cf-input:-webkit-autofill:hover,
+.book-call-page .bk-cf-input:-webkit-autofill:focus,
+.book-call-page .bk-cf-textarea:-webkit-autofill,
+.book-call-page .bk-cf-textarea:-webkit-autofill:hover,
+.book-call-page .bk-cf-textarea:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #101012 !important;
 }

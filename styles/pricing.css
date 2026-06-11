@@ -728,7 +728,7 @@
   display: block;
 }
 
-.pricing-checkout-field span {
+.pricing-checkout-field > span:not(.cw-input-hint-overlay) {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -752,6 +752,33 @@
 
 .pricing-checkout-field input::placeholder {
   color: rgba(17, 17, 17, 0.45);
+}
+
+
+.pricing-checkout-field.cw-input-hint-shell,
+.pricing-mobile-checkout-field.cw-input-hint-shell {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.pricing-checkout-field.cw-input-hint-shell input,
+.pricing-mobile-checkout-field.cw-input-hint-shell input {
+  background: #fff !important;
+  border-radius: 999px;
+  box-shadow: none !important;
+}
+
+.pricing-checkout-field.cw-input-hint-shell:focus-within input,
+.pricing-mobile-checkout-field.cw-input-hint-shell:focus-within input {
+  background: #fff !important;
+  outline-color: #a0e92a;
+}
+
+.pricing-checkout-field.cw-input-hint-shell .cw-input-hint-overlay,
+.pricing-mobile-checkout-field.cw-input-hint-shell .cw-input-hint-overlay {
+  background: #fff;
+  border-radius: 999px;
 }
 
 .pricing-summary-total {
@@ -2053,7 +2080,7 @@
     line-height: 1.1;
   }
 
-  .pricing-mobile-checkout-field span {
+  .pricing-mobile-checkout-field > span:not(.cw-input-hint-overlay) {
     position: absolute;
     width: 1px;
     height: 1px;

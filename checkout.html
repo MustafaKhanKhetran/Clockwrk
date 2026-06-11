@@ -96,7 +96,7 @@
             <div class="ck-bank-row">
               <span>Beneficiary name</span>
               <div class="ck-bank-val-wrap">
-                <span id="ckBankName">Mustafa Khan Hassan Khetran</span>
+                <span id="ckBankName">Mustafa Hassan Khan Khetran</span>
                 <button
                   type="button"
                   class="ck-copy-btn"
@@ -230,6 +230,14 @@
       const customerName = getCheckoutParam("name");
       const customerCompany = getCheckoutParam("company");
       const referralCode = getRefCookie();
+
+      if (window.location.search && window.history?.replaceState) {
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname + window.location.hash,
+        );
+      }
 
       const PLAN_DETAILS = {
         startup: {
@@ -816,24 +824,40 @@
           submitBtn.disabled = true;
           submitBtn.textContent = "Submitting...";
 
+          const paymentPayload = {
+            name,
+            email,
+            company,
+            plan: safePlan,
+            billing: safeBilling,
+            total,
+            hasWhitelabel,
+            paymentRef,
+            txnId: txn,
+            referralCode: ref || null,
+          };
+
           try {
-            await fetch("https://n8n.clockwrk.io/webhook/payment-confirm", {
+            const n8nRes = await fetch("https://n8n.clockwrk.io/webhook/payment-confirm", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                name,
-                email,
-                company,
-                plan: safePlan,
-                billing: safeBilling,
-                total,
-                hasWhitelabel,
-                paymentRef,
-                txnId: txn,
-                referralCode: ref || null,
-              }),
+              body: JSON.stringify(paymentPayload),
             });
-          } catch (_) {}
+            if (!n8nRes.ok) throw new Error("n8n returned " + n8nRes.status);
+          } catch (_) {
+            // n8n failed — send to Cloudflare Worker fallback
+            // Worker saves to KV + DB and retries n8n so the team is alerted
+            try {
+              await fetch("https://missed-payment-alert.mustafakhankhetran1.workers.dev", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(paymentPayload),
+              });
+            } catch (_) {
+              // Both failed — details are in sessionStorage, team can recover manually
+              console.error("Payment fallback also failed. Details:", paymentPayload);
+            }
+          }
 
           sessionStorage.setItem("cw_checkout_name", name);
           sessionStorage.setItem("cw_checkout_company", company);
@@ -865,6 +889,7 @@
         </div>
       </div>
     </section>
+    <script src="input-hints.js?v=20260530"></script>
     <script src="cookie-consent.js?v=20260530"></script>
   </body>
 </html>
