@@ -14,12 +14,12 @@ export default function Home() {
   const projectFor = (id) => projects.find((project) => project.id === id);
   const accountNotice = paused
     ? pauseReason === 'payment'
-      ? { tone: 'critical', label: 'Payment overdue', title: 'Production is paused until billing is resolved.', copy: `The $${paymentAmount.toLocaleString()} plan payment did not complete. Your files and queue are safe.` }
-      : { tone: 'warning', label: 'Paused by you', title: 'Production is currently paused.', copy: 'Your queue is saved in place. Resume the subscription whenever you are ready for work to continue.' }
+      ? { tone: 'critical', label: 'Transfer overdue', title: 'Production is paused until billing is resolved.', copy: `We have not received the $${paymentAmount.toLocaleString()} plan transfer. Your files and queue are safe.` }
+      : { tone: 'paused', label: 'Paused by you', title: 'Production is currently paused.', copy: 'Your queue is saved in place. Resume the subscription whenever you are ready for work to continue.' }
     : paymentStatus === 'overdue'
-      ? { tone: 'critical', label: 'Payment overdue', title: 'Your plan payment needs attention.', copy: `The $${paymentAmount.toLocaleString()} payment is overdue. Update billing to prevent production from pausing.` }
+      ? { tone: 'critical', label: 'Transfer overdue', title: 'Your plan payment needs attention.', copy: `We have not received the $${paymentAmount.toLocaleString()} transfer. Send it to prevent production from pausing.` }
       : paymentStatus === 'due'
-        ? { tone: 'warning', label: 'Payment due soon', title: `Your next plan payment is due ${paymentDueAt}.`, copy: `$${paymentAmount.toLocaleString()} will be charged to the payment method on file.` }
+        ? { tone: 'payment', label: 'Transfer due soon', title: `Your next plan payment is due ${paymentDueAt}.`, copy: `Please transfer $${paymentAmount.toLocaleString()} by the due date using the billing details on your invoice.` }
         : null;
 
   return (
