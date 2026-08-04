@@ -27,6 +27,7 @@ export default function Shell({ children }) {
   const [theme, setTheme] = useState(() => localStorage.getItem('portal_theme') || 'light');
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [searchIndex, setSearchIndex] = useState(0);
   const [createOpen, setCreateOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -69,10 +70,36 @@ export default function Shell({ children }) {
     return (query ? items.filter((item) => `${item.label} ${item.meta}`.toLowerCase().includes(query)) : items).slice(0, 9);
   }, [requests, search]);
 
+  useEffect(() => {
+    setSearchIndex(0);
+  }, [search, searchOpen]);
+
+  useEffect(() => {
+    if (!searchOpen || !results.length) return;
+    document.getElementById(`v3-search-result-${searchIndex}`)?.scrollIntoView({ block: 'nearest' });
+  }, [results.length, searchIndex, searchOpen]);
+
   const jump = (to) => {
     navigate(to);
     setSearchOpen(false);
     setSearch('');
+  };
+
+  const handleSearchKeyDown = (event) => {
+    if (!results.length) return;
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setSearchIndex((index) => (index + 1) % results.length);
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setSearchIndex((index) => (index - 1 + results.length) % results.length);
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const selected = results[Math.min(searchIndex, results.length - 1)];
+      if (selected) jump(selected.to);
+    }
   };
 
   return (
@@ -81,7 +108,7 @@ export default function Shell({ children }) {
       <header className="v3-nav">
         <button className="v3-wordmark" onClick={() => navigate('/home')} aria-label="Clockwrk home"><img src="/brand/cw-logo.png" alt="" /></button>
         <nav aria-label="Main navigation">
-          {links.map(([label, to]) => <NavLink key={to} to={to}>{({ isActive }) => <>{isActive && <i />}{label}</>}</NavLink>)}
+          {links.map(([label, to]) => <NavLink key={to} to={to}>{label}</NavLink>)}
         </nav>
         <div className="v3-nav-tools">
           <button className="v3-search-trigger" onClick={() => setSearchOpen(true)}><Icon name="search" size={16} /><span>Find</span><kbd>⌘K</kbd></button>
@@ -114,7 +141,7 @@ export default function Shell({ children }) {
         <button onClick={() => setAccountOpen(!accountOpen)} aria-label="More"><Icon name="settings" size={20} /><span>More</span></button>
       </nav>
 
-      {searchOpen && <div className="v3-search-layer" onMouseDown={() => setSearchOpen(false)}><section onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="Search workspace"><header><Icon name="search" size={22} /><input autoFocus aria-label="Search workspace" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search requests, projects, pages…" /><button onClick={() => setSearchOpen(false)}>Esc</button></header><div><span>{search ? 'Results' : 'Go somewhere'}</span>{results.map((item) => <button key={item.id} onClick={() => jump(item.to)}><i><Icon name={item.icon} size={17} /></i><strong>{item.label}</strong><small>{item.meta}</small><Icon name="arrow" size={15} /></button>)}</div></section></div>}
+      {searchOpen && <div className="v3-search-layer" onMouseDown={() => setSearchOpen(false)}><section onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="Search workspace"><header><Icon name="search" size={22} /><input autoFocus aria-label="Search workspace" aria-activedescendant={results.length ? `v3-search-result-${searchIndex}` : undefined} value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={handleSearchKeyDown} placeholder="Search requests, projects, pages…" /><button onClick={() => setSearchOpen(false)}>Esc</button></header><div><span>{search ? 'Results' : 'Go somewhere'}<small>↑↓ to move · Enter to open</small></span>{results.map((item, index) => <button id={`v3-search-result-${index}`} key={item.id} className={index === searchIndex ? 'is-active' : ''} aria-current={index === searchIndex ? 'true' : undefined} onMouseEnter={() => setSearchIndex(index)} onClick={() => jump(item.to)}><i><Icon name={item.icon} size={17} /></i><strong>{item.label}</strong><small>{item.meta}</small><Icon name="arrow" size={15} /></button>)}</div></section></div>}
     </div>
   );
 }
