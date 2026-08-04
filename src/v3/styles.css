@@ -445,7 +445,6 @@ button, a, input, textarea, select { transition: color .22s ease, background-col
 .v3-popover, .v3-create-menu { transform-origin: top right; animation: menu-morph .38s var(--ease); }
 @keyframes menu-morph { from { opacity: 0; transform: translateY(-12px) scale(.9); border-radius: 28px; } }
 .v3-dialog-layer > section, .v3-dialog-layer > form { border-radius: 18px; }
-body:has(.v3-dialog-layer) .v3-mobile-nav { visibility: hidden; opacity: 0; transform: translateY(20px); }
 
 @media (max-width: 640px) {
   .v3-shell > main { padding-inline: 14px; }
@@ -1081,8 +1080,8 @@ body:has(.v3-dialog-layer) .v3-mobile-nav { visibility: hidden; opacity: 0; tran
 
 .v3-search-layer, .v3-dialog-layer {
   z-index: 1000;
-  background: #090a08;
-  backdrop-filter: none;
+  background: #090a086b;
+  backdrop-filter: blur(3px) saturate(.9);
 }
 .v3-search-layer > section, .v3-dialog-layer > section, .v3-dialog-layer > form {
   border-radius: 28px;
@@ -1096,13 +1095,11 @@ body:has(.v3-dialog-layer) .v3-mobile-nav { visibility: hidden; opacity: 0; tran
 .v3-search-layer section > div > button:is(:hover, .is-active) > i { background: var(--sheet); }
 .v3-popover, .v3-create-menu { border-radius: 20px; box-shadow: 0 10px 26px #c9cbc4; }
 [data-v3-theme='dark'] .v3-popover, [data-v3-theme='dark'] .v3-create-menu { box-shadow: 0 10px 26px #050604; }
-body:has(.v3-search-layer) .v3-nav, body:has(.v3-search-layer) .v3-live-rail,
-body:has(.v3-dialog-layer) .v3-nav, body:has(.v3-dialog-layer) .v3-live-rail,
-body:has(.v3-search-layer) .v3-mobile-nav, body:has(.v3-dialog-layer) .v3-mobile-nav {
-  visibility: hidden;
-  opacity: 0;
+body:has(.v3-search-layer) :is(.v3-nav, .v3-live-rail, .v3-mobile-nav),
+body:has(.v3-dialog-layer) :is(.v3-nav, .v3-live-rail, .v3-mobile-nav) {
+  pointer-events: none;
+  filter: brightness(.6) saturate(.9) blur(1px);
 }
-
 .v3-messenger {
   overflow: hidden;
   border: 1px solid var(--line-dark);
