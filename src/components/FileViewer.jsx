@@ -1,5 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from './ui';
+import { downloadMock } from '../utils/download';
 
 export const FTAG = {
   pdf: 'PDF', svg: 'SVG', figma: 'FIG', zip: 'ZIP', video: 'MP4',
@@ -40,24 +43,31 @@ export default function FileViewer({ file, onClose }) {
       if (file.kind === 'pdf' && e.key === 'ArrowLeft') setPage((p) => Math.max(1, p - 1));
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [file.kind, onClose]);
 
-  return (
+  return createPortal((
     <>
-      <div className="sheet-veil" style={{ zIndex: 70 }} onClick={onClose} />
-      <section className="sheet" role="dialog" aria-modal="true" style={{ zIndex: 71, width: 'min(860px, calc(100vw - 32px))' }}>
+      <div className="sheet-veil" style={{ zIndex: 910 }} onClick={onClose} />
+      <section className="sheet file-viewer-sheet" role="dialog" aria-modal="true" style={{ zIndex: 911 }}>
         <div className="sheet-anim">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '18px 22px', borderBottom: '1px solid var(--line)' }}>
+          <div className="file-viewer-head">
             <FileThumb kind={file.kind} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <strong style={{ fontSize: 14.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{file.name}</strong>
                 <FileTag kind={file.kind} />
               </div>
-              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{file.request || file.project} · {file.at}{file.size && file.size !== '—' ? ` · ${file.size}` : ''}</span>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                {[file.project, file.request].filter(Boolean).join(' · ')} · delivered {file.at}{file.size && file.size !== '—' ? ` · ${file.size}` : ''}
+              </span>
             </div>
-            <button className="btn btn-ghost btn-sm">
+            <button className="btn btn-ghost btn-sm" onClick={() => downloadMock(file.name, `${file.name}\nDelivered by Clockwrk`)}>
               <span style={{ width: 14, height: 14, display: 'grid' }}><Icon.download /></span> Download
             </button>
             <button onClick={onClose} aria-label="Close" style={{ width: 36, height: 36, display: 'grid', placeItems: 'center', border: '1px solid var(--line)', borderRadius: '50%', background: 'var(--card)', color: 'var(--ink)' }}>
@@ -65,7 +75,7 @@ export default function FileViewer({ file, onClose }) {
             </button>
           </div>
 
-          <div style={{ padding: 20, overflowY: 'auto' }}>
+          <div className="file-viewer-body">
             {file.kind === 'pdf' && (
               <div className="viewer-stage" style={{ padding: '28px 0 54px' }}>
                 <div className="pdf-page" key={page}>
@@ -119,11 +129,11 @@ export default function FileViewer({ file, onClose }) {
                   <span className="preview-url">🔒 {file.url || 'preview.clockwrk.io'}</span>
                   <a className="btn btn-ghost btn-sm" href={file.url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>Open ↗</a>
                 </div>
-                {file.url ? (
-                  <iframe title={file.name} src={file.url} style={{ width: '100%', height: 420, border: 0, display: 'block', background: '#fff' }} />
-                ) : (
-                  <div className="preview-canvas" style={{ height: 300 }}>Live preview loads here once the staging link is attached</div>
-                )}
+                <div className="safe-preview">
+                  <span><Icon.layers /></span><strong>{file.name}</strong>
+                  <p>{file.url ? 'External preview ready' : 'Preview link will appear when attached'}</p>
+                  {file.url && <a href={file.url} target="_blank" rel="noreferrer">Open in new tab <Icon.arrow /></a>}
+                </div>
               </div>
             )}
 
@@ -135,9 +145,27 @@ export default function FileViewer({ file, onClose }) {
                 </div>
               </div>
             )}
+
+            {file.kind === 'code' && (
+              <div className="code-viewer">
+                <div className="code-viewer-head"><span>{file.name}</span><i>Read only</i></div>
+                <pre><code>{`// Delivered by clockwrk
+export const release = {
+  project: "${file.project || 'Platform MVP'}",
+  artifact: "${file.name}",
+  version: ${file.version || 1},
+  status: "production-ready",
+};
+
+export function initialize(config) {
+  if (!config) throw new Error("Configuration is required");
+  return release;
+}`}</code></pre>
+              </div>
+            )}
           </div>
         </div>
       </section>
     </>
-  );
+  ), document.body);
 }

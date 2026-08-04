@@ -1,128 +1,108 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { me } from '../mocks';
-import { Avatar } from '../components/ui';
+import { Avatar, Icon, SiteCta } from '../components/ui';
 
 const BRAND_COLORS = ['#a0e92a', '#0a0a0b', '#f7f7f5', '#383838'];
+const CLIENT_MEMBERS = [
+  { id: 'client-1', name: 'Sardar Khan', role: 'Workspace owner', canApprove: true, billing: true, online: true },
+  { id: 'client-2', name: 'Hira Khan', role: 'Business partner', canApprove: true, billing: true, online: false },
+  { id: 'client-3', name: 'Bilal Ahmed', role: 'Marketing lead', canApprove: true, billing: false, online: true },
+  { id: 'client-4', name: 'Nida Ali', role: 'Operations', canApprove: false, billing: false, online: false },
+];
+
+function Toggle({ on, onClick }) {
+  return <button type="button" className={`settings-toggle ${on ? 'is-on' : ''}`} onClick={onClick} aria-pressed={on}><span /></button>;
+}
 
 export default function Settings() {
   const navigate = useNavigate();
   const [name, setName] = useState(me.name);
   const [company, setCompany] = useState(me.company);
   const [saved, setSaved] = useState(false);
-  const [notif, setNotif] = useState({ delivery: true, comments: true, billing: false });
+  const [notifications, setNotifications] = useState({ delivery: true, comments: true, billing: false, weekly: true });
+  const [members, setMembers] = useState(CLIENT_MEMBERS);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [billingEmail, setBillingEmail] = useState(me.email);
 
-  const save = (e) => {
-    e.preventDefault();
+  const save = (event) => {
+    event.preventDefault();
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setTimeout(() => setSaved(false), 1800);
   };
-
-  const Toggle = ({ on, onClick }) => (
-    <button type="button" onClick={onClick} aria-pressed={on} style={{
-      width: 42, height: 24, borderRadius: 99, border: 0, position: 'relative',
-      background: on ? 'var(--lime)' : 'var(--line)', transition: 'background 0.25s ease',
-    }}>
-      <span style={{
-        position: 'absolute', top: 3, left: on ? 21 : 3, width: 18, height: 18, borderRadius: '50%',
-        background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.25)', transition: 'left 0.25s var(--ease-spring)',
-      }} />
-    </button>
-  );
 
   return (
     <>
       <header className="page-head anim-rise">
-        <div>
-          <h1 className="page-title">Settings</h1>
-          <p className="page-sub">Profile, brand kit, and how we reach you.</p>
-        </div>
+        <div><span className="kicker">Workspace preferences</span><h1 className="page-title">Settings</h1><p className="page-sub">Manage your account, brand system, security, and notifications.</p></div>
+        <span className="settings-saved-state" aria-live="polite">{saved ? 'Changes saved' : 'Workspace up to date'}</span>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 16, alignItems: 'start' }} className="settings-grid">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Profile */}
-          <form onSubmit={save} className="pcard anim-rise" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 4 }}>
-              <Avatar name={name} size={44} />
-              <div>
-                <span className="kicker">Profile</span>
-                <h2 style={{ fontSize: 17, fontWeight: 700 }}>{name}</h2>
-              </div>
+      <div className="settings-layout">
+        <aside className="settings-nav anim-rise">
+          {[
+            [Icon.home, 'Profile', 'Personal details'],
+            [Icon.spark, 'Brand kit', 'Assets and colors'],
+            [Icon.bolt, 'Notifications', 'Delivery updates'],
+            [Icon.gear, 'Security', 'Access and sessions'],
+          ].map(([ItemIcon, label, sub], index) => <a key={label} href={`#settings-${label.toLowerCase().replace(' ', '-')}`} className={index === 0 ? 'is-active' : ''}><span><ItemIcon /></span><div><strong>{label}</strong><small>{sub}</small></div></a>)}
+        </aside>
+
+        <div className="settings-content">
+          <form id="settings-profile" className="settings-section anim-rise" onSubmit={save}>
+            <div className="settings-section-head"><div><span className="kicker">Account</span><h2>Profile information</h2><p>Used for approvals, messages, and billing records.</p></div><Avatar name={name} size={52} online /></div>
+            <div className="settings-form-grid">
+              <label><span>Full name</span><input value={name} onChange={(event) => setName(event.target.value)} /></label>
+              <label><span>Company</span><input value={company} onChange={(event) => setCompany(event.target.value)} /></label>
+              <label className="is-wide"><span>Email address</span><input value={me.email} disabled /></label>
             </div>
-            <div>
-              <label className="kicker" style={{ display: 'block', marginBottom: 6 }}>Name</label>
-              <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div>
-              <label className="kicker" style={{ display: 'block', marginBottom: 6 }}>Company</label>
-              <input className="input" value={company} onChange={(e) => setCompany(e.target.value)} />
-            </div>
-            <div>
-              <label className="kicker" style={{ display: 'block', marginBottom: 6 }}>Email</label>
-              <input className="input" value={me.email} disabled style={{ opacity: 0.6 }} />
-            </div>
-            <button type="submit" className={`btn btn-sm ${saved ? 'btn-lime' : 'btn-primary'}`} style={{ alignSelf: 'flex-start' }}>
-              {saved ? '✓ Saved' : 'Save changes'}
-            </button>
+            <div className="settings-section-actions"><span>Your email is managed through portal access.</span><SiteCta type="submit" className="site-cta-compact" icon={<Icon.check />}>{saved ? 'Saved' : 'Save changes'}</SiteCta></div>
           </form>
 
-          {/* Password */}
-          <section className="pcard anim-rise" style={{ padding: 22, animationDelay: '0.08s' }}>
-            <span className="kicker">Security</span>
-            <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Access code</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <input className="input" type="password" placeholder="Current code" />
-              <input className="input" type="password" placeholder="New code" />
-              <button className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start' }}>Update code</button>
+          <section id="settings-brand-kit" className="settings-section anim-rise">
+            <div className="settings-section-head"><div><span className="kicker">Creative defaults</span><h2>Brand kit</h2><p>These assets are automatically available on every request.</p></div><span className="settings-count-pill">4 colors</span></div>
+            <div className="settings-brand-row">
+              <div className="settings-brand-logo"><strong>{company.slice(0, 2).toUpperCase()}</strong><span><b>Primary logo</b><small>SVG · updated Jun 22</small></span><button><Icon.download /></button></div>
+              <div className="settings-swatches">{BRAND_COLORS.map((color) => <button key={color} title={color} style={{ '--swatch': color }}><span /></button>)}<button className="is-add"><Icon.plus /></button></div>
             </div>
+            <button className="settings-upload"><Icon.clip /><span><strong>Add logos, fonts, or guidelines</strong><small>SVG, PNG, PDF, OTF, or TTF</small></span><i>Browse files</i></button>
           </section>
-        </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Brand kit */}
-          <section className="pcard anim-rise" style={{ padding: 22, animationDelay: '0.05s' }}>
-            <span className="kicker">Brand kit</span>
-            <h2 style={{ fontSize: 17, fontWeight: 700 }}>{company}</h2>
-            <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '4px 0 14px' }}>
-              Upload once — every brief automatically carries your brand.
-            </p>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-              {BRAND_COLORS.map((c) => (
-                <span key={c} title={c} style={{ width: 34, height: 34, borderRadius: 10, background: c, border: '1px solid var(--line)' }} />
-              ))}
-              <button className="btn btn-ghost btn-sm" style={{ height: 34 }}>+ Color</button>
-            </div>
-            <div style={{ padding: '18px 16px', border: '2px dashed var(--line)', borderRadius: 14, textAlign: 'center', color: 'var(--muted)', fontSize: 12.5, cursor: 'pointer' }}>
-              📁 Drop logos & fonts here
+          <section id="settings-notifications" className="settings-section anim-rise">
+            <div className="settings-section-head"><div><span className="kicker">Communication</span><h2>Notifications</h2><p>Choose which updates should reach your inbox.</p></div></div>
+            <div className="settings-option-list">
+              {[
+                ['delivery', 'Request delivered', 'When a file or build is ready for review'],
+                ['comments', 'Team messages', 'Questions, decisions, and request comments'],
+                ['billing', 'Billing activity', 'Invoices, add-ons, and subscription changes'],
+                ['weekly', 'Weekly summary', 'A concise progress report every Monday'],
+              ].map(([key, label, description]) => <div key={key}><span><strong>{label}</strong><small>{description}</small></span><Toggle on={notifications[key]} onClick={() => setNotifications({ ...notifications, [key]: !notifications[key] })} /></div>)}
             </div>
           </section>
 
-          {/* Notifications */}
-          <section className="pcard anim-rise" style={{ padding: 22, animationDelay: '0.12s' }}>
-            <span className="kicker">Notifications</span>
-            <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Email me when…</h2>
-            {[['delivery', 'A request is delivered'], ['comments', 'The team comments or asks a question'], ['billing', 'An invoice is issued']].map(([k, label]) => (
-              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--line)' }}>
-                <span style={{ fontSize: 13.5 }}>{label}</span>
-                <Toggle on={notif[k]} onClick={() => setNotif({ ...notif, [k]: !notif[k] })} />
-              </div>
-            ))}
+          <section id="settings-security" className="settings-section anim-rise">
+            <div className="settings-section-head"><div><span className="kicker">Access</span><h2>Security</h2><p>Update your portal code and review the current session.</p></div><span className="settings-secure"><i /> Secure</span></div>
+            <div className="settings-security-grid">
+              <label><span>Current access code</span><input type="password" placeholder="••••••••" /></label>
+              <label><span>New access code</span><input type="password" placeholder="At least 8 characters" /></label>
+            </div>
+            <div className="settings-section-actions"><button className="settings-text-button">Update access code</button><button className="settings-signout" onClick={() => { localStorage.removeItem('portal_demo_authed'); navigate('/login'); }}>Sign out of portal</button></div>
           </section>
 
-          {/* Sign out */}
-          <section className="pcard anim-rise" style={{ padding: 22, animationDelay: '0.16s', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <strong style={{ fontSize: 14 }}>Sign out</strong>
-              <div style={{ fontSize: 12, color: 'var(--muted)' }}>You'll need your access code to get back in.</div>
+          <section className="settings-section anim-rise">
+            <div className="settings-section-head"><div><span className="kicker">Client workspace</span><h2>Partners and team members</h2><p>Invite people from your company and control their portal permissions.</p></div><span className="settings-count-pill">{members.length} members</span></div>
+            <div className="settings-member-list">
+              {members.map((member) => <div key={member.id}><Avatar name={member.name} size={36} online={member.online} /><span><strong>{member.name}</strong><small>{member.role}</small></span><label><input type="checkbox" checked={member.canApprove} onChange={(event) => setMembers(members.map((item) => item.id === member.id ? { ...item, canApprove: event.target.checked } : item))} />Approvals</label><label><input type="checkbox" checked={member.billing} onChange={(event) => setMembers(members.map((item) => item.id === member.id ? { ...item, billing: event.target.checked } : item))} />Billing</label></div>)}
             </div>
-            <button className="btn btn-ghost btn-sm" onClick={() => { localStorage.removeItem('portal_demo_authed'); navigate('/login'); }}>
-              Sign out
-            </button>
+            <div className="settings-invite"><input type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} placeholder="partner@yourcompany.com" /><button disabled={!inviteEmail.includes('@')} onClick={() => { setMembers([...members, { id: `client-${Date.now()}`, name: inviteEmail.split('@')[0], role: 'Client team member', canApprove: false, billing: false, online: false }]); setInviteEmail(''); }}>Invite member</button></div>
+          </section>
+
+          <section className="settings-section anim-rise">
+            <div className="settings-section-head"><div><span className="kicker">Billing</span><h2>Billing contacts</h2><p>Invoices and renewal notices are sent to this address.</p></div></div>
+            <div className="settings-invite"><input type="email" value={billingEmail} onChange={(event) => setBillingEmail(event.target.value)} /><button onClick={() => setSaved(true)}>Save contact</button></div>
           </section>
         </div>
       </div>
-      <style>{`@media (max-width: 900px) { .settings-grid { grid-template-columns: 1fr !important; } }`}</style>
     </>
   );
 }

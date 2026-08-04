@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import Sheet from './Sheet';
 import FileViewer, { FileTag, FileThumb } from './FileViewer';
-import { Icon, StatusPill, Confetti, Avatar, CatChip } from './ui';
+import { Icon, StatusPill, Avatar, CatChip, SiteCta } from './ui';
 import { projects } from '../mocks';
 import { store, useStore } from '../store';
+import { downloadMock } from '../utils/download';
 
 /* Rich revision composer: notes + file drop + voice note + meeting */
 function RevisionComposer({ request, onClose }) {
@@ -25,7 +26,11 @@ function RevisionComposer({ request, onClose }) {
   };
 
   return (
-    <div className="anim-rise" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className="revision-composer anim-rise">
+      <div className="revision-composer-head">
+        <strong>Send clear revision notes</strong>
+        <span>Text, annotated files, or a voice note all stay attached to this delivery.</span>
+      </div>
       <textarea className="input" style={{ minHeight: 110 }} autoFocus
         placeholder="What should we change? Reference specific screens or sections — be as picky as you like."
         value={text} onChange={(e) => setText(e.target.value)} />
@@ -48,7 +53,7 @@ function RevisionComposer({ request, onClose }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="revision-tools">
         {!voiceNote && !recording && (
           <button className="btn btn-ghost btn-sm" onClick={() => setRecording(true)}>
             <span style={{ width: 14, height: 14, display: 'grid' }}><Icon.mic /></span> Record voice note
@@ -88,15 +93,16 @@ function RevisionComposer({ request, onClose }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 10 }}>
-        <button className="btn btn-primary btn-sm" disabled={!canSend} style={{ opacity: canSend ? 1 : 0.4 }}
+      <div className="revision-submit">
+        <span>{canSend ? 'Ready to send to the project team' : 'Add a note, file, or voice recording to continue'}</span>
+        <SiteCta className="site-cta-compact" disabled={!canSend}
           onClick={() => {
             const parts = [text.trim(), files.length && `${files.length} file(s) attached`, voiceNote && `voice note (${voiceNote})`, meeting && `call booked for ${meeting}`].filter(Boolean);
             store.requestRevision(request.id, parts.join(' · '));
             onClose();
           }}>
           Send revision request
-        </button>
+        </SiteCta>
       </div>
     </div>
   );
@@ -110,7 +116,7 @@ function Rating({ request }) {
   const [saved, setSaved] = useState(!!request.rating);
 
   return (
-    <div style={{ padding: 20, borderRadius: 16, background: 'var(--soft)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className="rating-card" style={{ padding: 20, borderRadius: 16, background: 'var(--soft)', display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
         <div>
           <strong style={{ fontSize: 15 }}>How did we do?</strong>
@@ -132,8 +138,8 @@ function Rating({ request }) {
             <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} style={{ accentColor: 'var(--lime)' }} />
             Allow clockwrk to publish this as a testimonial on the main site
           </label>
-          <button className="btn btn-lime btn-sm" style={{ alignSelf: 'flex-start' }}
-            onClick={() => { store.rate(request.id, stars, feedback, publish); setSaved(true); }}>Submit rating</button>
+          <SiteCta className="site-cta-compact" style={{ alignSelf: 'flex-start' }}
+            onClick={() => { store.rate(request.id, stars, feedback, publish); setSaved(true); }}>Submit rating</SiteCta>
         </div>
       )}
       {saved && stars > 0 && (
@@ -157,20 +163,19 @@ function FileRow({ file, dim, onView }) {
         <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{file.at}{file.size && file.size !== '—' ? ` · ${file.size}` : ''}</span>
       </div>
       <span className={`pill ${file.current ? 'pill-lime' : 'pill-soft'}`}>v{file.version}{file.current ? ' · latest' : ''}</span>
-      <button className="btn btn-ghost btn-sm" onClick={(e) => e.stopPropagation()}>
+      <button className="btn btn-ghost btn-sm" aria-label={`Download ${file.name}`} onClick={(e) => { e.stopPropagation(); downloadMock(file.name, `${file.name}\nDelivered by Clockwrk`); }}>
         <span style={{ width: 14, height: 14, display: 'grid' }}><Icon.download /></span>
       </button>
     </div>
   );
 }
 
-export default function RequestSheet({ requestId, onClose }) {
+export default function RequestSheet({ requestId, onClose, embedded = false }) {
   const { requests } = useStore();
   const r = requests.find((x) => x.id === requestId);
   const [revisionOpen, setRevisionOpen] = useState(false);
   const [comment, setComment] = useState('');
   const [justApproved, setJustApproved] = useState(false);
-  const [promoted, setPromoted] = useState(null);
   const [viewing, setViewing] = useState(null);
   const [showOld, setShowOld] = useState(false);
 
@@ -182,29 +187,28 @@ export default function RequestSheet({ requestId, onClose }) {
 
   const approve = () => {
     store.approve(r.id);
-    setPromoted(store.get().promoted);
     setJustApproved(true);
   };
 
   const header = (
-    <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap', paddingRight: 50 }}>
+    <div className="sheet-hero">
       <CatChip category={r.category} size={48} />
-      <div style={{ flex: 1, minWidth: 200 }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4, flexWrap: 'wrap' }}>
+      <div className="sheet-hero-copy">
+        <div className="sheet-hero-meta">
           <StatusPill status={justApproved ? 'done' : r.status} />
           <span style={{ fontSize: 12, color: 'var(--muted)' }}>
             {r.category} · {r.type} {project && <>· in <strong style={{ color: 'var(--ink)' }}>{project.name}</strong></>}
           </span>
         </div>
-        <h2 style={{ fontSize: 'clamp(18px, 2.2vw, 23px)', fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.1 }}>{r.title}</h2>
+        <h2>{r.title}</h2>
       </div>
       {r.status === 'active' && (
-        <div style={{ minWidth: 160 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted)', marginBottom: 5 }}>
+        <div className="sheet-progress">
+          <div>
             <span>Progress</span><strong style={{ color: 'var(--ink)' }}>{r.progress}%</strong>
           </div>
-          <div style={{ height: 7, borderRadius: 99, background: 'var(--soft)', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${r.progress}%`, background: 'var(--lime)', borderRadius: 99, transition: 'width 0.8s var(--ease-out)' }} />
+          <div className="sheet-progress-track">
+            <i style={{ width: `${r.progress}%` }} />
           </div>
         </div>
       )}
@@ -213,20 +217,24 @@ export default function RequestSheet({ requestId, onClose }) {
 
   return (
     <>
-      <Sheet onClose={onClose} header={header}>
+      <span className="sr-only" aria-live="polite">{justApproved ? 'Request approved successfully' : ''}</span>
+      <Sheet onClose={onClose} header={header} embedded={embedded}>
         {/* brief + facts */}
         <div className="sheet-section" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)', gap: 18 }} data-sheet-cols>
           <div>
             <span className="kicker">Brief</span>
             <p style={{ fontSize: 14, lineHeight: 1.65, marginTop: 8, color: 'var(--ink-dim)' }}>{r.brief}</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, alignContent: 'start' }}>
-            {[r.startedAt && ['Started', r.startedAt], r.due && ['Delivery', r.due],
-              r.deliveredAt && ['Delivered', r.deliveredAt], r.approvedAt && ['Approved', r.approvedAt],
+          <div className="sheet-facts">
+            {[[ 'Project', project?.name || 'Unassigned'],
+              ['Priority', r.priority || 'Standard'],
+              r.startedAt && ['Started', r.startedAt],
+              (r.deliveredAt || r.due) && [r.deliveredAt ? 'Delivered' : 'Delivery', r.deliveredAt || r.due],
+              (r.approvedAt || justApproved) && ['Approved', r.approvedAt || 'Just now'],
               r.status === 'queued' && ['Queue position', `#${r.queuePos}`],
               ['Revisions', `${r.revisionsUsed || 0} of ∞`]]
               .filter(Boolean).map(([k, v]) => (
-                <div key={k} style={{ padding: '11px 14px', borderRadius: 11, background: 'var(--soft)' }}>
+                <div key={k}>
                   <span className="kicker" style={{ fontSize: 9, whiteSpace: 'nowrap' }}>{k}</span>
                   <div style={{ fontSize: 13, fontWeight: 600, marginTop: 4, whiteSpace: 'nowrap' }}>{String(v)}</div>
                 </div>
@@ -237,29 +245,16 @@ export default function RequestSheet({ requestId, onClose }) {
         {/* review actions */}
         {r.status === 'review' && !justApproved && (
           <div className="sheet-section">
-            <div style={{ padding: 18, borderRadius: 16, border: '1.5px solid var(--lime)', background: 'var(--lime-soft)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="review-panel">
               <div>
                 <strong style={{ fontSize: 15 }}>This delivery is waiting on you</strong>
                 <p style={{ fontSize: 12.5, color: 'var(--ink-dim)', marginTop: 3 }}>Approve to close it out — the next queued request starts immediately. Or send it back with notes.</p>
               </div>
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <button className="btn btn-lime" onClick={approve}>
-                  <span style={{ width: 15, height: 15, display: 'grid' }}><Icon.check /></span> Approve & start next
-                </button>
+              <div className="review-actions">
+                <SiteCta className="site-cta-compact" icon={<Icon.check />} onClick={approve}>Approve & start next</SiteCta>
                 <button className="btn btn-ghost" onClick={() => setRevisionOpen(!revisionOpen)}>Request changes</button>
               </div>
               {revisionOpen && <RevisionComposer request={r} onClose={onClose} />}
-            </div>
-          </div>
-        )}
-        {justApproved && (
-          <div className="sheet-section">
-            <div className="anim-pop" style={{ position: 'relative', padding: 20, borderRadius: 16, background: 'var(--ink)', color: 'var(--bg)', textAlign: 'center' }}>
-              <Confetti trigger />
-              <strong style={{ fontSize: 15.5 }}>Approved — nice one!</strong>
-              <p style={{ fontSize: 12.5, opacity: 0.75, marginTop: 5 }}>
-                {promoted ? `"${promoted}" just moved into the freed slot — work starts now.` : 'Deliverables are saved to your library.'}
-              </p>
             </div>
           </div>
         )}
@@ -277,7 +272,7 @@ export default function RequestSheet({ requestId, onClose }) {
                 <span className="preview-url">🔒 {r.preview.url}</span>
                 <a className="btn btn-ghost btn-sm" href={r.preview.url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>Open ↗</a>
               </div>
-              <iframe title="preview" src={r.preview.url} style={{ width: '100%', height: 300, border: 0, display: 'block', background: '#fff' }} />
+            <div className="safe-preview"><span><Icon.layers /></span><strong>{r.title}</strong><p>{r.preview.label}</p><a href={r.preview.url} target="_blank" rel="noreferrer">Open in new tab <Icon.arrow /></a></div>
             </div>
           </div>
         )}
@@ -359,9 +354,9 @@ export default function RequestSheet({ requestId, onClose }) {
         )}
 
         {/* comments */}
-        <div className="sheet-section">
+        <div className="sheet-section comments-section">
           <span className="kicker" style={{ display: 'block', marginBottom: 10 }}>Comments</span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 620 }}>
+          <div className="comments-thread">
             {r.comments.length === 0 && <p style={{ color: 'var(--muted)', fontSize: 13 }}>Anything you write here lands straight with the team.</p>}
             {r.comments.map((c, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: c.who === 'You' ? 'flex-end' : 'flex-start' }}>
@@ -369,9 +364,9 @@ export default function RequestSheet({ requestId, onClose }) {
                 <span style={{ fontSize: 10.5, color: 'var(--muted)', marginTop: 4, padding: '0 6px' }}>{c.who} · {c.at}</span>
               </div>
             ))}
-            <form style={{ display: 'flex', gap: 8, marginTop: 4 }} onSubmit={(e) => { e.preventDefault(); store.addComment(r.id, comment); setComment(''); }}>
-              <input className="input" placeholder="Write to the team…" style={{ height: 44 }} value={comment} onChange={(e) => setComment(e.target.value)} />
-              <button type="submit" className="btn btn-primary" disabled={!comment.trim()} style={{ opacity: comment.trim() ? 1 : 0.4 }}>Send</button>
+            <form className="comment-form" onSubmit={(e) => { e.preventDefault(); store.addComment(r.id, comment); setComment(''); }}>
+              <input className="input" placeholder="Write to the team…" value={comment} onChange={(e) => setComment(e.target.value)} />
+              <SiteCta type="submit" className="site-cta-compact comment-send" disabled={!comment.trim()}>Send</SiteCta>
             </form>
           </div>
         </div>

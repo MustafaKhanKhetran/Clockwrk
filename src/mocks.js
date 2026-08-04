@@ -14,7 +14,7 @@ export const me = {
 };
 
 export const SERVICES = {
-  Development: ['Web App', 'Website', 'SaaS', 'E-commerce', 'Mobile App', 'MVP', 'API & Integrations', 'Extension', 'Backend & DB', 'DevOps', 'CMS', 'Bug Fixes'],
+  Development: ['Web App', 'Website', 'SaaS', 'E-commerce', 'Mobile App', 'MVP', 'Extension'],
   Design: ['MVP', 'Website', 'Landing Page', 'E-commerce', 'Mobile App', 'SaaS', 'Extension', 'UI Design', 'UX Design'],
   Branding: ['Logo', 'Brand Identity', 'Design System', 'Illustrations', 'Mockups', 'Icon Set'],
   Presence: ['Pitch Deck', 'Slide Deck', 'Ad Creatives', 'Email Templates', 'Infographic', 'Social Graphics', 'Brochure', 'Business Card'],
@@ -91,8 +91,8 @@ export const projects = [
 /* ---------------- requests ---------------- */
 export const requestsSeed = [
   {
-    id: 101, projectId: 1, title: 'Checkout flow redesign', category: 'Design', type: 'UI Design',
-    status: 'active', progress: 62, startedAt: 'Jul 1', due: 'Jul 6', revisionsUsed: 0,
+    id: 101, projectId: 1, title: 'Checkout flow redesign', category: 'Design', type: 'UI Design', priority: 'High',
+    status: 'active', progress: 62, startedAt: 'Jul 1', due: 'Jul 4', revisionsUsed: 0,
     brief: 'Redesign the 3-step checkout to reduce drop-off. Keep the lime accent, simplify the plan picker, mobile-first.',
     timeline: [
       { label: 'Submitted', at: 'Jul 1, 09:12', done: true },
@@ -112,7 +112,7 @@ export const requestsSeed = [
     rating: null,
   },
   {
-    id: 102, projectId: 1, title: 'Marketing site dark mode', category: 'Development', type: 'Website',
+    id: 102, projectId: 1, title: 'Marketing site dark mode', category: 'Development', type: 'Website', priority: 'Normal',
     status: 'active', progress: 30, startedAt: 'Jul 2', due: 'Jul 7',
     brief: 'Add a dark theme to the marketing site, system-preference aware, with a toggle in the navbar.',
     timeline: [
@@ -130,7 +130,7 @@ export const requestsSeed = [
     rating: null,
   },
   {
-    id: 103, projectId: 2, title: 'Investor pitch deck v2', category: 'Presence', type: 'Pitch Deck',
+    id: 103, projectId: 2, title: 'Investor pitch deck v2', category: 'Presence', type: 'Pitch Deck', priority: 'High',
     status: 'review', progress: 100, startedAt: 'Jun 26', due: 'Jun 30', deliveredAt: 'Jun 30', revisionsUsed: 1,
     brief: '14-slide seed deck refresh: new traction numbers, cleaner story arc.',
     timeline: [
@@ -154,19 +154,56 @@ export const requestsSeed = [
     rating: null,
   },
   {
-    id: 104, projectId: 3, title: 'Onboarding email sequence', category: 'Presence', type: 'Email Templates',
+    id: 104, projectId: 3, title: 'Onboarding email sequence', category: 'Presence', type: 'Email Templates', priority: 'Standard',
     status: 'queued', queuePos: 1,
     brief: '5-email welcome sequence for new subscribers. Friendly, short, one CTA each.',
     timeline: [], changelog: [], comments: [], deliverables: [], rating: null,
   },
   {
-    id: 105, projectId: 1, title: 'App Store screenshots', category: 'Design', type: 'Mobile App',
+    id: 112, projectId: 1, title: 'Shipment tracking dashboard', category: 'Development', type: 'Web App', priority: 'Urgent',
+    status: 'review', progress: 100, startedAt: 'Jul 1', due: 'Jul 4', deliveredAt: 'Jul 4', revisionsUsed: 0,
+    brief: 'Live shipment dashboard with carrier status, exception alerts, and customer-facing tracking links.',
+    timeline: [
+      { label: 'Submitted', at: 'Jul 1, 10:20', done: true },
+      { label: 'Started — slot 1', at: 'Jul 1, 13:10', done: true },
+      { label: 'Production candidate delivered', at: 'Jul 4, 16:45', done: true, kind: 'delivery' },
+      { label: 'Awaiting your review', at: 'now', now: true },
+    ],
+    changelog: [{ at: 'Jul 4, 16:45', who: 'Daniyal K.', text: 'Staging build, source package, QA notes, and deployment guide are ready for review.' }],
+    comments: [{ who: 'Daniyal K.', at: 'Jul 4', text: 'The staging build is ready. Please test the exception-alert flow and mobile table view.' }],
+    deliverables: [
+      { id: 'review-dev-1', name: 'tracking-dashboard-staging.html', kind: 'html', size: 'Live', at: 'Jul 4', version: 1, current: true, url: 'https://preview.clockwrk.io/m94-tracking' },
+      { id: 'review-dev-2', name: 'tracking-dashboard-source.zip', kind: 'zip', size: '12.8 MB', at: 'Jul 4', version: 1, current: true },
+      { id: 'review-dev-3', name: 'qa-and-deployment.md', kind: 'code', size: '18 KB', at: 'Jul 4', version: 1, current: true },
+    ],
+    rating: null,
+  },
+  {
+    id: 113, projectId: 3, title: 'Launch campaign landing page', category: 'Development', type: 'Landing Page', priority: 'High',
+    status: 'review', progress: 100, startedAt: 'Jul 2', due: 'Jul 5', deliveredAt: 'Jul 5', revisionsUsed: 1,
+    brief: 'Responsive launch page with campaign tracking, lead capture, and conversion-ready sections.',
+    timeline: [
+      { label: 'Submitted', at: 'Jul 2, 09:00', done: true },
+      { label: 'Revision completed', at: 'Jul 4, 15:30', done: true, kind: 'revision' },
+      { label: 'Final build delivered', at: 'Jul 5, 11:10', done: true, kind: 'delivery' },
+      { label: 'Awaiting your review', at: 'now', now: true },
+    ],
+    changelog: [{ at: 'Jul 5, 11:10', who: 'Hamza T.', text: 'Final responsive build delivered with analytics events and optimized assets.' }],
+    comments: [{ who: 'Ayesha R.', at: 'Jul 5', text: 'Final build is ready. The revised testimonial section and analytics events are included.' }],
+    deliverables: [
+      { id: 'review-web-1', name: 'campaign-landing-live.html', kind: 'html', size: 'Live', at: 'Jul 5', version: 2, current: true, url: 'https://preview.clockwrk.io/m94-campaign' },
+      { id: 'review-web-2', name: 'campaign-landing-source.zip', kind: 'zip', size: '6.3 MB', at: 'Jul 5', version: 2, current: true },
+    ],
+    rating: null,
+  },
+  {
+    id: 105, projectId: 1, title: 'App Store screenshots', category: 'Design', type: 'Mobile App', priority: 'Normal',
     status: 'queued', queuePos: 2,
     brief: '8 localized screenshots for iOS listing, both light and dark app themes.',
     timeline: [], changelog: [], comments: [], deliverables: [], rating: null,
   },
   {
-    id: 106, projectId: 1, title: 'API rate-limit middleware', category: 'Development', type: 'Backend & DB',
+    id: 106, projectId: 1, title: 'API rate-limit middleware', category: 'Development', type: 'Backend & DB', priority: 'Urgent',
     status: 'queued', queuePos: 3,
     brief: 'Per-key sliding window rate limiting with Redis, plus usage headers.',
     timeline: [], changelog: [], comments: [], deliverables: [], rating: null,
@@ -214,26 +251,270 @@ export const requestsSeed = [
     ],
     rating: { stars: 4, feedback: 'Great variant, quick turnaround.', published: false },
   },
+  {
+    id: 109, projectId: 1, title: 'Customer portal release', category: 'Development', type: 'Web App',
+    status: 'done', deliveredAt: 'Jun 15', approvedAt: 'Jun 16', revisionsUsed: 1,
+    brief: 'Production-ready customer portal with authentication, request tracking, file delivery, and billing views.',
+    timeline: [
+      { label: 'Submitted', at: 'May 28', done: true },
+      { label: 'Staging build delivered', at: 'Jun 10', done: true, kind: 'delivery' },
+      { label: 'Production release delivered', at: 'Jun 15', done: true, kind: 'delivery' },
+      { label: 'Approved by you', at: 'Jun 16', done: true },
+    ],
+    changelog: [{ at: 'Jun 15, 17:40', who: 'Daniyal K.', text: 'Production build, source package, deployment notes, and environment template delivered.' }],
+    comments: [],
+    deliverables: [
+      { id: 'dev1', name: 'customer-portal-live.html', kind: 'html', size: 'Live', at: 'Jun 15', version: 3, current: true, url: 'https://preview.clockwrk.io/m94-platform' },
+      { id: 'dev2', name: 'customer-portal-source.zip', kind: 'zip', size: '18.6 MB', at: 'Jun 15', version: 3, current: true },
+      { id: 'dev3', name: 'release-notes.md', kind: 'code', size: '14 KB', at: 'Jun 15', version: 3, current: true },
+      { id: 'dev4', name: 'environment.example', kind: 'code', size: '3 KB', at: 'Jun 15', version: 3, current: true },
+      { id: 'dev0', name: 'customer-portal-rc.zip', kind: 'zip', size: '17.9 MB', at: 'Jun 10', version: 2, current: false },
+    ],
+    rating: { stars: 5, feedback: 'The release process and documentation were exceptionally clear.', published: true },
+  },
+  {
+    id: 110, projectId: 1, title: 'Operations browser plugin', category: 'Development', type: 'Extension',
+    status: 'done', deliveredAt: 'Jun 8', approvedAt: 'Jun 9', revisionsUsed: 0,
+    brief: 'Chrome extension for capturing shipment details and sending them into the platform.',
+    timeline: [
+      { label: 'Submitted', at: 'May 30', done: true },
+      { label: 'Plugin package delivered', at: 'Jun 8', done: true, kind: 'delivery' },
+      { label: 'Approved by you', at: 'Jun 9', done: true },
+    ],
+    changelog: [{ at: 'Jun 8, 13:20', who: 'Hamza T.', text: 'Manifest v3 extension, install package, source, and QA checklist delivered.' }],
+    comments: [],
+    deliverables: [
+      { id: 'plug1', name: 'clockwrk-capture-extension.zip', kind: 'zip', size: '2.4 MB', at: 'Jun 8', version: 1, current: true },
+      { id: 'plug2', name: 'manifest-v3.json', kind: 'code', size: '6 KB', at: 'Jun 8', version: 1, current: true },
+      { id: 'plug3', name: 'plugin-install-guide.html', kind: 'html', size: '420 KB', at: 'Jun 8', version: 1, current: true },
+      { id: 'plug4', name: 'qa-checklist.md', kind: 'code', size: '11 KB', at: 'Jun 8', version: 1, current: true },
+    ],
+    rating: { stars: 5, feedback: 'Installed cleanly and worked on the first test.', published: false },
+  },
+  {
+    id: 111, projectId: 1, title: 'Shipment API integration', category: 'Development', type: 'API & Integrations',
+    status: 'done', deliveredAt: 'May 29', approvedAt: 'May 30', revisionsUsed: 1,
+    brief: 'Carrier API integration with normalized tracking events, webhook verification, and retry handling.',
+    timeline: [
+      { label: 'Submitted', at: 'May 16', done: true },
+      { label: 'API package delivered', at: 'May 29', done: true, kind: 'delivery' },
+      { label: 'Approved by you', at: 'May 30', done: true },
+    ],
+    changelog: [{ at: 'May 29, 16:10', who: 'Daniyal K.', text: 'OpenAPI specification, Postman collection, integration source, and deployment guide delivered.' }],
+    comments: [],
+    deliverables: [
+      { id: 'api1', name: 'carrier-api-openapi.json', kind: 'code', size: '96 KB', at: 'May 29', version: 2, current: true },
+      { id: 'api2', name: 'carrier-integration-source.zip', kind: 'zip', size: '5.8 MB', at: 'May 29', version: 2, current: true },
+      { id: 'api3', name: 'api-documentation.html', kind: 'html', size: '1.2 MB', at: 'May 29', version: 2, current: true },
+      { id: 'api4', name: 'postman-collection.json', kind: 'code', size: '84 KB', at: 'May 29', version: 2, current: true },
+    ],
+    rating: { stars: 5, feedback: 'Excellent API documentation and handover.', published: true },
+  },
 ];
 
 /* ---------------- add-ons ---------------- */
 export const ADDONS = [
-  { id: 'slot', emoji: '⚡', name: 'Extra request slot', price: 700, per: '/mo', blurb: 'One more request running in parallel. Add or remove any month.' },
-  { id: 'rush', emoji: '🚀', name: 'Rush delivery', price: 250, per: '/request', blurb: 'Jump the 2–3 day cycle — next-business-day delivery on one request.' },
-  { id: 'whitelabel', emoji: '🏷️', name: 'White label', price: 550, per: '/mo', blurb: 'Your name on every file and report. Your clients never know we exist.' },
+  { id: 'whitelabel', name: 'White Label', weeklyPrice: 550, monthlyPrice: 1670, blurb: 'Your name on every file and report. Your clients never know we exist.' },
+  { id: 'hire', name: 'Hire From Us', weeklyPrice: 1200, monthlyPrice: 3500, blurb: 'A dedicated Clockwrk team member embedded into your workflow.' },
+  { id: 'slot', name: 'Additional request slot', weeklyPrice: 400, monthlyPrice: 1200, blurb: 'One more creative request running in parallel.' },
+  { id: 'priority', name: 'Priority queue', weeklyPrice: 200, monthlyPrice: 600, blurb: 'Your queued creative requests move ahead of the standard queue.' },
 ];
 
+// Subscription — the active build phase. Paid upfront, work starts on payment.
+// Weekly = pause or cancel any week. Monthly = ~10% off the true monthly cost
+// (a real month is 4.333 weeks, so weekly x 4.333 x 0.9, rounded for clean pricing).
 export const PLANS = [
-  { name: 'Startup', slots: 1, price: 870, blurb: 'One request at a time' },
-  { name: 'Business', slots: 2, price: 1550, blurb: 'Two requests at a time' },
-  { name: 'Enterprise', slots: 3, price: 2300, blurb: 'Three requests at a time' },
+  { name: 'Startup', slots: 1, price: 870, cadence: 'wk', monthlyPrice: 3350, blurb: 'One request at a time' },
+  { name: 'Business', slots: 2, price: 1550, cadence: 'wk', monthlyPrice: 6000, blurb: 'Two requests at a time' },
+  { name: 'Enterprise', slots: 3, price: 2300, cadence: 'wk', monthlyPrice: 8950, blurb: 'Three requests at a time' },
+];
+
+export const PLAN_CARE = {
+  Startup: 'starter',
+  Business: 'growth',
+  Enterprise: 'business',
+};
+
+const SERVICE_ITEMS = [
+  { id: 'shared', category: 'Hosting', name: 'Shared hosting', price: 25, cadence: 'mo', buyModel: 'order', billing: 'infra' },
+  { id: 'wordpress', category: 'Hosting', name: 'WordPress hosting', price: 45, cadence: 'mo', buyModel: 'order', billing: 'infra' },
+  { id: 'woocommerce', category: 'Hosting', name: 'WooCommerce hosting', price: 75, cadence: 'mo', buyModel: 'order', billing: 'infra' },
+  { id: 'vps', category: 'Hosting', name: 'VPS hosting', price: 120, cadence: 'mo', buyModel: 'order', billing: 'infra' },
+  { id: 'audit', category: 'Security', name: 'Security audit', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'firewall', category: 'Security', name: 'Firewall setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: '2fa', category: 'Security', name: '2FA setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'removal', category: 'Security', name: 'Malware removal', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'staging', category: 'Hosting', name: 'Staging environment', price: 18, cadence: 'mo', buyModel: 'toggle', billing: 'infra' },
+  { id: 'migration', category: 'Hosting', name: 'Managed site migration', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'uptime', category: 'Hosting', name: 'Advanced uptime monitoring', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'domain-transfer', category: 'Domains', name: 'Domain transfer', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'managed-dns', category: 'Domains', name: 'Managed DNS', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'subdomain', category: 'Domains', name: 'Subdomain setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'email-starter', category: 'Email', name: 'Starter mailbox', price: 6, cadence: 'mo', buyModel: 'toggle', billing: 'infra' },
+  { id: 'email-team', category: 'Email', name: 'Team mailbox', price: 12, cadence: 'mo', buyModel: 'toggle', billing: 'infra' },
+  { id: 'email-business', category: 'Email', name: 'Business mailbox', price: 22, cadence: 'mo', buyModel: 'toggle', billing: 'infra' },
+  { id: 'email-forwarding', category: 'Email', name: 'Forwarding and aliases', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'email-migration', category: 'Email', name: 'Email migration', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'ssl', category: 'Security', name: 'Managed SSL certificate', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'bugs', category: 'Maintenance', name: 'Bug fixes', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'content', category: 'Maintenance', name: 'Content updates', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'plugin-updates', category: 'Maintenance', name: 'Plugin updates', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'broken-links', category: 'Maintenance', name: 'Broken link monitoring', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'health-report', category: 'Maintenance', name: 'Monthly health report', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'performance', category: 'Performance', name: 'Performance optimisation', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'database', category: 'Performance', name: 'Database optimisation', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'page-speed', category: 'Performance', name: 'Page speed optimisation', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'cwv', category: 'Performance', name: 'Core Web Vitals', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'images', category: 'Performance', name: 'Image optimisation', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'cdn', category: 'Performance', name: 'CDN setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'caching', category: 'Performance', name: 'Caching setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'minify', category: 'Performance', name: 'Asset minification', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'ga4', category: 'Analytics', name: 'GA4 setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'gsc', category: 'Analytics', name: 'Search Console setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'conversion', category: 'Analytics', name: 'Conversion tracking', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'heatmap', category: 'Analytics', name: 'Heatmap setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'performance-report', category: 'Analytics', name: 'Monthly performance report', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'technical-seo', category: 'SEO', name: 'Technical SEO', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'onpage-seo', category: 'SEO', name: 'On-page SEO', price: 0, cadence: 'included', buyModel: 'request', billing: 'included', perUnit: 'page' },
+  { id: 'local-seo', category: 'SEO', name: 'Local SEO setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'seo-monitor', category: 'SEO', name: 'SEO monitoring', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'keywords', category: 'SEO', name: 'Keyword tracking', price: 0, cadence: 'care', buyModel: 'toggle', billing: 'care' },
+  { id: 'launch-setup', category: 'Setup', name: 'Website launch setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'workspace-setup', category: 'Setup', name: 'Google Workspace setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'cloudflare-setup', category: 'Setup', name: 'Cloudflare setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'gateway-setup', category: 'Setup', name: 'Payment gateway setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+  { id: 'integration-setup', category: 'Setup', name: 'Integration setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included', perUnit: 'tool' },
+  { id: 'gdpr-setup', category: 'Setup', name: 'GDPR setup', price: 0, cadence: 'included', buyModel: 'request', billing: 'included' },
+];
+
+const SERVICE_BUCKETS = {
+  Hosting: 'Run & maintain',
+  Domains: 'Set up & launch',
+  Email: 'Run & maintain',
+  Security: 'Secure',
+  Maintenance: 'Run & maintain',
+  Performance: 'Speed',
+  Analytics: 'Grow',
+  SEO: 'Grow',
+  Setup: 'Set up & launch',
+};
+export const SERVICE_CATALOG = SERVICE_ITEMS.map((item) => ({ ...item, bucket: SERVICE_BUCKETS[item.category] }));
+
+// Retainer — the after-launch product. Keeps a finished project alive once the
+// active build phase ends. Included free while a client is on a subscription;
+// becomes their standalone bill when the project ships.
+// Annual = 2 months free (~16.7% off).
+export const CARE_PLANS = [
+  {
+    id: 'starter',
+    name: 'Care',
+    price: 295,
+    cadence: 'mo',
+    annualPrice: 2950,
+    hoursIncluded: 2,
+    responseTime: '2 business days',
+    strategyCall: null,
+    includes: [
+      'Daily backups + one-click restore',
+      'Uptime monitoring',
+      'Core, plugin & theme updates',
+      'Managed SSL & DNS',
+      'Broken-link monitoring',
+      'Malware scan & removal',
+      'Monthly health report',
+      '2 hours of content edits',
+    ],
+  },
+  {
+    id: 'growth',
+    name: 'Care+',
+    price: 495,
+    cadence: 'mo',
+    annualPrice: 4950,
+    hoursIncluded: 5,
+    responseTime: 'Next business day',
+    strategyCall: 'Monthly (30 min)',
+    recommended: true,
+    includes: [
+      'Everything in Care',
+      'Performance monitoring + monthly tuning',
+      'Security hardening + firewall',
+      'SEO & keyword monitoring',
+      'Monthly performance report',
+      '5 hours of edits & small fixes',
+      'Next-business-day response',
+      'Monthly strategy call',
+    ],
+  },
+  {
+    id: 'business',
+    name: 'Care Pro',
+    price: 895,
+    cadence: 'mo',
+    annualPrice: 8950,
+    hoursIncluded: 12,
+    responseTime: '4 business hours',
+    strategyCall: 'Quarterly deep-dive',
+    includes: [
+      'Everything in Care+',
+      '12 hours of edits & development',
+      '4-business-hour response SLA',
+      'Staging environment included',
+      'Quarterly security audit',
+      'Priority position in the queue',
+      'Quarterly strategy deep-dive',
+    ],
+  },
+];
+
+// Overage beyond the hours included in a retainer tier.
+export const RETAINER_EXTRA_HOURS = {
+  hourly: 85,
+  block: { hours: 5, price: 375 },
+};
+
+export const REQUESTABLE_SERVICES = SERVICE_CATALOG
+  .filter((s) => s.billing === 'included')
+  .reduce((acc, s) => {
+    (acc[s.category] ||= []).push(s.name);
+    return acc;
+  }, {});
+
+export const LAUNCH_BUNDLES = [
+  { id: 'essentials', name: 'Launch Essentials', price: 350, includes: ['Analytics check', 'SEO baseline', 'Launch checklist'] },
+  { id: 'pro', name: 'Launch Pro', price: 650, includes: ['Essentials', 'Performance pass', 'Conversion tracking'] },
+  { id: 'premium', name: 'Launch Premium', price: 1200, includes: ['Pro', 'Security audit', '30-day monitoring'] },
+];
+
+export const domainsSeed = [
+  { id: 1, name: 'm94group.com', renewalAt: 'Sep 18, 2026', autoRenew: true, privacy: true },
+  { id: 2, name: 'm94logistics.io', renewalAt: 'Nov 4, 2026', autoRenew: false, privacy: true },
+];
+export const mailboxesSeed = [
+  { id: 1, address: 'hello@m94group.com', plan: 'Team', status: 'active' },
+  { id: 2, address: 'ops@m94group.com', plan: 'Business', status: 'active' },
+];
+export const hostingSeed = {
+  accounts: [{ id: 1, domain: 'm94group.com', plan: 'VPS', price: 120, status: 'active', uptime: 99.99 }],
+  backups: [{ id: 1, createdAt: 'Jul 6, 03:00', type: 'Daily', status: 'complete' }, { id: 2, createdAt: 'Jul 5, 03:00', type: 'Daily', status: 'complete' }],
+};
+export const securitySeed = [
+  { id: 'ssl', name: 'SSL management', price: 20, on: true },
+  { id: 'malware', name: 'Malware scanning', price: 35, on: true },
+  { id: 'ddos', name: 'DDoS monitoring', price: 45, on: false },
+  { id: 'login', name: 'Login monitoring', price: 25, on: true },
+];
+export const reportsSeed = [
+  { id: 'RPT-101', type: 'Website health', period: 'June 2026', generatedAt: 'Jul 1, 2026', url: '/reports/health-june.pdf' },
+  { id: 'RPT-102', type: 'Performance', period: 'June 2026', generatedAt: 'Jul 2, 2026', url: '/reports/performance-june.pdf' },
+  { id: 'RPT-103', type: 'SEO', period: 'Q2 2026', generatedAt: 'Jul 3, 2026', url: '/reports/seo-q2.pdf' },
 ];
 
 export const invoices = [
-  { id: 'INV-0231', date: 'Jun 18, 2026', amount: 1550, status: 'paid' },
-  { id: 'INV-0198', date: 'May 18, 2026', amount: 1550, status: 'paid' },
-  { id: 'INV-0164', date: 'Apr 18, 2026', amount: 1550, status: 'paid' },
-  { id: 'INV-0133', date: 'Mar 18, 2026', amount: 870, status: 'paid' },
+  { id: 'INV-0231', date: 'Jun 18, 2026', amount: 1750, status: 'paid', renewalAt: 'Jun 25, 2026', autoRenew: true, lineItems: [{ label: 'Business plan', cadence: 'weekly', amount: 1550 }, { label: 'Priority queue', cadence: 'weekly', amount: 200 }] },
+  { id: 'INV-0198', date: 'May 18, 2026', amount: 1670, status: 'paid', renewalAt: 'Jun 18, 2026', autoRenew: true, lineItems: [{ label: 'White Label', cadence: 'monthly', amount: 1670 }] },
+  { id: 'INV-0164', date: 'Apr 18, 2026', amount: 350, status: 'paid', renewalAt: null, autoRenew: false, lineItems: [{ label: 'Launch Essentials', cadence: 'one-time', amount: 350 }] },
+  { id: 'INV-0133', date: 'Mar 18, 2026', amount: 120, status: 'paid', renewalAt: 'Mar 18, 2027', autoRenew: true, lineItems: [{ label: 'Domain registration', cadence: 'yearly', amount: 120 }] },
 ];
 
 export const messages = [

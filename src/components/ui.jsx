@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useEffect, useRef, useState } from 'react';
 
 /* ---------- inline icon set (stroke style, lucide-like) ---------- */
@@ -10,6 +11,7 @@ export const Icon = {
   card: () => <svg viewBox="0 0 24 24">{P('M3 6h18v12H3zM3 10h18')}</svg>,
   chat: () => <svg viewBox="0 0 24 24">{P('M21 12a8 8 0 0 1-8 8H4l2-3a8 8 0 1 1 15-5Z')}</svg>,
   help: () => <svg viewBox="0 0 24 24">{P('M12 21a9 9 0 1 0-9-9 9 9 0 0 0 9 9Z')}{P('M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.8.3-.9 1-.9 1.7')}{P('M12 17h.01')}</svg>,
+  lock: () => <svg viewBox="0 0 24 24">{P('M6 10h12v11H6zM8 10V7a4 4 0 0 1 8 0v3M12 14v3')}</svg>,
   gear: () => <svg viewBox="0 0 24 24">{P('M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z')}{P('M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14.2 3h-4l-.4 2.5a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2l.4 2.5h4l.4-2.5a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5A7 7 0 0 0 19 12Z')}</svg>,
   plus: () => <svg viewBox="0 0 24 24">{P('M12 5v14M5 12h14')}</svg>,
   x: () => <svg viewBox="0 0 24 24">{P('M6 6l12 12M18 6 6 18')}</svg>,
@@ -32,6 +34,15 @@ export const Icon = {
   eye: () => <svg viewBox="0 0 24 24">{P('M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z')}{P('M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z')}</svg>,
   clock: () => <svg viewBox="0 0 24 24">{P('M12 21a9 9 0 1 0-9-9 9 9 0 0 0 9 9Z')}{P('M12 7v5l3 2')}</svg>,
 };
+
+export function SiteCta({ children, icon = <Icon.arrow />, className = '', ...props }) {
+  return (
+    <button className={`site-cta ${className}`} {...props}>
+      <span className="site-cta-text">{children}</span>
+      <span className="site-cta-icon">{icon}</span>
+    </button>
+  );
+}
 
 /* Category icon chips — replaces emoji for a cleaner look */
 export const CAT_ICON = {
@@ -98,7 +109,7 @@ export function Avatar({ name, size = 34, online }) {
       fontSize: size * 0.34, fontWeight: 700, letterSpacing: '-0.02em',
     }}>
       {initials}
-      {online && <span style={{ position: 'absolute', right: -1, bottom: -1, width: 9, height: 9, borderRadius: '50%', background: 'var(--lime)', border: '2px solid var(--card)' }} />}
+      {online && <span title="Online" aria-label="Online" style={{ position: 'absolute', right: -1, bottom: -1, width: 9, height: 9, borderRadius: '50%', background: 'var(--lime)', border: '2px solid var(--card)' }} />}
     </span>
   );
 }

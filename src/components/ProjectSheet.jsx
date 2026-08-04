@@ -1,159 +1,173 @@
 import { useState } from 'react';
 import Sheet from './Sheet';
 import FileViewer, { FileTag, FileThumb } from './FileViewer';
-import { StatusPill, Avatar, Icon, CatChip } from './ui';
-import { useStore } from '../store';
+import { StatusPill, Avatar, Icon, CatChip, SiteCta } from './ui';
+import { store, useStore } from '../store';
+import { LAUNCH_BUNDLES } from '../mocks';
 
-export default function ProjectSheet({ project: p, onClose, onOpenRequest }) {
-  const { requests } = useStore();
+export default function ProjectSheet({ project, onClose, onOpenRequest, embedded = false }) {
+  const { requests, bundles } = useStore();
   const [viewing, setViewing] = useState(null);
-  const projReqs = requests.filter((r) => r.projectId === p.id);
+  const projectRequests = requests.filter((request) => request.projectId === project.id);
   const order = { active: 0, review: 1, queued: 2, done: 3 };
-  const sorted = [...projReqs].sort((a, b) => order[a.status] - order[b.status]);
-  const allFiles = projReqs.flatMap((r) => r.deliverables.map((d) => ({ ...d, request: r.title })));
-  const crew = [{ ...p.pm, lead: 'PM' }, { ...p.am, lead: 'AM' }, ...p.members];
+  const sortedRequests = [...projectRequests].sort((a, b) => order[a.status] - order[b.status]);
+  const allFiles = projectRequests.flatMap((request) => request.deliverables.map((file) => ({ ...file, request: request.title })));
+  const crew = [{ ...project.pm, lead: 'Project manager' }, { ...project.am, lead: 'Account manager' }, ...project.members];
+  const moving = projectRequests.filter((request) => request.status === 'active').length;
+  const review = projectRequests.filter((request) => request.status === 'review').length;
+  const complete = projectRequests.filter((request) => request.status === 'done').length;
 
   const header = (
-    <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap', paddingRight: 50 }}>
-      <span className="svc-icon" style={{ width: 48, height: 48, background: 'var(--lime)' }}>
-        <span style={{ width: 20, height: 20, display: 'grid', color: '#0a0a0b' }}><Icon.layers /></span>
-      </span>
-      <div style={{ flex: 1, minWidth: 200 }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-          <StatusPill status={p.status} />
-          <span style={{ fontSize: 12, color: 'var(--muted)' }}>{p.tagline}</span>
-        </div>
-        <h2 style={{ fontSize: 'clamp(18px, 2.2vw, 23px)', fontWeight: 700, letterSpacing: '-0.03em' }}>{p.name}</h2>
+    <div className="project-detail-header">
+      <span className="project-detail-mark">{project.name.slice(0, 2).toUpperCase()}</span>
+      <div>
+        <span><StatusPill status={project.status} /> Project workspace</span>
+        <h2>{project.name}</h2>
+        <p>{project.tagline}</p>
       </div>
-      <div style={{ minWidth: 160 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted)', marginBottom: 5 }}>
-          <span>Progress</span><strong style={{ color: 'var(--ink)' }}>{p.progress}%</strong>
-        </div>
-        <div style={{ height: 7, borderRadius: 99, background: 'var(--soft)', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${p.progress}%`, background: 'var(--lime)', borderRadius: 99, transition: 'width 0.8s var(--ease-out)' }} />
-        </div>
+      <div className="project-detail-header-actions">
+        <a href={project.preview.url} target="_blank" rel="noreferrer">Open workspace <Icon.arrow /></a>
       </div>
     </div>
   );
 
   return (
     <>
-      <Sheet onClose={onClose} header={header}>
-        {/* about + facts */}
-        <div className="sheet-section" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)', gap: 18 }} data-sheet-cols>
-          <div>
-            <span className="kicker">About this project</span>
-            <p style={{ fontSize: 14, lineHeight: 1.65, marginTop: 8, color: 'var(--ink-dim)' }}>{p.description}</p>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
-              {p.stack.map((s) => <span key={s} className="pill pill-soft">{s}</span>)}
+      <Sheet onClose={onClose} header={header} width="min(1360px, calc(100vw - 24px))" className="project-detail-sheet" embedded={embedded}>
+        <div className="project-detail">
+          <section className="project-detail-overview">
+            <div className="project-detail-summary">
+              <span className="kicker">Project brief</span>
+              <p>{project.description}</p>
+              <div>{project.stack.map((item) => <span key={item}>{item}</span>)}</div>
             </div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, alignContent: 'start' }}>
-            {[['Started', p.startedAt], ['Target', p.targetAt],
-              ['Requests', `${projReqs.length} total`], ['In motion', `${projReqs.filter((r) => r.status === 'active').length} active`]]
-              .map(([k, v]) => (
-                <div key={k} style={{ padding: '10px 12px', borderRadius: 11, background: 'var(--soft)' }}>
-                  <span className="kicker" style={{ fontSize: 9 }}>{k}</span>
-                  <div style={{ fontSize: 12.5, fontWeight: 600, marginTop: 3 }}>{v}</div>
-                </div>
-              ))}
-          </div>
-        </div>
-
-        {/* live preview */}
-        <div className="sheet-section">
-          <span className="kicker" style={{ display: 'block', marginBottom: 10 }}>
-            {p.preview.kind === 'html' ? 'Live preview — staging build' : 'Design workspace'}
-          </span>
-          <div className="preview-frame">
-            <div className="preview-bar">
-              <span className="dot" style={{ background: '#ff5f57' }} />
-              <span className="dot" style={{ background: '#febc2e' }} />
-              <span className="dot" style={{ background: '#28c840' }} />
-              <span className="preview-url">🔒 {p.preview.url}</span>
-              <a className="btn btn-ghost btn-sm" href={p.preview.url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>Open ↗</a>
+            <div className="project-detail-progress">
+              <span>Overall progress</span>
+              <strong>{project.progress}%</strong>
+              <div><i style={{ width: `${project.progress}%` }} /></div>
+              <small>Started {project.startedAt} · target {project.targetAt}</small>
             </div>
-            {p.preview.kind === 'html' ? (
-              <iframe title={p.name} src={p.preview.url} style={{ width: '100%', height: 340, border: 0, display: 'block', background: '#fff' }} />
-            ) : (
-              <div className="preview-canvas" style={{ height: 220 }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ marginBottom: 8, display: 'grid', placeItems: 'center' }}><FileThumb kind="figma" /></div>
-                  {p.preview.label} — opens in Figma
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+          </section>
 
-        {/* requests */}
-        <div className="sheet-section">
-          <span className="kicker" style={{ display: 'block', marginBottom: 10 }}>Requests · {sorted.length}</span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-            {sorted.map((r) => (
-              <div key={r.id} className="req-row" onClick={() => onOpenRequest(r.id)}>
-                <CatChip category={r.category} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <strong style={{ fontSize: 13.5, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.title}</strong>
-                  <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                    {r.type}
-                    {r.status === 'active' && ` · ${r.progress}% · due ${r.due}`}
-                    {r.status === 'done' && ` · approved ${r.approvedAt}`}
-                    {r.status === 'queued' && ` · queue #${r.queuePos}`}
-                  </span>
-                </div>
-                {r.rating && <span style={{ fontSize: 11.5, color: '#f5c518', letterSpacing: 1 }}>{'★'.repeat(r.rating.stars)}</span>}
-                <StatusPill status={r.status} />
-              </div>
-            ))}
-          </div>
-        </div>
+          <section className="project-detail-metrics">
+            <div><span><Icon.bolt /></span><strong>{moving}</strong><small>Active requests</small></div>
+            <div><span><Icon.eye /></span><strong>{review}</strong><small>Waiting for review</small></div>
+            <div><span><Icon.check /></span><strong>{complete}</strong><small>Approved</small></div>
+            <div><span><Icon.folder /></span><strong>{allFiles.length}</strong><small>Delivered files</small></div>
+          </section>
 
-        {/* team — individual members */}
-        <div className="sheet-section">
-          <span className="kicker" style={{ display: 'block', marginBottom: 12 }}>Team on this project · {crew.length}</span>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10 }}>
-            {crew.map((m, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 14 }}>
-                <Avatar name={m.name} size={36} online={m.online} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</div>
-                  <div style={{ fontSize: 11.5, color: 'var(--muted)', whiteSpace: 'nowrap' }}>{m.role}</div>
+          <div className="project-detail-grid">
+            <div className="project-detail-main">
+              <section className="project-detail-section">
+                <div className="project-detail-section-head">
+                  <div><span className="kicker">Current work</span><h3>Request stream</h3></div>
+                  <span>{sortedRequests.length} total</span>
                 </div>
-                {m.lead && <span className="role-pill">{m.lead}</span>}
-              </div>
-            ))}
-          </div>
-        </div>
+                <div className="project-request-stream">
+                  {sortedRequests.map((request, index) => (
+                    <button key={request.id} onClick={() => onOpenRequest(request.id)} style={{ '--row-delay': `${index * 45}ms` }}>
+                      <span className="project-request-index">{String(index + 1).padStart(2, '0')}</span>
+                      <CatChip category={request.category} size={38} />
+                      <span className="project-request-copy">
+                        <small>{request.type}</small>
+                        <strong>{request.title}</strong>
+                        <i>
+                          {request.status === 'active' && `${request.progress}% complete · due ${request.due}`}
+                          {request.status === 'review' && `Delivered ${request.deliveredAt} · ready for review`}
+                          {request.status === 'done' && `Approved ${request.approvedAt}`}
+                          {request.status === 'queued' && `Queue position ${request.queuePos}`}
+                        </i>
+                      </span>
+                      <StatusPill status={request.status} />
+                      <span className="project-request-arrow"><Icon.arrow /></span>
+                    </button>
+                  ))}
+                  {sortedRequests.length === 0 && <p className="project-detail-empty">No requests have been added to this project.</p>}
+                </div>
+              </section>
 
-        {/* files */}
-        <div className="sheet-section">
-          <span className="kicker" style={{ display: 'block', marginBottom: 10 }}>All project files · click to view</span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-            {allFiles.length === 0 && <p style={{ color: 'var(--muted)', fontSize: 13 }}>No files yet — first delivery is never far away.</p>}
-            {allFiles.map((f) => (
-              <div key={f.id} className="req-row" style={{ opacity: f.current ? 1 : 0.65 }} onClick={() => setViewing(f)}>
-                <FileThumb kind={f.kind} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <strong style={{ fontSize: 13.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.name}</strong>
-                    <FileTag kind={f.kind} />
+              {project.progress >= 90 && (
+                <section className="project-detail-section launch-bundle-section">
+                  <div className="project-detail-section-head"><div><span className="kicker">Launch</span><h3>Finish the rollout</h3></div><span>One-time bundles</span></div>
+                  <div className="launch-bundle-grid">
+                    {LAUNCH_BUNDLES.map((bundle) => (
+                      <article key={bundle.id} className={bundles.includes(bundle.id) ? 'is-bought' : ''}>
+                        <span>{bundles.includes(bundle.id) ? 'Purchased' : 'Launch bundle'}</span>
+                        <h4>{bundle.name}</h4><strong>${bundle.price}</strong>
+                        <p>{bundle.includes.join(' · ')}</p>
+                        <button onClick={() => store.buyBundle(bundle.id)}>{bundles.includes(bundle.id) ? 'Added' : 'Add bundle'}</button>
+                      </article>
+                    ))}
                   </div>
-                  <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{f.request} · {f.at}</span>
+                </section>
+              )}
+
+              <section className="project-detail-section">
+                <div className="project-detail-section-head">
+                  <div><span className="kicker">Latest build</span><h3>{project.preview.kind === 'html' ? 'Live workspace' : 'Design workspace'}</h3></div>
+                  <a href={project.preview.url} target="_blank" rel="noreferrer">Open <Icon.arrow /></a>
                 </div>
-                <span className={`pill ${f.current ? 'pill-lime' : 'pill-soft'}`}>v{f.version}</span>
-                <button className="btn btn-ghost btn-sm" onClick={(e) => e.stopPropagation()}>
-                  <span style={{ width: 14, height: 14, display: 'grid' }}><Icon.download /></span>
-                </button>
-              </div>
-            ))}
+                <div className="project-workspace-preview">
+                  <div className="project-preview-bar"><i /><i /><i /><span>{project.preview.url}</span></div>
+                  <div className={`project-preview-stage is-${project.preview.kind}`}>
+                    <span><Icon.layers /></span>
+                    <small>{project.preview.label}</small>
+                    <strong>{project.name}</strong>
+                    <p>{project.preview.kind === 'html' ? 'Staging environment connected' : 'Shared design source connected'}</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="project-detail-section">
+                <div className="project-detail-section-head">
+                  <div><span className="kicker">Deliverables</span><h3>Project files</h3></div>
+                  <span>{allFiles.length} files</span>
+                </div>
+                <div className="project-file-list">
+                  {allFiles.map((file) => (
+                    <button key={file.id} onClick={() => setViewing(file)}>
+                      <FileThumb kind={file.kind} />
+                      <span><strong>{file.name}</strong><small>{file.request} · {file.at}</small></span>
+                      <FileTag kind={file.kind} />
+                      <i className={file.current ? 'is-current' : ''}>v{file.version}</i>
+                      <em><Icon.download /></em>
+                    </button>
+                  ))}
+                  {allFiles.length === 0 && <p className="project-detail-empty">Delivered files will appear here.</p>}
+                </div>
+              </section>
+            </div>
+
+            <aside className="project-detail-aside">
+              <section>
+                <div className="project-detail-section-head">
+                  <div><span className="kicker">Your team</span><h3>Assigned crew</h3></div>
+                  <span>{crew.length}</span>
+                </div>
+                <div className="project-team-list">
+                  {crew.map((member, index) => (
+                    <div key={`${member.name}-${index}`}>
+                      <Avatar name={member.name} size={38} online={member.online} />
+                      <span><strong>{member.name}</strong><small>{member.role}</small></span>
+                      {member.lead && <i>{member.lead}</i>}
+                    </div>
+                  ))}
+                </div>
+                <SiteCta className="site-cta-compact" icon={<Icon.chat />}>Message team</SiteCta>
+              </section>
+
+              <section className="project-detail-dates">
+                <span className="kicker">Schedule</span>
+                <div><small>Started</small><strong>{project.startedAt}</strong></div>
+                <i />
+                <div><small>Target delivery</small><strong>{project.targetAt}</strong></div>
+              </section>
+            </aside>
           </div>
         </div>
-
-        <style>{`@media (max-width: 760px) { [data-sheet-cols] { grid-template-columns: 1fr !important; } }`}</style>
       </Sheet>
 
-      {viewing && <FileViewer file={{ ...viewing, project: p.name }} onClose={() => setViewing(null)} />}
+      {viewing && <FileViewer file={{ ...viewing, project: project.name }} onClose={() => setViewing(null)} />}
     </>
   );
 }

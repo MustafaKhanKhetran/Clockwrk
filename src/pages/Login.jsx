@@ -9,15 +9,28 @@ export default function Login() {
   const [pass, setPass] = useState('');
   const [error, setError] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [mode, setMode] = useState(() => localStorage.getItem('portal_password_set') ? 'login' : 'setup');
+  const [confirm, setConfirm] = useState('');
   const navigate = useNavigate();
 
   const submit = (e) => {
     e.preventDefault();
+    if (mode === 'reset') {
+      if (!email.includes('@')) return setError(true);
+      setMode('setup');
+      return;
+    }
+    if (mode === 'setup' && (pass.length < 8 || pass !== confirm)) {
+      setError(true);
+      setTimeout(() => setError(false), 500);
+      return;
+    }
     if (!email.includes('@') || pass.length < 4) {
       setError(true);
       setTimeout(() => setError(false), 500);
       return;
     }
+    localStorage.setItem('portal_password_set', '1');
     localStorage.setItem('portal_demo_authed', '1');
     setLeaving(true);
     setTimeout(() => { navigate('/home'); }, 450);
@@ -48,7 +61,7 @@ export default function Login() {
           </div>
         </div>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
-          Unlimited requests · Fixed monthly fee · Pause any time
+          Unlimited requests · Fixed weekly plan · Pause any time
         </p>
         <style>{`
           @keyframes loginTicker {
@@ -71,17 +84,18 @@ export default function Login() {
         }}>
           <div style={{ marginBottom: 14 }}>
             <span className="kicker">Client portal</span>
-            <h2 style={{ fontSize: 30, fontWeight: 700, letterSpacing: '-0.04em', marginTop: 6 }}>Welcome back</h2>
-            <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 6 }}>Sign in with the access details from your welcome email.</p>
+            <h2 style={{ fontSize: 30, fontWeight: 700, letterSpacing: '-0.04em', marginTop: 6 }}>{mode === 'setup' ? 'Set your password' : mode === 'reset' ? 'Reset access' : 'Welcome back'}</h2>
+            <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 6 }}>{mode === 'setup' ? 'Create the password you will use for this portal.' : mode === 'reset' ? 'Enter your account email to continue.' : 'Sign in with your account email and password.'}</p>
           </div>
           <input className="input" type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus />
-          <input className="input" type="password" placeholder="Access code" value={pass} onChange={(e) => setPass(e.target.value)} />
+          {mode !== 'reset' && <input className="input" type="password" placeholder={mode === 'setup' ? 'New password' : 'Password'} value={pass} onChange={(e) => setPass(e.target.value)} />}
+          {mode === 'setup' && <input className="input" type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />}
           {error && <span style={{ color: 'var(--danger)', fontSize: 12.5 }}>Check your email and access code.</span>}
           <button type="submit" className="btn btn-lime" style={{ height: 50, marginTop: 6 }}>
-            Enter portal <span style={{ width: 16, height: 16, display: 'grid' }}><Icon.arrow /></span>
+            {mode === 'reset' ? 'Continue reset' : mode === 'setup' ? 'Set password' : 'Enter portal'} <span style={{ width: 16, height: 16, display: 'grid' }}><Icon.arrow /></span>
           </button>
           <p style={{ fontSize: 12.5, color: 'var(--muted)', textAlign: 'center', marginTop: 10 }}>
-            Lost your access code? Message us at hello@clockwrk.io
+            {mode === 'login' ? <button type="button" onClick={() => setMode('reset')} style={{ border: 0, background: 'none', color: 'inherit' }}>Forgot your password?</button> : mode === 'reset' ? 'We will verify your account before setting a new password.' : 'Use at least eight characters.'}
           </p>
         </form>
       </div>

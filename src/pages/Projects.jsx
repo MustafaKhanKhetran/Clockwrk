@@ -1,67 +1,96 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { projects } from '../mocks';
-import { StatusPill, Avatar } from '../components/ui';
-import ProjectSheet from '../components/ProjectSheet';
-import RequestSheet from '../components/RequestSheet';
+import { StatusPill, Avatar, Icon, SiteCta } from '../components/ui';
 import { useStore } from '../store';
 
 export default function Projects() {
+  const navigate = useNavigate();
   const { requests } = useStore();
-  const [openProj, setOpenProj] = useState(null);
-  const [openReq, setOpenReq] = useState(null);
+  const [filter, setFilter] = useState('all');
+
+  const visibleProjects = filter === 'all' ? projects : projects.filter((project) => project.status === filter);
+  const activeRequests = requests.filter((request) => request.status === 'active').length;
+  const delivered = requests.filter((request) => request.status === 'done').length;
+  const averageProgress = Math.round(projects.reduce((total, project) => total + project.progress, 0) / projects.length);
 
   return (
     <>
-      <header className="page-head anim-rise">
+      <header className="page-head projects-page-head anim-rise">
         <div>
+          <span className="kicker">Portfolio</span>
           <h1 className="page-title">Projects</h1>
-          <p className="page-sub">Run as many in parallel as you like — each with its own team, preview, and request stream.</p>
+          <p className="page-sub">Every workstream, request, team member, and delivery in one place.</p>
         </div>
+        <SiteCta className="site-cta-compact" icon={<Icon.plus />} onClick={() => navigate('/projects/new')}>New project</SiteCta>
       </header>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {projects.map((p, i) => {
-          const pReqs = requests.filter((r) => r.projectId === p.id);
+      <section className="project-metrics anim-rise" style={{ animationDelay: '0.04s' }}>
+        <div><span>Projects</span><strong>{projects.length}</strong><small>{projects.filter((project) => project.status === 'active').length} currently active</small></div>
+        <div><span>Requests moving</span><strong>{activeRequests}</strong><small>Across all workstreams</small></div>
+        <div><span>Delivered</span><strong>{delivered}</strong><small>Approved requests</small></div>
+        <div><span>Portfolio progress</span><strong>{averageProgress}%</strong><small>Average completion</small></div>
+      </section>
+
+      <section className="portal-filterbar projects-filterbar anim-rise" style={{ animationDelay: '0.08s' }}>
+        <div className="portal-filter-heading"><div><Icon.layers /><span><strong>Project view</strong><small>Filter by current status</small></span></div><em><i /> Updated just now</em></div>
+        <div className="portal-filter-group">
+          <span>Status</span>
+          <div className="portal-filter-options">
+            {['all', 'active', 'paused'].map((item) => (
+              <button key={item} className={`portal-filter-chip ${filter === item ? 'is-active' : ''}`} onClick={() => setFilter(item)}>
+                <span>{item === 'all' ? 'All projects' : item}</span><i>{item === 'all' ? projects.length : projects.filter((project) => project.status === item).length}</i>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="project-portfolio-grid">
+        {visibleProjects.map((project, index) => {
+          const projectRequests = requests.filter((request) => request.projectId === project.id);
+          const moving = projectRequests.filter((request) => request.status === 'active').length;
+          const review = projectRequests.filter((request) => request.status === 'review').length;
+          const crew = [project.pm, project.am, ...project.members];
           return (
-            <article key={p.id} className="pcard is-hoverable anim-rise" onClick={() => setOpenProj(p)}
-              style={{ padding: 22, animationDelay: `${i * 0.07}s`, display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap', cursor: 'pointer' }}>
-              <div style={{ flex: '1 1 230px', minWidth: 0 }}>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
-                  <h2 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em' }}>{p.name}</h2>
-                  <StatusPill status={p.status} />
-                </div>
-                <p style={{ fontSize: 12.5, color: 'var(--muted)' }}>{p.tagline}</p>
-                <p style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 4 }}>
-                  {pReqs.length} requests · {pReqs.filter((r) => r.status === 'active').length} active · {p.preview.kind === 'html' ? '🌐 live preview' : '🎨 design file'}
-                </p>
+            <article
+              key={project.id}
+              className="project-portfolio-card anim-rise"
+              style={{ animationDelay: `${0.1 + index * 0.07}s` }}
+              onClick={() => navigate(`/projects/${project.id}`)}
+            >
+              <div className="project-card-top">
+                <span className="project-card-mark">{project.name.slice(0, 2).toUpperCase()}</span>
+                <StatusPill status={project.status} />
+                <button aria-label={`Open ${project.name}`}><Icon.arrow /></button>
               </div>
-              <div style={{ flex: '2 1 240px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: 'var(--muted)', marginBottom: 6 }}>
-                  <span>Progress</span><span style={{ fontWeight: 700, color: 'var(--ink)' }}>{p.progress}%</span>
-                </div>
-                <div style={{ height: 8, borderRadius: 99, background: 'var(--soft)', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${p.progress}%`, borderRadius: 99, background: 'var(--lime)', transition: 'width 1s var(--ease-out)' }} />
-                </div>
+              <div className="project-card-copy">
+                <span>{project.stack.join(' / ')}</span>
+                <h2>{project.name}</h2>
+                <p>{project.tagline}</p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  {[p.pm, p.am, ...p.members].slice(0, 3).map((m, j) => (
-                    <span key={j} style={{ marginLeft: j ? -7 : 0 }}><Avatar name={m.name} size={28} /></span>
-                  ))}
-                  {p.members.length + 2 > 3 && <span className="av-more">+{p.members.length + 2 - 3}</span>}
+              <div className="project-card-progress">
+                <div><span>Overall progress</span><strong>{project.progress}%</strong></div>
+                <div><i style={{ width: `${project.progress}%` }} /></div>
+              </div>
+              <div className="project-card-stats">
+                <span><strong>{projectRequests.length}</strong><small>Requests</small></span>
+                <span><strong>{moving}</strong><small>Moving</small></span>
+                <span><strong>{review}</strong><small>In review</small></span>
+                <span><strong>{project.targetAt}</strong><small>Target</small></span>
+              </div>
+              <div className="project-card-foot">
+                <div className="project-card-crew">
+                  {crew.slice(0, 4).map((member, memberIndex) => <span key={`${member.name}-${memberIndex}`} style={{ zIndex: 5 - memberIndex }}><Avatar name={member.name} size={31} online={member.online} /></span>)}
+                  {crew.length > 4 && <i>+{crew.length - 4}</i>}
                 </div>
-                <div>
-                  <div style={{ fontSize: 12.5, fontWeight: 600 }}>{p.pm.name}</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>PM · {p.am.name} (AM)</div>
-                </div>
+                <span><strong>{project.pm.name}</strong><small>Project lead</small></span>
               </div>
             </article>
           );
         })}
       </div>
 
-      {openReq && <RequestSheet requestId={openReq} onClose={() => setOpenReq(null)} />}
-      {openProj && !openReq && <ProjectSheet project={openProj} onClose={() => setOpenProj(null)} onOpenRequest={setOpenReq} />}
     </>
   );
 }
