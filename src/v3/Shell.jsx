@@ -41,6 +41,7 @@ export default function Shell({ children }) {
   }, [theme]);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
     setCreateOpen(false);
     setAccountOpen(false);
     setAlertsOpen(false);
@@ -93,7 +94,7 @@ export default function Shell({ children }) {
           <button className="v3-account" onClick={() => setAccountOpen(!accountOpen)} aria-label="Account menu"><Avatar name={me.name} size="sm" /></button>
         </div>
         {alertsOpen && <aside className="v3-popover v3-alerts"><header><strong>Updates</strong><button onClick={() => setAlertsOpen(false)}><Icon name="close" size={15} /></button></header>{notifications.map((item) => <button key={item.id} onClick={() => navigate('/requests')}><i className={item.unread ? 'is-new' : ''} /><span>{item.text}<small>Open workspace</small></span></button>)}</aside>}
-        {accountOpen && <aside className="v3-popover v3-account-menu"><div><Avatar name={me.name} /><span><strong>{me.name}</strong><small>{me.company}</small></span></div>{utility.map(([label, to, icon]) => <button key={to} onClick={() => navigate(to)}><Icon name={icon} size={16} />{label}<Icon name="arrow" size={14} /></button>)}</aside>}
+        {accountOpen && <aside className="v3-popover v3-account-menu"><div><Avatar name={me.name} /><span><strong>{me.name}</strong><small>{me.company}</small></span></div><button className="v3-mobile-menu-only" onClick={() => navigate('/messages')}><Icon name="messages" size={16} />Messages<Icon name="arrow" size={14} /></button>{utility.map(([label, to, icon]) => <button key={to} onClick={() => navigate(to)}><Icon name={icon} size={16} />{label}<Icon name="arrow" size={14} /></button>)}</aside>}
       </header>
 
       <div className="v3-live-rail" aria-label="Workspace status">

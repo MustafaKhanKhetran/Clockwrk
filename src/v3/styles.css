@@ -458,4 +458,208 @@ body:has(.v3-dialog-layer) .v3-mobile-nav { visibility: hidden; opacity: 0; tran
 
 @media (min-width: 641px) { .v3-now-dial ul { right: 0; } }
 
+/* Mobile rhythm: components change shape before their content becomes cramped. */
+.v3-mobile-thread, .v3-mobile-menu-only { display: none !important; }
+
+@media (max-width: 760px) {
+  html { scroll-padding-top: 104px; }
+  body { font-size: 15px; }
+  .v3-shell { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
+  .v3-shell > main { min-height: calc(100dvh - 98px); padding: 32px 20px 104px; }
+  .v3-requests-page, .v3-projects-page, .v3-files-page, .v3-settings-page, .v3-composer-page { overflow-x: clip; }
+  .v3-nav { height: 62px; padding: 0 20px; }
+  .v3-wordmark > i { width: 36px; height: 36px; }
+  .v3-wordmark strong { font-size: 18px; }
+  .v3-nav-tools { gap: 8px; }
+  .v3-icon-button { width: 40px; height: 40px; }
+  .v3-live-rail { height: 36px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .v3-live-rail::-webkit-scrollbar { display: none; }
+  .v3-live-rail > span { min-height: 36px; padding: 0 14px; scroll-snap-align: start; }
+  .v3-live-rail > span:first-child { padding-left: 20px; }
+
+  .v3-mobile-nav { inset: auto 0 0; height: calc(70px + env(safe-area-inset-bottom)); padding: 6px 8px env(safe-area-inset-bottom); border: 0; border-top: 1px solid var(--line-dark); border-radius: 0; background: var(--paper); box-shadow: none; }
+  .v3-mobile-nav a, .v3-mobile-nav button { min-width: 0; min-height: 56px; border-radius: 10px; }
+  .v3-mobile-nav span { font-size: 8px; line-height: 1; }
+  .v3-mobile-nav a.active { background: var(--lime-pale); }
+  .v3-mobile-nav a.active::after { bottom: 5px; }
+
+  .v3-page-intro { min-height: 0; grid-template-columns: 1fr; gap: 0; padding: 12px 0 30px; }
+  .v3-page-intro > span { grid-column: auto; margin-bottom: 14px; font-size: 10px; }
+  .v3-page-intro h1 { font-size: 56px; line-height: .96; }
+  .v3-page-intro p { max-width: 34rem; margin-top: 16px; font-size: 15px; line-height: 1.55; }
+  .v3-page-intro > .v3-action { width: max-content; min-width: 0; margin-top: 22px; padding: 5px 5px 5px 18px; }
+  .v3-page-intro > .v3-action > span { display: inline; }
+
+  .v3-action { min-height: 46px; padding-left: 18px; font-size: 13px; }
+  .v3-action > i { width: 36px; height: 36px; }
+  .v3-status { min-height: 30px; gap: 7px; padding: 5px 11px; font-size: 10px; }
+  .v3-project-code { width: 42px; height: 42px; }
+
+  .v3-home-hero { min-height: 0; gap: 34px; padding: 30px 0 42px; }
+  .v3-home-hero h1 { font-size: 64px; line-height: .92; }
+  .v3-hero-actions { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 32px; }
+  .v3-hero-actions > .v3-action { width: max-content; }
+  .v3-hero-actions > button:last-child { width: 100%; min-height: 48px; justify-content: flex-start; padding: 6px 4px; }
+  .v3-hero-actions > button:last-child svg { margin-left: auto; }
+  .v3-now-dial { width: 190px; height: 190px; justify-self: center; margin: 0 0 34px; }
+  .v3-now-dial ul { bottom: -40px; gap: 14px; }
+  .v3-now-dial li { font-size: 10px; white-space: nowrap; }
+  .v3-glance { gap: 12px; padding: 20px 0; border-bottom: 1px solid var(--line-dark); overflow: visible; }
+  .v3-glance button { min-height: 128px; padding: 17px; border: 1px solid var(--line); border-radius: 12px; background: var(--sheet); }
+  .v3-glance button:nth-child(2) { border-right: 1px solid var(--line); }
+  .v3-glance strong { font-size: 42px; }
+  .v3-glance small { max-width: 100%; white-space: normal; line-height: 1.35; }
+  .v3-workstream, .v3-review-stack, .v3-project-ribbon, .v3-home-foot > div, .v3-home-foot > aside { padding-block: 42px; }
+  .v3-workstream > header, .v3-project-ribbon > header { align-items: flex-start; gap: 18px; }
+  .v3-workstream h2, .v3-project-ribbon h2 { font-size: 28px; line-height: 1.05; }
+  .v3-work-lines > button { min-height: 132px; padding: 16px 0; }
+  .v3-workstream > footer { min-height: 68px; flex-wrap: wrap; gap: 10px; }
+  .v3-workstream > footer button, .v3-review-all { min-height: 40px; padding: 8px 0; }
+  .v3-review-stack > div { min-height: 0; display: grid; gap: 12px; }
+  .v3-review-stack > div > button { position: relative; inset: auto; width: 100%; min-height: 126px; padding: 18px; }
+  .v3-review-stack > div > button:hover { transform: translateY(-3px); }
+
+  .v3-request-controls, .v3-project-switch, .v3-file-tools > div, .v3-settings-index, .v3-site-tabs { gap: 8px; padding-block: 14px; scroll-padding-inline: 20px; }
+  .v3-request-controls button, .v3-project-switch button, .v3-file-tools > div button { min-height: 38px; padding: 8px 13px; font-size: 11px; }
+  .v3-kanban { gap: 12px; width: calc(100vw - 20px); margin-right: -20px; padding-right: 20px; scroll-padding-inline: 0 20px; }
+  .v3-kanban-column { min-width: min(86vw, 340px); padding: 22px 16px 36px; }
+  .v3-kanban-column > header { min-height: 108px; }
+  .v3-kanban-column > div { gap: 14px; }
+  .v3-kanban-column > div > button { min-height: 238px; padding: 18px; border-radius: 12px; }
+  .v3-kanban-column h3 { font-size: 17px; }
+  .v3-kanban-column button > p { font-size: 11px; }
+
+  .v3-project-list > button { min-height: 226px; padding: 24px 10px; }
+  .v3-project-name h2 { font-size: 34px; line-height: 1; }
+  .v3-file-tools { padding: 28px 0; }
+  .v3-file-tools > label { height: 50px; padding: 0 16px; }
+  .v3-file-index { margin-right: -20px; padding-right: 20px; scroll-snap-type: x proximity; }
+
+  .v3-billing-plan { min-height: 0; padding: 40px 0 44px; }
+  .v3-billing-plan h2 { margin-top: 38px; font-size: 48px; line-height: 1; }
+  .v3-billing-plan > p { margin-top: 18px; font-size: 15px; }
+  .v3-price { margin-top: 38px; }
+  .v3-price strong { font-size: 50px; }
+  .v3-cadence { gap: 6px; margin-top: 24px; }
+  .v3-cadence button { min-height: 38px; padding: 8px 14px; }
+  .v3-billing-plan footer { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .v3-billing-plan footer > button:not(.v3-action) { min-height: 42px; padding: 8px 2px; }
+  .v3-capacity { padding: 42px 0; }
+  .v3-capacity > div { gap: 12px; }
+  .v3-capacity > div button { min-height: 154px; padding: 16px; }
+  .v3-care-ledger { padding: 42px 0; }
+  .v3-care-ledger h2 { font-size: 32px; line-height: 1.05; }
+  .v3-care-ledger > div { gap: 8px; background: transparent; }
+  .v3-care-ledger > div span { min-height: 54px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--sheet); }
+
+  .v3-mobile-thread { display: grid !important; gap: 6px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .v3-account-menu .v3-mobile-menu-only { display: grid !important; }
+  .v3-mobile-thread > span { color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+  .v3-mobile-thread select { width: 100%; height: 46px; padding: 0 14px; border: 1px solid var(--line-dark); border-radius: 10px; background: var(--sheet); }
+  .v3-messenger { min-height: calc(100dvh - 236px); padding: 0; }
+  .v3-conversation { grid-template-rows: auto 76px minmax(0,1fr) 70px; }
+  .v3-conversation > header { gap: 10px; padding: 0; }
+  .v3-conversation > header > button { min-height: 38px; padding: 8px 10px; }
+  .v3-chat { max-height: calc(100dvh - 390px); padding: 22px 2px; }
+  .v3-chat > div { max-width: 92%; gap: 8px; }
+  .v3-chat > div p { padding: 12px 14px; font-size: 13px; line-height: 1.45; }
+  .v3-conversation > form { height: 62px; grid-template-columns: 44px minmax(0,1fr) 44px; margin: 8px 0; border-radius: 14px; }
+
+  .v3-settings-index { top: 98px; margin-inline: -20px; padding-inline: 20px; }
+  .v3-settings-sheet > section { padding-block: 44px; }
+  .v3-settings-sheet section > header { grid-template-columns: 30px minmax(0,1fr) auto; gap: 12px; margin-bottom: 28px; }
+  .v3-settings-sheet h2 { font-size: 30px; line-height: 1.05; }
+  .v3-settings-sheet input, .v3-settings-sheet textarea, .v3-settings-sheet select, .v3-invite input { min-height: 50px; }
+  .v3-setting-toggle { min-height: 74px; gap: 12px; }
+  .v3-member-list { overflow: visible; }
+  .v3-member-list > div { min-width: 0; min-height: 104px; grid-template-columns: 40px minmax(0,1.25fr) minmax(0,.75fr) 34px; gap: 8px 10px; padding: 14px 0; }
+  .v3-member-list > div > span { grid-column: 2 / 4; align-self: center; }
+  .v3-member-list > div > label { grid-row: 2; grid-column: span 1; min-height: 30px; }
+  .v3-member-list > div > label:first-of-type { grid-column: 2; }
+  .v3-member-list > div > label:nth-of-type(2) { grid-column: 3; margin-left: 0 !important; }
+  .v3-member-list > div > button { grid-column: 4; grid-row: 1; }
+  .v3-invite { grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+  .v3-invite button { min-height: 50px; padding: 0 16px; border-radius: 999px; }
+
+  .v3-composer-page > header, .v3-project-builder > header { min-height: 66px; }
+  .v3-composer-page > nav { margin-inline: -20px; padding-inline: 20px; scroll-padding-inline: 20px; }
+  .v3-composer-page > nav button { min-width: 128px; min-height: 58px; padding: 8px 12px; }
+  .v3-composer-stage { padding: 50px 0 126px; }
+  .v3-composer-stage > h1 { font-size: 52px; line-height: .96; }
+  .v3-composer-stage > p { margin-top: 20px; font-size: 15px; line-height: 1.55; }
+  .v3-project-choice { margin-top: 38px; }
+  .v3-project-choice > button { min-height: 102px; padding: 14px; }
+  .v3-service-browser { margin-top: 38px; }
+  .v3-service-browser aside { gap: 6px; padding-bottom: 10px; scroll-snap-type: x proximity; }
+  .v3-service-browser aside button { min-height: 42px; padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; scroll-snap-align: start; }
+  .v3-service-browser aside button i { margin-left: 7px; }
+  .v3-service-browser > div { gap: 10px; padding-top: 14px; }
+  .v3-service-browser > div button { min-height: 76px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
+  .v3-priority-choice { gap: 10px; background: transparent; }
+  .v3-priority-choice > button { min-height: 106px; border: 1px solid var(--line); border-radius: 12px; }
+  .v3-brief-form input, .v3-brief-form textarea { font-size: 16px; }
+  .v3-composer-page > footer { position: fixed; left: 0; right: 0; bottom: 0; min-height: 78px; grid-template-columns: auto 1fr auto; gap: 10px; padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); border-radius: 0; box-shadow: none; }
+  .v3-project-builder form > footer { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; min-height: 78px; gap: 10px; padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); }
+  body:has(.v3-composer-page) .v3-mobile-nav, body:has(.v3-project-builder) .v3-mobile-nav { display: none; }
+
+  .v3-record-head, .v3-project-record > header { padding-top: 20px; }
+  .v3-record-head h1, .v3-project-record > header h1 { font-size: 52px; line-height: .96; }
+  .v3-record-facts { gap: 10px; padding-block: 20px; }
+  .v3-record-facts > span { min-height: 92px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
+  .v3-decision-bar { gap: 18px; padding: 24px 18px; }
+  .v3-record-layout > main, .v3-record-layout > aside, .v3-project-record-grid > main, .v3-project-record-grid > aside { padding-block: 38px; }
+
+  .v3-dialog-layer { padding: 74px 14px 14px; align-items: start; }
+  .v3-dialog-layer > section, .v3-dialog-layer > form { width: 100%; max-height: calc(100dvh - 88px); border-radius: 18px; }
+  .v3-option-stack > button { min-height: 112px; padding: 18px; }
+  .v3-search-layer { padding: 14px; }
+  .v3-search-layer > section { border-radius: 18px; }
+}
+
+@media (max-width: 480px) {
+  .v3-shell > main { padding-inline: 18px; }
+  .v3-nav { padding-inline: 18px; }
+  .v3-live-rail > span:first-child { padding-left: 18px; }
+  .v3-page-intro h1 { font-size: 48px; }
+  .v3-home-hero h1 { font-size: 56px; }
+  .v3-now-dial { width: 180px; height: 180px; }
+  .v3-kanban { width: calc(100vw - 18px); margin-right: -18px; padding-right: 18px; }
+  .v3-request-controls, .v3-project-switch { margin-inline: -18px; padding-inline: 18px; }
+  .v3-file-index { margin-right: -18px; padding-right: 18px; }
+  .v3-settings-index { margin-inline: -18px; padding-inline: 18px; }
+  .v3-composer-page > nav { margin-inline: -18px; padding-inline: 18px; }
+  .v3-composer-stage > h1 { font-size: 48px; }
+  .v3-record-head h1, .v3-project-record > header h1 { font-size: 48px; }
+}
+
+@media (max-width: 360px) {
+  .v3-shell > main { padding-inline: 16px; }
+  .v3-nav { padding-inline: 14px; }
+  .v3-wordmark strong { font-size: 17px; }
+  .v3-nav-tools { gap: 5px; }
+  .v3-icon-button { width: 38px; height: 38px; }
+  .v3-page-intro h1 { font-size: 44px; }
+  .v3-home-hero h1 { font-size: 50px; }
+  .v3-now-dial { width: 210px; }
+  .v3-now-dial svg { left: 15px; width: 180px; height: 180px; }
+  .v3-now-dial ul { gap: 8px; padding-inline: 4px; }
+  .v3-glance { grid-template-columns: 1fr; }
+  .v3-glance button, .v3-glance button:nth-child(2) { min-height: 110px; border-right: 1px solid var(--line); }
+  .v3-hero-actions > .v3-action { width: 100%; justify-content: space-between; }
+  .v3-kanban { width: calc(100vw - 16px); margin-right: -16px; padding-right: 16px; }
+  .v3-kanban-column { min-width: calc(100vw - 48px); }
+  .v3-request-controls, .v3-project-switch { margin-inline: -16px; padding-inline: 16px; }
+  .v3-file-index { margin-right: -16px; padding-right: 16px; }
+  .v3-capacity > div { grid-template-columns: 1fr; }
+  .v3-capacity > div button { min-height: 126px; }
+  .v3-service-browser > div { grid-template-columns: 1fr; }
+  .v3-settings-index { margin-inline: -16px; padding-inline: 16px; }
+  .v3-composer-page > nav { margin-inline: -16px; padding-inline: 16px; }
+  .v3-composer-stage > h1 { font-size: 44px; }
+  .v3-composer-page > footer, .v3-project-builder form > footer { padding-inline: 16px; }
+  .v3-record-head h1, .v3-project-record > header h1 { font-size: 44px; }
+  .v3-record-facts { grid-template-columns: 1fr; }
+  .v3-record-facts > .v3-meter { grid-column: auto; }
+}
+
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
