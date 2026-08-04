@@ -1095,6 +1095,45 @@ button, a, input, textarea, select { transition: color .22s ease, background-col
 .v3-search-layer section > div > button:is(:hover, .is-active) > i { background: var(--sheet); }
 .v3-popover, .v3-create-menu { border-radius: 20px; box-shadow: 0 10px 26px #c9cbc4; }
 [data-v3-theme='dark'] .v3-popover, [data-v3-theme='dark'] .v3-create-menu { box-shadow: 0 10px 26px #050604; }
+
+/* Keep the CTA control anchored while its lime surface sweeps across on hover. */
+.v3-action {
+  position: relative;
+  isolation: isolate;
+  justify-content: flex-start;
+  gap: 0;
+  overflow: hidden;
+  padding-right: 49px;
+}
+.v3-action > span { position: relative; z-index: 1; white-space: nowrap; }
+.v3-action > i {
+  position: absolute;
+  z-index: 2;
+  top: 4px;
+  right: 4px;
+  bottom: 4px;
+  width: 34px;
+  height: auto;
+  overflow: hidden;
+  transform: none;
+  will-change: width;
+  transition: width .56s var(--ease), border-radius .56s var(--ease), background-color .28s ease;
+}
+.v3-action > i > svg {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  transform: translateY(-50%);
+  transition: transform .4s var(--ease);
+}
+@media (hover: hover) {
+  .v3-action:hover > i {
+    width: calc(100% - 8px);
+    border-radius: 999px;
+    transform: none;
+  }
+  .v3-action:hover > i > svg { transform: translateY(-50%) rotate(6deg) scale(1.05); }
+}
 body:has(.v3-search-layer) :is(.v3-nav, .v3-live-rail, .v3-mobile-nav),
 body:has(.v3-dialog-layer) :is(.v3-nav, .v3-live-rail, .v3-mobile-nav) {
   pointer-events: none;
