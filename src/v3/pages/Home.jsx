@@ -1,0 +1,70 @@
+import { useNavigate } from 'react-router-dom';
+import { activity, me, projects, team } from '../../mocks';
+import { useStore } from '../../store';
+import Icon from '../Icon';
+import { Action, Avatar, Meter, ProjectCode, Status } from '../Primitives';
+
+export default function Home() {
+  const navigate = useNavigate();
+  const { requests, accountMode, hoursRemaining, hoursAllowance } = useStore();
+  const active = requests.filter((item) => item.status === 'active');
+  const review = requests.filter((item) => item.status === 'review');
+  const queued = requests.filter((item) => item.status === 'queued').sort((a, b) => a.queuePos - b.queuePos);
+  const complete = requests.filter((item) => item.status === 'done');
+  const projectFor = (id) => projects.find((project) => project.id === id);
+
+  return (
+    <div className="v3-home">
+      <section className="v3-home-hero v3-enter">
+        <div>
+          <p>Tuesday · 4 August</p>
+          <h1><span>{me.name.split(' ')[0]},</span><br />work is moving.</h1>
+          <div className="v3-hero-actions"><Action onClick={() => navigate('/requests/new')} icon="plus">Start a request</Action><button onClick={() => navigate('/messages')}><span className="v3-online-stack">{team.slice(0, 3).map((person) => <Avatar key={person.id} name={person.name} size="xs" online={person.online} />)}</span>Talk to your team <Icon name="arrow" size={15} /></button></div>
+        </div>
+        <aside className="v3-now-dial">
+          <div><span>Right now</span><strong>{active.length + review.length}</strong><small>items moving</small></div>
+          <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="53" /><circle className="is-progress" cx="60" cy="60" r="53" pathLength="100" strokeDasharray={`${Math.min(100, (active.length + review.length) * 17)} 100`} /></svg>
+          <ul><li><i className="is-green" />{active.length} building</li><li><i className="is-yellow" />{review.length} need you</li><li><i className="is-blue" />{queued.length} queued</li></ul>
+        </aside>
+      </section>
+
+      <section className="v3-glance v3-enter">
+        <button onClick={() => navigate('/requests')}><span>In motion</span><strong>{active.length}</strong><small>{active.map((item) => item.title).join(' · ')}</small></button>
+        <button className={review.length ? 'is-hot' : ''} onClick={() => navigate('/requests')}><span>Waiting on you</span><strong>{review.length}</strong><small>{review.length ? 'Open the review queue' : 'Nothing blocked'}</small></button>
+        <button onClick={() => navigate('/projects')}><span>Portfolio</span><strong>{projects.filter((project) => project.status === 'active').length}</strong><small>active project workspaces</small></button>
+        <button onClick={() => navigate('/billing')}><span>{accountMode === 'retainer' ? 'Care hours' : 'Delivered'}</span><strong>{accountMode === 'retainer' ? hoursRemaining : complete.length}</strong><small>{accountMode === 'retainer' ? `of ${hoursAllowance} remaining` : 'approved this cycle'}</small></button>
+      </section>
+
+      <div className="v3-home-workspace">
+        <section className="v3-workstream v3-enter">
+          <header><div><span>Live workstream</span><h2>What the team is doing</h2></div><button onClick={() => navigate('/requests')}>Open board <Icon name="arrow" size={15} /></button></header>
+          <div className="v3-work-lines">
+            {active.map((request, index) => {
+              const project = projectFor(request.projectId);
+              return <button key={request.id} onClick={() => navigate(`/requests/${request.id}`)}><em>{String(index + 1).padStart(2, '0')}</em><ProjectCode project={project} /><span><small>{project?.name} · {request.type}</small><strong>{request.title}</strong><p>{request.changelog?.[0]?.text || request.brief}</p></span><div><Status status={request.status} /><Meter value={request.progress} /></div><Icon name="arrow" /></button>;
+            })}
+          </div>
+          <footer><span><i />{Math.max(0, 2 - active.length)} slot available</span><button onClick={() => navigate('/requests/new')}>Add to the queue <Icon name="plus" size={15} /></button></footer>
+        </section>
+
+        <aside className="v3-review-stack v3-enter">
+          <header><span>Review desk</span><strong>{review.length}</strong><p>Delivered work waiting for your decision.</p></header>
+          <div>
+            {review.map((request, index) => <button key={request.id} style={{ '--stack': index }} onClick={() => navigate(`/requests/${request.id}`)}><span><small>{projectFor(request.projectId)?.name}</small><strong>{request.title}</strong></span><em>{request.deliverables.length} files</em><Icon name="arrow" size={16} /></button>)}
+          </div>
+          <button className="v3-review-all" onClick={() => navigate('/requests')}>Review everything <Icon name="arrow" size={15} /></button>
+        </aside>
+      </div>
+
+      <section className="v3-project-ribbon v3-enter">
+        <header><div><span>Portfolio pulse</span><h2>Projects at a glance</h2></div><button onClick={() => navigate('/projects')}>All projects</button></header>
+        <div>{projects.map((project) => <button key={project.id} onClick={() => navigate(`/projects/${project.id}`)}><ProjectCode project={project} /><span><strong>{project.name}</strong><small>{project.tagline}</small></span><Meter value={project.progress} /><Status status={project.status} /><Icon name="arrow" size={16} /></button>)}</div>
+      </section>
+
+      <section className="v3-home-foot v3-enter">
+        <div><span>Recent signals</span>{activity.slice(0, 4).map((item) => <p key={item.text}><i />{item.text}<time>{item.at}</time></p>)}</div>
+        <aside><span>Team presence</span>{team.map((person) => <button key={person.id} onClick={() => navigate('/messages')}><Avatar name={person.name} online={person.online} /><span><strong>{person.name}</strong><small>{person.role}</small></span><Icon name="messages" size={16} /></button>)}</aside>
+      </section>
+    </div>
+  );
+}
