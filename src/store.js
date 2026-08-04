@@ -10,6 +10,10 @@ let state = {
   requests: JSON.parse(JSON.stringify(requestsSeed)),
   extraSlots: me.extraSlots,
   paused: me.paused,
+  pauseReason: me.paused ? 'client' : null,
+  paymentStatus: 'due',
+  paymentDueAt: 'Aug 8',
+  paymentAmount: 1550,
   plan: me.plan,
   baseSlots: me.slots,
   billingCadence: 'weekly',
@@ -31,6 +35,7 @@ let state = {
   subscriptionAddons: [],
   bundles: [],
   notifications: [
+    { id: 3, text: 'Your next plan payment is due Aug 8', unread: true, to: '/billing' },
     { id: 1, text: 'Three deliveries are ready for review', unread: true },
     { id: 2, text: 'Website health report generated', unread: true },
   ],
@@ -178,7 +183,23 @@ export const store = {
 
   buySlot() { state.extraSlots += 1; emit(); },
   removeSlot() { if (state.extraSlots > 0) { state.extraSlots -= 1; enforceSlotCap(state); } emit(); },
-  setPaused(v) { state.paused = v; emit(); },
+  setPaused(v, reason = 'client') {
+    state.paused = v;
+    state.pauseReason = v ? reason : null;
+    emit();
+  },
+  setPaymentStatus(status) {
+    state.paymentStatus = status;
+    if (status === 'overdue') {
+      state.paused = true;
+      state.pauseReason = 'payment';
+    }
+    if (status === 'paid' && state.pauseReason === 'payment') {
+      state.paused = false;
+      state.pauseReason = null;
+    }
+    emit();
+  },
   setPlan(name, slots) { state.plan = name; state.baseSlots = slots; enforceSlotCap(state); emit(); },
   logHours(n) {
     if (state.accountMode !== 'retainer') return;
@@ -214,6 +235,7 @@ export const store = {
     state.baseSlots = nextPlan.slots;
     state.retainerTier = null;
     state.paused = false;
+    state.pauseReason = null;
     enforceSlotCap(state);
     emit();
   },

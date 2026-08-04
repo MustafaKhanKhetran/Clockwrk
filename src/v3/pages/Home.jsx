@@ -6,12 +6,21 @@ import { Action, Avatar, Meter, ProjectCode, Status } from '../Primitives';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { requests, accountMode, hoursRemaining, hoursAllowance } = useStore();
+  const { requests, accountMode, hoursRemaining, hoursAllowance, paused, pauseReason, paymentStatus, paymentDueAt, paymentAmount } = useStore();
   const active = requests.filter((item) => item.status === 'active');
   const review = requests.filter((item) => item.status === 'review');
   const queued = requests.filter((item) => item.status === 'queued').sort((a, b) => a.queuePos - b.queuePos);
   const complete = requests.filter((item) => item.status === 'done');
   const projectFor = (id) => projects.find((project) => project.id === id);
+  const accountNotice = paused
+    ? pauseReason === 'payment'
+      ? { tone: 'critical', label: 'Payment overdue', title: 'Production is paused until billing is resolved.', copy: `The $${paymentAmount.toLocaleString()} plan payment did not complete. Your files and queue are safe.` }
+      : { tone: 'warning', label: 'Paused by you', title: 'Production is currently paused.', copy: 'Your queue is saved in place. Resume the subscription whenever you are ready for work to continue.' }
+    : paymentStatus === 'overdue'
+      ? { tone: 'critical', label: 'Payment overdue', title: 'Your plan payment needs attention.', copy: `The $${paymentAmount.toLocaleString()} payment is overdue. Update billing to prevent production from pausing.` }
+      : paymentStatus === 'due'
+        ? { tone: 'warning', label: 'Payment due soon', title: `Your next plan payment is due ${paymentDueAt}.`, copy: `$${paymentAmount.toLocaleString()} will be charged to the payment method on file.` }
+        : null;
 
   return (
     <div className="v3-home">
@@ -27,6 +36,8 @@ export default function Home() {
           <ul><li><i className="is-green" />{active.length} building</li><li><i className="is-yellow" />{review.length} need you</li><li><i className="is-blue" />{queued.length} queued</li></ul>
         </aside>
       </section>
+
+      {accountNotice && <section className={`v3-account-notice is-${accountNotice.tone} v3-enter`} role="status"><span className="v3-account-notice-icon"><Icon name={accountNotice.tone === 'critical' ? 'billing' : 'clock'} size={20} /></span><div><small>{accountNotice.label}</small><strong>{accountNotice.title}</strong><p>{accountNotice.copy}</p></div><button onClick={() => navigate('/billing')}>Review billing <Icon name="arrow" size={15} /></button></section>}
 
       <section className="v3-glance v3-enter">
         <button onClick={() => navigate('/requests')}><span>In motion</span><strong>{active.length}</strong><small>{active.map((item) => item.title).join(' · ')}</small></button>

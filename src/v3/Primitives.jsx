@@ -48,6 +48,15 @@ export function ProjectCode({ project }) {
   return <span className="v3-project-code">{project?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2) || 'CW'}</span>;
 }
 
+const fileIcons = {
+  pdf: 'filePdf', figma: 'figma', zip: 'archive', html: 'browser', code: 'code',
+  svg: 'vector', icon: 'vector', video: 'video', img: 'image', png: 'image',
+};
+
+export function FileMark({ kind = 'file', size = 'md' }) {
+  return <span className={`v3-file-mark is-${kind} is-${size}`} aria-hidden="true"><Icon name={fileIcons[kind] || 'file'} size={size === 'sm' ? 18 : 22} /></span>;
+}
+
 export function Meter({ value, label }) {
   return <span className="v3-meter" aria-label={label || `${value}% complete`}><span><i style={{ transform: `scaleX(${Math.max(0, Math.min(100, value)) / 100})` }} /></span><strong>{value}%</strong></span>;
 }
