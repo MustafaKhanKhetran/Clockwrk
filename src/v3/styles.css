@@ -930,6 +930,44 @@ body:has(.v3-dialog-layer) .v3-mobile-nav { visibility: hidden; opacity: 0; tran
 [data-v3-theme='dark'] .v3-kanban-column > div > button, [data-v3-theme='dark'] .v3-kanban-column.is-review > div > button, [data-v3-theme='dark'] .v3-kanban-column.is-queued > div > button, [data-v3-theme='dark'] .v3-kanban-column.is-done > div > button { background: #151712; }
 [data-v3-theme='dark'] .v3-kanban-column > div > button:hover { box-shadow: 0 16px 34px #050604; }
 
+/* Fan every pending review into view when the stack is explored. */
+@media (hover: hover) and (pointer: fine) and (min-width: 761px) {
+  .v3-review-stack > div {
+    min-height: 310px;
+    transition: min-height .6s var(--ease);
+  }
+  .v3-review-stack > div > button {
+    top: calc(var(--stack) * 68px);
+    left: calc(var(--stack) * 5px);
+    transition: top .62s var(--ease), left .62s var(--ease), width .62s var(--ease), transform .62s var(--ease), box-shadow .35s ease;
+    transition-delay: calc(var(--stack) * 45ms);
+    transform-origin: 50% 100%;
+  }
+  .v3-review-stack > div:is(:hover, :focus-within) {
+    min-height: max(310px, calc(var(--reviews, 3) * 146px + 32px));
+  }
+  .v3-review-stack > div:is(:hover, :focus-within) > button {
+    top: calc(var(--stack) * 146px);
+    left: 0;
+    width: 100%;
+    z-index: calc(10 - var(--stack));
+  }
+  .v3-review-stack > div:is(:hover, :focus-within) > button:nth-child(3n + 1) {
+    transform: translateX(-8px) rotate(-1.2deg);
+  }
+  .v3-review-stack > div:is(:hover, :focus-within) > button:nth-child(3n + 2) {
+    transform: translateX(9px) rotate(1deg);
+  }
+  .v3-review-stack > div:is(:hover, :focus-within) > button:nth-child(3n) {
+    transform: translateX(-3px) rotate(-.35deg);
+  }
+  .v3-review-stack > div:is(:hover, :focus-within) > button:hover,
+  .v3-review-stack > div:is(:hover, :focus-within) > button:focus-visible {
+    z-index: 20;
+    transform: translateX(0) translateY(-7px) rotate(0) scale(1.025);
+  }
+}
+
 @media (max-width: 1180px) and (min-width: 761px) {
   .v3-nav { grid-template-columns: 120px minmax(0,1fr) auto; gap: 16px; }
   .v3-nav > nav { gap: 15px; }
