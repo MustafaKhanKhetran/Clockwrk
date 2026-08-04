@@ -50,7 +50,7 @@ export default function Home() {
         <aside className="v3-review-stack v3-enter">
           <header><span>Review desk</span><strong>{review.length}</strong><p>Delivered work waiting for your decision.</p></header>
           <div>
-            {review.map((request, index) => <button key={request.id} style={{ '--stack': index }} onClick={() => navigate(`/requests/${request.id}`)}><span><small>{projectFor(request.projectId)?.name}</small><strong>{request.title}</strong></span><em>{request.deliverables.length} files</em><Icon name="arrow" size={16} /></button>)}
+            {review.map((request, index) => <button key={request.id} style={{ '--stack': index }} onClick={() => navigate(`/requests/${request.id}`)}><span><small>{projectFor(request.projectId)?.name}</small><strong>{request.title}</strong><i>Delivered {request.deliveredAt || request.due}</i></span><em>{request.deliverables.length} files</em><Icon name="arrow" size={16} /></button>)}
           </div>
           <button className="v3-review-all" onClick={() => navigate('/requests')}>Review everything <Icon name="arrow" size={15} /></button>
         </aside>

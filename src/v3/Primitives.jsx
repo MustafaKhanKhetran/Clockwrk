@@ -1,4 +1,34 @@
+import { useEffect, useRef, useState } from 'react';
 import Icon from './Icon';
+
+export function AnimatedNumber({ value, prefix = '', suffix = '', className = '' }) {
+  const numericValue = Number(value) || 0;
+  const previous = useRef(numericValue);
+  const frame = useRef();
+  const [display, setDisplay] = useState(numericValue);
+
+  useEffect(() => {
+    const from = previous.current;
+    previous.current = numericValue;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || from === numericValue) {
+      setDisplay(numericValue);
+      return undefined;
+    }
+
+    const started = performance.now();
+    const duration = 620;
+    const tick = (now) => {
+      const progress = Math.min(1, (now - started) / duration);
+      const eased = 1 - Math.pow(1 - progress, 4);
+      setDisplay(from + (numericValue - from) * eased);
+      if (progress < 1) frame.current = requestAnimationFrame(tick);
+    };
+    frame.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame.current);
+  }, [numericValue]);
+
+  return <span className={`v3-animated-number ${className}`}>{prefix}{Math.round(display).toLocaleString()}{suffix}</span>;
+}
 
 export function Action({ children, icon = 'arrow', tone = 'dark', className = '', ...props }) {
   return <button className={`v3-action is-${tone} ${className}`} {...props}><span>{children}</span><i><Icon name={icon} size={16} /></i></button>;

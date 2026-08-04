@@ -79,7 +79,7 @@ export default function Shell({ children }) {
     <div className="v3-shell">
       <a href="#v3-content" className="v3-skip">Skip to content</a>
       <header className="v3-nav">
-        <button className="v3-wordmark" onClick={() => navigate('/home')} aria-label="Clockwrk home"><i><Icon name="requests" size={19} /></i><strong>clockwrk</strong></button>
+        <button className="v3-wordmark" onClick={() => navigate('/home')} aria-label="Clockwrk home"><img src="/brand/cw-logo.png" alt="" /></button>
         <nav aria-label="Main navigation">
           {links.map(([label, to]) => <NavLink key={to} to={to}>{({ isActive }) => <>{isActive && <i />}{label}</>}</NavLink>)}
         </nav>
