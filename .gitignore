@@ -9,3 +9,4 @@ node_modules/
 # Logs / OS junk
 *.log
 .DS_Store
+.env.bak*
