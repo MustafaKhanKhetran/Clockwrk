@@ -476,6 +476,27 @@ router.post('/tickets/:id/reply', clientAuth, async (req, res) => {
   }
 });
 
+// Save client-supplied attachments (already uploaded to R2 via /uploads) into
+// the files table with category='attachment' so they can be told apart from
+// team-shipped deliverables when the same table is read for either purpose.
+async function saveClientAttachments({ clientId, projectId = null, requestId = null, messageId = null, attachments }) {
+  if (!Array.isArray(attachments) || !attachments.length) return [];
+  const rows = [];
+  for (const a of attachments) {
+    const url = String(a?.url || '').trim();
+    if (!url) continue;
+    const name = String(a?.name || 'file').slice(0, 250);
+    const type = String(a?.mime || a?.type || '').slice(0, 100) || null;
+    const [ins] = await db.execute(
+      `INSERT INTO files (client_id, project_id, request_id, message_id, file_name, file_url, file_type, category)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'attachment')`,
+      [clientId, projectId, requestId, messageId, name, url, type]
+    );
+    rows.push({ id: ins.insertId, name, url, file_type: type });
+  }
+  return rows;
+}
+
 // ─── GET /api/client/files ────────────────────────────────────────────────────
 router.get('/files', clientAuth, async (req, res) => {
   try {
@@ -514,6 +535,17 @@ router.get('/messages', clientAuth, async (req, res) => {
             WHERE client_id = ? ORDER BY created_at ASC`,
           [req.client.id]
         );
+    // Attach each message's file rows in one round-trip.
+    if (messages.length) {
+      const ids = messages.map((m) => m.id);
+      const [files] = await db.execute(
+        `SELECT id, message_id, file_name AS name, file_url AS url, file_type
+           FROM files WHERE message_id IN (${ids.map(() => '?').join(',')})`,
+        ids
+      );
+      const byMsg = files.reduce((acc, f) => { (acc[f.message_id] ||= []).push({ id: f.id, name: f.name, url: f.url, mime: f.file_type }); return acc; }, {});
+      for (const m of messages) m.attachments = byMsg[m.id] || [];
+    }
     return res.json({ success: true, messages });
   } catch (err) {
     console.error(err);
@@ -523,8 +555,10 @@ router.get('/messages', clientAuth, async (req, res) => {
 
 // ─── POST /api/client/messages ────────────────────────────────────────────────
 router.post('/messages', clientAuth, async (req, res) => {
-  const { content, project_id } = req.body;
-  if (!content?.trim()) return res.status(400).json({ success: false, message: 'content required' });
+  const { content, project_id, attachments } = req.body;
+  const hasContent = !!content?.trim();
+  const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
+  if (!hasContent && !hasAttachments) return res.status(400).json({ success: false, message: 'content or attachments required' });
   try {
     // A thread can only be opened against a project the client owns.
     let projectId = null;
@@ -538,9 +572,14 @@ router.post('/messages', clientAuth, async (req, res) => {
     }
     const [result] = await db.execute(
       "INSERT INTO client_messages (client_id, project_id, sender, content) VALUES (?, ?, 'client', ?)",
-      [req.client.id, projectId, content.trim()]
+      [req.client.id, projectId, hasContent ? content.trim() : '']
     );
+    const savedFiles = await saveClientAttachments({
+      clientId: req.client.id, projectId, messageId: result.insertId,
+      attachments,
+    });
     const [[msg]] = await db.execute('SELECT * FROM client_messages WHERE id = ?', [result.insertId]);
+    msg.attachments = savedFiles.map((f) => ({ id: f.id, name: f.name, url: f.url, mime: f.file_type }));
     // Surface it on the team dashboard so a client message is not missed.
     try {
       await db.execute(
@@ -597,7 +636,7 @@ function derivedParentStatus(row, children) {
 }
 
 function toPortalRequest(row, {
-  comments = [], deliverables = [], activities = [], children = [], breakdown = [],
+  comments = [], deliverables = [], attachments = [], activities = [], children = [], breakdown = [],
 } = {}) {
   const isParent = row.request_kind === 'parent';
   const status = isParent ? derivedParentStatus(row, children) : (STATUS_TO_PORTAL[row.status] || 'queued');
@@ -633,6 +672,7 @@ function toPortalRequest(row, {
     // so they must always be arrays, never undefined.
     comments,
     deliverables,
+    attachments,
     timeline: activities.map((item, index) => ({
       label: item.label,
       at: shortDate(item.created_at) || 'Just now',
@@ -694,7 +734,7 @@ router.get('/requests', clientAuth, async (req, res) => {
       ids
     );
     const [files] = await db.execute(
-      `SELECT id, request_id, file_name, file_url, file_type, version, created_at
+      `SELECT id, request_id, file_name, file_url, file_type, version, category, created_at
          FROM files
         WHERE request_id IN (${slots}) AND client_id = ?
         ORDER BY created_at DESC`,
@@ -739,9 +779,12 @@ router.get('/requests', clientAuth, async (req, res) => {
           at: shortDate(c.created_at),
           text: c.comment,
         })),
-        deliverables: (fileMap[row.id] || []).map((f, index) => ({
+        deliverables: (fileMap[row.id] || []).filter((f) => f.category !== 'attachment').map((f, index) => ({
           id: f.id, name: f.file_name, url: f.file_url, kind: fileKind(f),
           version: f.version || 1, at: shortDate(f.created_at), current: index === 0,
+        })),
+        attachments: (fileMap[row.id] || []).filter((f) => f.category === 'attachment').map((f) => ({
+          id: f.id, name: f.file_name, url: f.file_url, mime: f.file_type, at: shortDate(f.created_at),
         })),
         activities: activityMap[row.id] || [],
         children: childMap[row.id] || [],
@@ -759,7 +802,7 @@ router.get('/requests', clientAuth, async (req, res) => {
 
 // ─── POST /api/client/requests ────────────────────────────────────────────────
 router.post('/requests', clientAuth, async (req, res) => {
-  const { project_id, title, description, type, priority } = req.body;
+  const { project_id, title, description, type, priority, attachments } = req.body;
   if (!title?.trim()) return res.status(400).json({ success: false, message: 'title required' });
   if (!project_id) return res.status(400).json({ success: false, message: 'project_id required' });
 
@@ -800,14 +843,24 @@ router.post('/requests', clientAuth, async (req, res) => {
       [result.insertId]
     );
     await conn.commit();
+    // Persist any client-supplied attachments once the row is committed.
+    const savedAttachments = await saveClientAttachments({
+      clientId: req.client.id, projectId: project_id, requestId: result.insertId,
+      attachments,
+    });
     // Fire-and-forget: never let a failed alert kill the request creation.
     try {
       await db.execute(
         "INSERT INTO dashboard_alerts (type, title, message, link) VALUES ('system', 'New client request', ?, '/requests')",
-        [`${req.client.name}: ${title.trim()}`]
+        [`${req.client.name}: ${title.trim()}${savedAttachments.length ? ` (${savedAttachments.length} file${savedAttachments.length === 1 ? '' : 's'} attached)` : ''}`]
       );
     } catch (alertErr) { console.error('new-request alert failed:', alertErr.message); }
-    return res.status(201).json({ success: true, request: toPortalRequest(row) });
+    return res.status(201).json({
+      success: true,
+      request: toPortalRequest(row, {
+        attachments: savedAttachments.map((f) => ({ id: f.id, name: f.name, url: f.url, mime: f.file_type })),
+      }),
+    });
   } catch (err) {
     await conn.rollback();
     console.error(err);
