@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Shell from './v3/Shell';
 import Login from './v3/pages/Login';
+import ResetPassword from './v3/pages/ResetPassword';
 import Home from './v3/pages/Home';
 import Requests from './v3/pages/Requests';
 import NewRequest from './v3/pages/NewRequest';
@@ -36,6 +37,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginRoute />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route element={<Protected />}>
           <Route path="/home" element={<Home />} />
           <Route path="/requests" element={<Requests />} />

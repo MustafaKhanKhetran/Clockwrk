@@ -111,7 +111,10 @@ export async function uploadFile(file) {
 
 export const api = {
   login: (email, password) => request('/login', { method: 'POST', body: { email, password }, auth: false }),
+  forgotPassword: (email) => request('/forgot-password', { method: 'POST', body: { email }, auth: false }),
+  resetPassword: (token, new_password) => request('/reset-password', { method: 'POST', body: { token, new_password }, auth: false }),
   me: () => request('/me'),
+  saveOnboarding: (version) => request('/onboarding', { method: 'PUT', body: { version } }),
   updateMe: (patch) => request('/me', { method: 'PATCH', body: patch }),
   changePassword: (current_password, new_password) =>
     request('/change-password', { method: 'POST', body: { current_password, new_password } }),
@@ -121,8 +124,11 @@ export const api = {
   // Billing changes — nothing activates until the team verifies the transfer.
   paymentDetails: () => request('/billing/payment-details'),
   billingSummary: () => request('/billing/summary'),
-  billingQuote: (kind, target, quantity = 1) =>
-    request(`/billing/quote?kind=${kind}&target=${target}&quantity=${quantity}`),
+  billingQuote: (kind, target, quantity = 1, cadence) => {
+    const query = new URLSearchParams({ kind, target, quantity: String(quantity) });
+    if (cadence) query.set('cadence', cadence);
+    return request(`/billing/quote?${query}`);
+  },
   requestBillingChange: (payload) => request('/billing/changes', { method: 'POST', body: payload }),
   reportTransfer: (id) => request(`/billing/changes/${id}/reported`, { method: 'POST' }),
   cancelBillingChange: (id) => request(`/billing/changes/${id}/cancel`, { method: 'POST' }),
@@ -137,6 +143,9 @@ export const api = {
 
   requests: () => request('/requests'),
   createRequest: (payload) => request('/requests', { method: 'POST', body: payload }),
+  reorderQueue: (orderedIds) => request('/requests/queue', { method: 'PUT', body: { ordered_ids: orderedIds } }),
+  requestBreakdown: (id) => request(`/requests/${id}/breakdown`),
+  approveBreakdown: (id) => request(`/requests/${id}/breakdown/approve`, { method: 'POST' }),
   approveRequest: (id) => request(`/requests/${id}/approve`, { method: 'POST' }),
   requestRevision: (id, note) => request(`/requests/${id}/revision`, { method: 'POST', body: { note } }),
   commentOnRequest: (id, text) => request(`/requests/${id}/comments`, { method: 'POST', body: { text } }),
