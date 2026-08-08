@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.wrangler/
+
+# Secrets — never commit real credentials
+.env
+.env.local
+.env.*.local
+
+# Large / throwaway artifacts
+*.zip
+
+# Logs / OS junk
+*.log
+.DS_Store

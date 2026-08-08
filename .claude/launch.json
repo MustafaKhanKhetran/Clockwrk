@@ -1,0 +1,70 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dodgem",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8177",
+        "--directory",
+        "/Users/mustafakhetran/CM2030-MustafaKhanKhetran"
+      ],
+      "port": 8177
+    },
+    {
+      "name": "pcc-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "/Users/mustafakhetran/flutterdev/pcc-erp/web",
+        "run",
+        "dev"
+      ],
+      "port": 5180
+    },
+    {
+      "name": "site",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8188",
+        "--directory",
+        "/Users/mustafakhetran/Clockwrk"
+      ],
+      "port": 8188
+    },
+    {
+      "name": "portal",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "/Users/mustafakhetran/clockwrk-portal",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5181",
+        "--strictPort"
+      ],
+      "port": 5181
+    },
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "/Users/mustafakhetran/clockwrk-dashboard",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5182",
+        "--strictPort"
+      ],
+      "port": 5182
+    }
+  ]
+}

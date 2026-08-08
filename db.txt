@@ -1,0 +1,2126 @@
+[
+  {
+    "TABLE_NAME": "application_status_log",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "varchar(36)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "application_status_log",
+    "COLUMN_NAME": "application_id",
+    "COLUMN_TYPE": "varchar(36)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "application_status_log",
+    "COLUMN_NAME": "old_status",
+    "COLUMN_TYPE": "varchar(30)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "application_status_log",
+    "COLUMN_NAME": "new_status",
+    "COLUMN_TYPE": "varchar(30)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "application_status_log",
+    "COLUMN_NAME": "changed_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "application_status_log",
+    "COLUMN_NAME": "note",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "application_status_log",
+    "COLUMN_NAME": "changed_by",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "varchar(36)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "job_id",
+    "COLUMN_TYPE": "varchar(36)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "full_name",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "email",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "phone",
+    "COLUMN_TYPE": "varchar(20)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "portfolio_url",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "resume_url",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "cover_letter",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "experience_yrs",
+    "COLUMN_TYPE": "decimal(3,1)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "status",
+    "COLUMN_TYPE": "varchar(30)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "new",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "notes",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "applied_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "applications",
+    "COLUMN_NAME": "updated_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "audit_logs",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "bigint",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "audit_logs",
+    "COLUMN_NAME": "employee_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "audit_logs",
+    "COLUMN_NAME": "action",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "audit_logs",
+    "COLUMN_NAME": "category",
+    "COLUMN_TYPE": "enum('audit','communication','note','system')",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "audit",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "audit_logs",
+    "COLUMN_NAME": "entity_type",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "audit_logs",
+    "COLUMN_NAME": "entity_id",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "audit_logs",
+    "COLUMN_NAME": "details",
+    "COLUMN_TYPE": "json",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "audit_logs",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "varchar(36)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "uuid()",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "name",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "email",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "company",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "services",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "notes",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "guests",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "booking_date",
+    "COLUMN_TYPE": "date",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "booking_time",
+    "COLUMN_TYPE": "varchar(10)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "zoom_link",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "zoom_meeting_id",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "cal_booking_id",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "status",
+    "COLUMN_TYPE": "varchar(30)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "confirmed",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "fallback_used",
+    "COLUMN_TYPE": "tinyint(1)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "0",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "bookings",
+    "COLUMN_NAME": "assigned_to",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "client_team_assignments",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "client_team_assignments",
+    "COLUMN_NAME": "client_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "client_team_assignments",
+    "COLUMN_NAME": "employee_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "client_team_assignments",
+    "COLUMN_NAME": "assignment_type",
+    "COLUMN_TYPE": "varchar(50)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "client_team_assignments",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "name",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "email",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "company",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "plan",
+    "COLUMN_TYPE": "enum('startup','business','enterprise')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "startup",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "billing",
+    "COLUMN_TYPE": "enum('weekly','monthly')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "weekly",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "whitelabel",
+    "COLUMN_TYPE": "tinyint(1)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "0",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "status",
+    "COLUMN_TYPE": "enum('active','paused','cancelled')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "active",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "payment_ref",
+    "COLUMN_TYPE": "varchar(50)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "referral_code",
+    "COLUMN_TYPE": "varchar(20)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "subscribed_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "next_payment_due",
+    "COLUMN_TYPE": "date",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "last_payment_date",
+    "COLUMN_TYPE": "date",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "clients",
+    "COLUMN_NAME": "notes",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "dashboard_alerts",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "dashboard_alerts",
+    "COLUMN_NAME": "type",
+    "COLUMN_TYPE": "enum('booking','payment','newsletter','referral','application','system','error')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "dashboard_alerts",
+    "COLUMN_NAME": "title",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "dashboard_alerts",
+    "COLUMN_NAME": "message",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "dashboard_alerts",
+    "COLUMN_NAME": "link",
+    "COLUMN_TYPE": "varchar(500)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "dashboard_alerts",
+    "COLUMN_NAME": "is_read",
+    "COLUMN_TYPE": "tinyint(1)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "0",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "dashboard_alerts",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "name",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "email",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "password_hash",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "role",
+    "COLUMN_TYPE": "enum('owner','admin','head_of_design','head_of_development','head_of_delivery','project_manager','account_manager','designer','motion_designer','illustrator','copywriter','video_editor','frontend_developer','backend_developer','fullstack_developer','mobile_developer','devops','qa_engineer','sales','marketing_manager','seo_specialist','social_media_manager','content_writer','operations_manager','finance','hr','legal','executive_assistant','support','viewer')",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "level",
+    "COLUMN_TYPE": "enum('intern','junior','mid','senior','lead','head','director')",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "max_capacity",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "department",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "salary",
+    "COLUMN_TYPE": "decimal(10,2)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "status",
+    "COLUMN_TYPE": "enum('active','on_leave','inactive')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "active",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "joined_date",
+    "COLUMN_TYPE": "date",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "phone",
+    "COLUMN_TYPE": "varchar(30)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "avatar_url",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "emergency_contact",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "employees",
+    "COLUMN_NAME": "notes",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "expenses",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "expenses",
+    "COLUMN_NAME": "category",
+    "COLUMN_TYPE": "enum('software','salary','marketing','infrastructure','misc')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "misc",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "expenses",
+    "COLUMN_NAME": "description",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "expenses",
+    "COLUMN_NAME": "amount",
+    "COLUMN_TYPE": "decimal(10,2)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "expenses",
+    "COLUMN_NAME": "currency",
+    "COLUMN_TYPE": "varchar(10)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "USD",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "expenses",
+    "COLUMN_NAME": "date",
+    "COLUMN_TYPE": "date",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "expenses",
+    "COLUMN_NAME": "added_by",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "expenses",
+    "COLUMN_NAME": "notes",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "expenses",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "client_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "project_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "request_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "uploaded_by",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "file_name",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "file_url",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "file_type",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "category",
+    "COLUMN_TYPE": "varchar(50)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "version",
+    "COLUMN_TYPE": "varchar(50)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "notes",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "files",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "varchar(36)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "title",
+    "COLUMN_TYPE": "varchar(150)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "department",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "type",
+    "COLUMN_TYPE": "varchar(50)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "status",
+    "COLUMN_TYPE": "enum('open','closed')",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "open",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "location",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "description",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "requirements",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "is_active",
+    "COLUMN_TYPE": "tinyint(1)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "1",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "job_listings",
+    "COLUMN_NAME": "closed_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "newsletter_subscribers",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "newsletter_subscribers",
+    "COLUMN_NAME": "email",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "newsletter_subscribers",
+    "COLUMN_NAME": "type",
+    "COLUMN_TYPE": "varchar(20)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "newsletter_subscribers",
+    "COLUMN_NAME": "source",
+    "COLUMN_TYPE": "varchar(50)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "footer",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "newsletter_subscribers",
+    "COLUMN_NAME": "status",
+    "COLUMN_TYPE": "varchar(20)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "active",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "newsletter_subscribers",
+    "COLUMN_NAME": "subscribed_at",
+    "COLUMN_TYPE": "datetime",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "otp_verifications",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "varchar(36)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "otp_verifications",
+    "COLUMN_NAME": "email",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "otp_verifications",
+    "COLUMN_NAME": "phone",
+    "COLUMN_TYPE": "varchar(20)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "otp_verifications",
+    "COLUMN_NAME": "otp_code",
+    "COLUMN_TYPE": "varchar(6)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "otp_verifications",
+    "COLUMN_NAME": "expires_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "otp_verifications",
+    "COLUMN_NAME": "verified",
+    "COLUMN_TYPE": "tinyint(1)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "0",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "otp_verifications",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "client_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "name",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "email",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "company",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "plan",
+    "COLUMN_TYPE": "enum('startup','business','enterprise')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "billing",
+    "COLUMN_TYPE": "enum('weekly','monthly')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "amount",
+    "COLUMN_TYPE": "decimal(10,2)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "whitelabel",
+    "COLUMN_TYPE": "tinyint(1)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "0",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "payment_ref",
+    "COLUMN_TYPE": "varchar(50)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "txn_id",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "referral_code",
+    "COLUMN_TYPE": "varchar(20)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "status",
+    "COLUMN_TYPE": "enum('pending','confirmed','failed')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "pending",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "submitted_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "payments",
+    "COLUMN_NAME": "confirmed_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "project_assignments",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "project_assignments",
+    "COLUMN_NAME": "project_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "project_assignments",
+    "COLUMN_NAME": "employee_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "project_assignments",
+    "COLUMN_NAME": "assignment_role",
+    "COLUMN_TYPE": "varchar(50)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "project_assignments",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "client_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "name",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "status",
+    "COLUMN_TYPE": "enum('active','paused','completed')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "active",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "notes",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "project_manager_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "priority",
+    "COLUMN_TYPE": "enum('low','normal','high','urgent')",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "normal",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "progress_percent",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "0",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "start_date",
+    "COLUMN_TYPE": "date",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "due_date",
+    "COLUMN_TYPE": "date",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "estimated_hours",
+    "COLUMN_TYPE": "decimal(8,2)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "0.00",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "github_repo",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "staging_url",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "live_url",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "tech_stack",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "projects",
+    "COLUMN_NAME": "health_status",
+    "COLUMN_TYPE": "enum('healthy','warning','critical')",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "healthy",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "varchar(36)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "referrer_id",
+    "COLUMN_TYPE": "varchar(36)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "client_name",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "client_email",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "plan_tier",
+    "COLUMN_TYPE": "varchar(20)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "order_amount",
+    "COLUMN_TYPE": "decimal(10,2)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "reward_amount",
+    "COLUMN_TYPE": "decimal(10,2)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "status",
+    "COLUMN_TYPE": "varchar(20)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "pending",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "converted_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "rewarded_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrals",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrers",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "varchar(36)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "uuid()",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "referrers",
+    "COLUMN_NAME": "name",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrers",
+    "COLUMN_NAME": "email",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "referrers",
+    "COLUMN_NAME": "referral_code",
+    "COLUMN_TYPE": "varchar(20)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "referrers",
+    "COLUMN_NAME": "is_verified",
+    "COLUMN_TYPE": "tinyint(1)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "0",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "referrers",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "request_assignments",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "request_assignments",
+    "COLUMN_NAME": "request_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "request_assignments",
+    "COLUMN_NAME": "assigned_by",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "request_assignments",
+    "COLUMN_NAME": "assigned_to",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "request_assignments",
+    "COLUMN_NAME": "note",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "request_assignments",
+    "COLUMN_NAME": "assigned_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "request_collaborators",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "request_collaborators",
+    "COLUMN_NAME": "request_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "request_collaborators",
+    "COLUMN_NAME": "employee_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "request_collaborators",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "request_comments",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "request_comments",
+    "COLUMN_NAME": "request_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "request_comments",
+    "COLUMN_NAME": "employee_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "request_comments",
+    "COLUMN_NAME": "comment",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "request_comments",
+    "COLUMN_NAME": "visibility",
+    "COLUMN_TYPE": "enum('internal','client')",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "internal",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "request_comments",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "project_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "client_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "assigned_to",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "title",
+    "COLUMN_TYPE": "varchar(255)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "description",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "type",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "status",
+    "COLUMN_TYPE": "enum('queue','in_progress','in_review','revision','completed')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "queue",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "priority",
+    "COLUMN_TYPE": "enum('low','normal','high','urgent')",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "normal",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "delivery_files",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "revision_notes",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "updated_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "completed_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "due_date",
+    "COLUMN_TYPE": "date",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "estimated_hours",
+    "COLUMN_TYPE": "decimal(8,2)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "0.00",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "completion_percent",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "0",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "requests",
+    "COLUMN_NAME": "approval_status",
+    "COLUMN_TYPE": "enum('pending','approved','rejected')",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "pending",
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "team_members",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "team_members",
+    "COLUMN_NAME": "team_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "team_members",
+    "COLUMN_NAME": "employee_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "team_members",
+    "COLUMN_NAME": "joined_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "teams",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "teams",
+    "COLUMN_NAME": "name",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "teams",
+    "COLUMN_NAME": "lead_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "teams",
+    "COLUMN_NAME": "department",
+    "COLUMN_TYPE": "varchar(100)",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "teams",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "time_logs",
+    "COLUMN_NAME": "id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "auto_increment",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "time_logs",
+    "COLUMN_NAME": "request_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "time_logs",
+    "COLUMN_NAME": "project_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "time_logs",
+    "COLUMN_NAME": "employee_id",
+    "COLUMN_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": "MUL"
+  },
+  {
+    "TABLE_NAME": "time_logs",
+    "COLUMN_NAME": "hours",
+    "COLUMN_TYPE": "decimal(5,2)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "time_logs",
+    "COLUMN_NAME": "description",
+    "COLUMN_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "time_logs",
+    "COLUMN_NAME": "log_date",
+    "COLUMN_TYPE": "date",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null,
+    "EXTRA": "",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "time_logs",
+    "COLUMN_NAME": "created_at",
+    "COLUMN_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": "CURRENT_TIMESTAMP",
+    "EXTRA": "DEFAULT_GENERATED",
+    "COLUMN_KEY": ""
+  }
+]
