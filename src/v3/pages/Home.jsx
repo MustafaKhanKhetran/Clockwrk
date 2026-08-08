@@ -1,12 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { activity, me, projects, team } from '../../mocks';
 import { useStore } from '../../store';
 import Icon from '../Icon';
-import { Action, Avatar, Meter, ProjectCode, Status } from '../Primitives';
+import { useSession } from '../session';
+import { Action, Meter, ProjectCode, Status } from '../Primitives';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { requests, accountMode, hoursRemaining, hoursAllowance, paused, pauseReason, paymentStatus, paymentDueAt, paymentAmount } = useStore();
+  const { requests, projects, accountMode, hoursRemaining, hoursAllowance, paused, pauseReason, paymentStatus, paymentDueAt, paymentAmount, baseSlots, extraSlots } = useStore();
+  const { client } = useSession();
+  const firstName = (client?.name || '').split(' ')[0];
+  const today = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
   const active = requests.filter((item) => item.status === 'active');
   const review = requests.filter((item) => item.status === 'review');
   const queued = requests.filter((item) => item.status === 'queued').sort((a, b) => a.queuePos - b.queuePos);
@@ -26,9 +29,9 @@ export default function Home() {
     <div className="v3-home">
       <section className="v3-home-hero v3-enter">
         <div>
-          <p>Tuesday · 4 August</p>
-          <h1><span>{me.name.split(' ')[0]},</span><br />work is moving.</h1>
-          <div className="v3-hero-actions"><Action onClick={() => navigate('/requests/new')} icon="plus">Start a request</Action><button onClick={() => navigate('/messages')}><span className="v3-online-stack">{team.slice(0, 3).map((person) => <Avatar key={person.id} name={person.name} size="xs" online={person.online} />)}</span>Talk to your team <Icon name="arrow" size={15} /></button></div>
+          <p>{today}</p>
+          <h1><span>{firstName ? `${firstName},` : 'Welcome,'}</span><br />{requests.length ? 'work is moving.' : "let's get started."}</h1>
+          <div className="v3-hero-actions"><Action onClick={() => navigate('/requests/new')} icon="plus">Start a request</Action><button onClick={() => navigate('/messages')}>Talk to your team <Icon name="arrow" size={15} /></button></div>
         </div>
         <aside className="v3-now-dial">
           <div><span>Right now</span><strong>{active.length + review.length}</strong><small>items moving</small></div>
@@ -55,7 +58,7 @@ export default function Home() {
               return <button key={request.id} onClick={() => navigate(`/requests/${request.id}`)}><em>{String(index + 1).padStart(2, '0')}</em><ProjectCode project={project} /><span><small>{project?.name} · {request.type}</small><strong>{request.title}</strong><p>{request.changelog?.[0]?.text || request.brief}</p></span><div><Status status={request.status} /><Meter value={request.progress} /></div><Icon name="arrow" /></button>;
             })}
           </div>
-          <footer><span><i />{Math.max(0, 2 - active.length)} slot available</span><button onClick={() => navigate('/requests/new')}>Add to the queue <Icon name="plus" size={15} /></button></footer>
+          <footer><span><i />{Math.max(0, (baseSlots + extraSlots) - active.length)} of {baseSlots + extraSlots} slots available</span><button onClick={() => navigate('/requests/new')}>Add to the queue <Icon name="plus" size={15} /></button></footer>
         </section>
 
         <aside className="v3-review-stack v3-enter">
@@ -72,10 +75,6 @@ export default function Home() {
         <div>{projects.map((project) => <button key={project.id} onClick={() => navigate(`/projects/${project.id}`)}><ProjectCode project={project} /><span><strong>{project.name}</strong><small>{project.tagline}</small></span><Meter value={project.progress} /><Status status={project.status} /><Icon name="arrow" size={16} /></button>)}</div>
       </section>
 
-      <section className="v3-home-foot v3-enter">
-        <div><span>Recent signals</span>{activity.slice(0, 4).map((item) => <p key={item.text}><i />{item.text}<time>{item.at}</time></p>)}</div>
-        <aside><span>Team presence</span>{team.map((person) => <button key={person.id} onClick={() => navigate('/messages')}><Avatar name={person.name} online={person.online} /><span><strong>{person.name}</strong><small>{person.role}</small></span><Icon name="messages" size={16} /></button>)}</aside>
-      </section>
     </div>
   );
 }

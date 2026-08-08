@@ -44,8 +44,20 @@ export function Status({ status, children }) {
   return <span className={`v3-status is-${status}`}><i />{children || labels[status] || status}</span>;
 }
 
-export function ProjectCode({ project }) {
-  return <span className="v3-project-code">{project?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2) || 'CW'}</span>;
+/**
+ * A project's visual anchor, used everywhere a project is referenced.
+ * Prefers an uploaded logo, then the project's emoji (chosen by the client or
+ * derived from its type by the API), and only falls back to initials for
+ * projects created before icons existed.
+ */
+export function ProjectCode({ project, size = 'md' }) {
+  if (project?.logoUrl) {
+    return <img className={`v3-project-code is-logo is-${size}`} src={project.logoUrl} alt="" />;
+  }
+  if (project?.icon) {
+    return <span className={`v3-project-code is-emoji is-${size}`} aria-hidden="true">{project.icon}</span>;
+  }
+  return <span className={`v3-project-code is-${size}`}>{project?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2) || 'CW'}</span>;
 }
 
 const fileIcons = {

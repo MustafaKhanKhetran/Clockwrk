@@ -1,44 +1,43 @@
 // Tiny reactive store over the mock data — approve/queue/rate flows update
 // everywhere at once. Swap internals for real API calls later.
 import { useSyncExternalStore } from 'react';
-import {
-  requestsSeed, me, SERVICE_CATALOG, PLAN_CARE, PLANS, CARE_PLANS, RETAINER_EXTRA_HOURS, domainsSeed,
-  mailboxesSeed, hostingSeed, securitySeed, reportsSeed,
-} from './mocks';
+import { api } from './v3/api';
+import { SERVICE_CATALOG, PLAN_CARE, PLANS, CARE_PLANS, RETAINER_EXTRA_HOURS } from './catalog';
 
 let state = {
-  requests: JSON.parse(JSON.stringify(requestsSeed)),
-  extraSlots: me.extraSlots,
-  paused: me.paused,
-  pauseReason: me.paused ? 'client' : null,
-  paymentStatus: 'due',
-  paymentDueAt: 'Aug 8',
-  paymentAmount: 1550,
-  plan: me.plan,
-  baseSlots: me.slots,
+  // Nothing is seeded. The store starts empty and `loadFromApi()` fills it from
+  // the signed-in client's real records, so a fake project or request can never
+  // reach the screen. `dataSource` stays 'empty' until that resolves.
+  dataSource: 'empty',
+  loading: false,
+  loadError: null,
+  serverProjects: [],
+  serverInvoices: [],
+  totalPending: 0,
+  account: null,
+  requests: [],
+  extraSlots: 0,
+  paused: false,
+  pauseReason: null,
+  paymentStatus: 'paid',
+  paymentDueAt: null,
+  paymentAmount: 0,
+  plan: null,
+  baseSlots: 0,
   billingCadence: 'weekly',
   accountMode: 'subscription',
   retainerTier: null,
   retainerCadence: 'monthly',
-  hoursUsed: 1.5,
-  hoursResetAt: 'Aug 18',
+  hoursUsed: 0,
+  hoursResetAt: null,
   purchasedHours: 0,
   startSeq: 0,
   serviceSubscriptions: [],
   serviceOrders: [],
   pendingRequestService: null,
-  domains: JSON.parse(JSON.stringify(domainsSeed)),
-  mailboxes: JSON.parse(JSON.stringify(mailboxesSeed)),
-  hosting: JSON.parse(JSON.stringify(hostingSeed)),
-  securityMonitors: JSON.parse(JSON.stringify(securitySeed)),
-  reports: JSON.parse(JSON.stringify(reportsSeed)),
   subscriptionAddons: [],
   bundles: [],
-  notifications: [
-    { id: 3, text: 'Your next plan payment is due Aug 8', unread: true, to: '/billing' },
-    { id: 1, text: 'Three deliveries are ready for review', unread: true },
-    { id: 2, text: 'Website health report generated', unread: true },
-  ],
+  notifications: [],
 };
 
 const listeners = new Set();
@@ -53,10 +52,11 @@ const derivedHours = () => {
   const hoursPct = hoursAllowance > 0 ? Math.min(1, Math.max(0, state.hoursUsed / hoursAllowance)) : 0;
   return { hoursIncluded, hoursAllowance, hoursRemaining, hoursPct };
 };
-let snapshot = { ...state, carePlan: derivedCarePlan(), ...derivedHours() };
+const buildSnapshot = () => ({ ...state, projects: state.serverProjects, carePlan: derivedCarePlan(), ...derivedHours() });
+let snapshot = buildSnapshot();
 const emit = () => {
   state = { ...state };
-  snapshot = { ...state, carePlan: derivedCarePlan(), ...derivedHours() };
+  snapshot = buildSnapshot();
   listeners.forEach((l) => l());
 };
 
@@ -102,67 +102,26 @@ export const store = {
 
   totalSlots: () => state.baseSlots + state.extraSlots,
 
-  approve(id) {
-    const reqs = state.requests;
-    const r = reqs.find((x) => x.id === id);
-    if (!r) return;
-    r.status = 'done';
-    r.approvedAt = 'Just now';
-    r.timeline = [...(r.timeline || []).map((t) => ({ ...t, now: false, done: true })), { label: 'Approved by you', at: 'Just now', done: true }];
-    // promote first queued request into the freed slot
-    const queued = reqs.filter((x) => x.status === 'queued').sort((a, b) => a.queuePos - b.queuePos);
-    if (queued[0] && !state.paused) {
-      const nxt = queued[0];
-      nxt.status = 'active';
-      nxt.progress = 0;
-      nxt.startedOrder = ++state.startSeq;
-      nxt.startedAt = 'Just now';
-      nxt.due = 'in 2–3 days';
-      nxt.timeline = [
-        { label: 'Submitted', at: nxt.submittedAt || '—', done: true },
-        { label: 'Started — slot freed by your approval', at: 'Just now', done: true },
-        { label: 'In progress', at: 'now', now: true },
-      ];
-      reqs.filter((x) => x.status === 'queued').forEach((x, i) => { x.queuePos = i + 1; });
-      state.promoted = nxt.title;
-    } else {
-      state.promoted = null;
-    }
-    emit();
+  /** Approve a delivery. The server frees the slot and promotes the next item. */
+  async approve(id) {
+    const { promoted } = await api.approveRequest(id);
+    state.promoted = promoted || null;
+    await store.loadFromApi();
+    return promoted;
   },
 
-  requestRevision(id, note) {
-    const r = state.requests.find((x) => x.id === id);
-    if (!r) return;
-    const total = state.baseSlots + state.extraSlots;
-    const activeCount = state.requests.filter((x) => x.status === 'active' && x.id !== id).length;
-    const slotFree = activeCount < total;
-    r.revisionsUsed = (r.revisionsUsed || 0) + 1;
-    r.comments = note ? [...(r.comments || []), { who: 'You', at: 'Just now', text: note }] : r.comments;
-    const revisionEntry = { label: `Revision requested${note ? ` — "${note.slice(0, 60)}"` : ''}`, at: 'Just now', done: true, kind: 'revision' };
-    if (slotFree) {
-      r.status = 'active';
-      r.progress = 80;
-      r.startedOrder = ++state.startSeq;
-      r.timeline = [...(r.timeline || []).map((t) => ({ ...t, now: false })), revisionEntry, { label: 'Revising', at: 'now', now: true }];
-    } else {
-      // All slots busy — the revision waits at the front of the queue so we
-      // never exceed the plan's active-request limit.
-      r.status = 'queued';
-      const existing = state.requests
-        .filter((x) => x.status === 'queued' && x.id !== id)
-        .sort((a, b) => a.queuePos - b.queuePos);
-      r.queuePos = 1;
-      existing.forEach((x, i) => { x.queuePos = i + 2; });
-      r.timeline = [...(r.timeline || []).map((t) => ({ ...t, now: false })), revisionEntry, { label: 'Queued for revision — starts when a slot frees', at: 'Just now', done: true }];
-    }
-    emit();
+  /** Send the delivery back with notes. */
+  async requestRevision(id, note) {
+    await api.requestRevision(id, note);
+    await store.loadFromApi();
   },
 
-  addComment(id, text) {
-    const r = state.requests.find((x) => x.id === id);
-    if (!r || !text.trim()) return;
-    r.comments = [...r.comments, { who: 'You', at: 'Just now', text: text.trim() }];
+  /** Post a comment on a request; appended locally from the server response. */
+  async addComment(id, text) {
+    if (!text.trim()) return;
+    const { comment } = await api.commentOnRequest(id, text.trim());
+    const r = state.requests.find((x) => String(x.id) === String(id));
+    if (r) r.comments = [...(r.comments || []), comment];
     emit();
   },
 
@@ -229,7 +188,7 @@ export const store = {
     emit();
   },
   resumeSubscription(planName) {
-    const nextPlan = PLANS.find((item) => item.name === planName) || PLANS.find((item) => item.name === me.plan) || PLANS[1];
+    const nextPlan = PLANS.find((item) => item.name === planName) || PLANS[1];
     state.accountMode = 'subscription';
     state.plan = nextPlan.name;
     state.baseSlots = nextPlan.slots;
@@ -315,6 +274,86 @@ export const store = {
   },
   markNotificationsRead() {
     state.notifications = state.notifications.map((item) => ({ ...item, unread: false }));
+    emit();
+  },
+
+  // ─── Server data ───────────────────────────────────────────────────────────
+
+  /** Load the signed-in client's real projects and requests. */
+  async loadFromApi() {
+    state.loading = true;
+    state.loadError = null;
+    emit();
+    try {
+      const [projectsRes, requestsRes, invoicesRes, meRes] = await Promise.all([
+        api.projects(), api.requests(), api.invoices(), api.me(),
+      ]);
+      state.serverProjects = projectsRes.projects || [];
+      state.requests = requestsRes.requests || [];
+      state.serverInvoices = invoicesRes.invoices || [];
+      state.totalPending = invoicesRes.total_pending || 0;
+      state.account = meRes.client || null;
+      // The plan drives slot capacity everywhere — take it from the account,
+      // not the seed data, or an Enterprise client is shown a Business plan.
+      const planName = meRes.client?.plan
+        ? meRes.client.plan[0].toUpperCase() + meRes.client.plan.slice(1)
+        : null;
+      const planRow = PLANS.find((item) => item.name === planName);
+      if (planRow) {
+        state.plan = planRow.name;
+        state.baseSlots = planRow.slots;
+      }
+      if (meRes.client?.billing) state.billingCadence = meRes.client.billing;
+      // Real billing dates replace the hardcoded strings.
+      if (meRes.client?.next_payment_due) state.paymentDueAt = meRes.client.next_payment_due;
+      state.paymentStatus = (invoicesRes.total_pending || 0) > 0 ? 'due' : 'paid';
+      state.dataSource = 'server';
+      state.loadError = null;
+    } catch (err) {
+      // Keep whatever is on screen rather than blanking the app; surface the
+      // message so the UI can say the data may be stale.
+      state.loadError = err.message || 'Could not load your workspace.';
+    } finally {
+      state.loading = false;
+      emit();
+    }
+  },
+
+  /** Create a request server-side, then merge it in without a full refetch. */
+  async createRequest({ projectId, title, brief, type, priority }) {
+    const { request } = await api.createRequest({
+      project_id: projectId,
+      title,
+      description: brief,
+      type,
+      priority,
+    });
+    state.requests = [request, ...state.requests];
+    state.dataSource = 'server';
+    emit();
+    return request;
+  },
+
+  /** Create a project server-side, then refresh so it appears everywhere. */
+  async createProject({ name, type, icon, description, goal, audience, successMeasure, targetDate, links, resources }) {
+    const { id } = await api.createProject({
+      name, type, icon, description, goal, audience,
+      success_measure: successMeasure,
+      target_date: targetDate || null,
+      links, resources,
+    });
+    await store.loadFromApi();
+    return id;
+  },
+
+  /** Drop server data on sign-out so the next client never sees it. */
+  resetToEmpty() {
+    state.requests = [];
+    state.serverProjects = [];
+    state.serverInvoices = [];
+    state.account = null;
+    state.dataSource = 'empty';
+    state.loadError = null;
     emit();
   },
 };

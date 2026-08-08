@@ -12,21 +12,30 @@ import RequestDetail from './v3/pages/RequestDetail';
 import Billing from './v3/pages/Billing';
 import Messages from './v3/pages/Messages';
 import Support from './v3/pages/Support';
+import TicketDetail from './v3/pages/TicketDetail';
 import Settings from './v3/pages/Settings';
-import Site from './v3/pages/Site';
-
-// Frontend-only auth gate for now — backend wiring comes later.
-const authed = () => !!localStorage.getItem('portal_demo_authed');
+import { useSession } from './v3/session';
 
 function Protected() {
-  return authed() ? <Shell><Outlet /></Shell> : <Navigate to="/login" replace />;
+  const { authed } = useSession();
+  return authed ? <Shell><Outlet /></Shell> : <Navigate to="/login" replace />;
+}
+
+function LoginRoute() {
+  const { authed } = useSession();
+  return authed ? <Navigate to="/home" replace /> : <Login />;
+}
+
+function CatchAll() {
+  const { authed } = useSession();
+  return <Navigate to={authed ? '/home' : '/login'} replace />;
 }
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={authed() ? <Navigate to="/home" replace /> : <Login />} />
+        <Route path="/login" element={<LoginRoute />} />
         <Route element={<Protected />}>
           <Route path="/home" element={<Home />} />
           <Route path="/requests" element={<Requests />} />
@@ -42,11 +51,11 @@ export default function App() {
           <Route path="/dashboard" element={<Navigate to="/home" replace />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/support/:ticketId" element={<TicketDetail />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/site" element={<Site />} />
-          {['services', 'care', 'hosting', 'domains', 'email', 'security', 'reports'].map((path) => <Route key={path} path={`/${path}`} element={<Navigate to="/site" replace />} />)}
+          {['site', 'services', 'care', 'hosting', 'domains', 'email', 'security', 'reports'].map((path) => <Route key={path} path={`/${path}`} element={<Navigate to="/home" replace />} />)}
         </Route>
-        <Route path="*" element={<Navigate to={authed() ? '/home' : '/login'} replace />} />
+        <Route path="*" element={<CatchAll />} />
       </Routes>
     </BrowserRouter>
   );

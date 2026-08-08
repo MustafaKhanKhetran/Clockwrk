@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import { Icon } from './ui';
-import { isIOS, isInAppBrowser, isSafari, isStandalone } from '../utils/platform';
+import Icon from './Icon';
+import { isIOS, isInAppBrowser, isSafari, isStandalone } from './platform';
 
 const VISITS_KEY = 'clockwrk_pwa_visits';
 const COUNTED_KEY = 'clockwrk_pwa_visit_counted';
@@ -84,20 +84,24 @@ export default function InstallPrompt() {
     setCopied(true);
   };
 
+  // Nothing to show at all — keep the layer out of the DOM entirely.
+  const showPanel = visible && !platform.standalone;
+  if (!needRefresh && !showPanel) return null;
+
   return (
-    <>
+    <div className="install-layer">
       {needRefresh && (
         <div className="pwa-update-toast anim-pop">
-          <span><Icon.spark /></span>
+          <span><Icon name="requests" size={16} /></span>
           <strong>New version available.</strong>
           <button onClick={() => updateServiceWorker(true)}>Reload</button>
         </div>
       )}
 
-      {visible && !platform.standalone && platform.inApp && (
+      {showPanel && platform.inApp && (
         <section className="install-sheet install-sheet-compact anim-rise">
-          <button className="install-close" onClick={close} aria-label="Dismiss install prompt"><Icon.x /></button>
-          <span className="install-mark"><Icon.bolt /></span>
+          <button className="install-close" onClick={close} aria-label="Dismiss install prompt"><Icon name="close" size={16} /></button>
+          <span className="install-mark"><Icon name="requests" size={18} /></span>
           <div>
             <h2>Open in Safari to install</h2>
             <p>Tap <strong>...</strong> in the corner and choose <strong>Open in Safari</strong>. Add to Home Screen is not available inside this browser.</p>
@@ -106,10 +110,10 @@ export default function InstallPrompt() {
         </section>
       )}
 
-      {visible && !platform.standalone && !platform.inApp && platform.iosSafari && (
+      {showPanel && !platform.inApp && platform.iosSafari && (
         <section className="install-sheet anim-rise">
-          <button className="install-close" onClick={close} aria-label="Dismiss install prompt"><Icon.x /></button>
-          <span className="install-mark"><Icon.bolt /></span>
+          <button className="install-close" onClick={close} aria-label="Dismiss install prompt"><Icon name="close" size={16} /></button>
+          <span className="install-mark"><Icon name="requests" size={18} /></span>
           <div>
             <h2>Add Clockwrk to your home screen</h2>
             <ol>
@@ -123,14 +127,14 @@ export default function InstallPrompt() {
         </section>
       )}
 
-      {visible && !platform.standalone && !platform.inApp && !platform.iosSafari && deferredPrompt && (
+      {showPanel && !platform.inApp && !platform.iosSafari && deferredPrompt && (
         <section className="install-bar anim-rise">
-          <span><Icon.bolt /></span>
+          <span><Icon name="requests" size={18} /></span>
           <div><strong>Install Clockwrk</strong><p>Add it to your home screen for one-tap access.</p></div>
           <button onClick={install}>Install</button>
           <button onClick={close}>Not now</button>
         </section>
       )}
-    </>
+    </div>
   );
 }

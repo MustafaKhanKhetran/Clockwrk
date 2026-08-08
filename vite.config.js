@@ -12,7 +12,10 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'prompt',
+      // autoUpdate: a new service worker claims control and the client picks up the
+      // latest build on their next navigation. With 'prompt' a client who ignored
+      // the update toast could keep running stale code against a changed API.
+      registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'favicon.svg'],
       manifest: {
         name: 'Clockwrk Client Portal',
