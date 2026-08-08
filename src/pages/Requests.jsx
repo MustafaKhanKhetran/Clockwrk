@@ -86,8 +86,8 @@ export default function Requests() {
     const reqType = field(request, 'type') || 'design';
     const haystack = [
       field(request, 'title'),
-      field(request, 'client', 'client_name'),
-      field(request, 'project', 'project_name'),
+      field(request, 'client_name'),
+      field(request, 'project_name'),
       field(request, 'assigned_to'),
     ].join(' ').toLowerCase();
     if (view === 'my_tasks' && field(request, 'assigned_to') !== user?.name && field(request, 'assigned_to') !== user?.email) return false;
@@ -238,7 +238,7 @@ export default function Requests() {
     { key: 'title', label: 'Request', render: r => (
       <div>
         <div className="client-cell-name">{field(r, 'title') || 'Untitled request'}</div>
-        <div className="client-cell-sub">{field(r, 'request_kind') === 'child' ? `Part ${field(r, 'part_number')} · ${field(r, 'parent_title')}` : field(r, 'request_kind') === 'parent' ? `Scope group · ${field(r, 'proposed_part_count', 'child_count') || 0} parts` : `${field(r, 'client', 'client_name') || 'No client'} · ${field(r, 'project', 'project_name') || 'No project'}`}</div>
+        <div className="client-cell-sub">{field(r, 'request_kind') === 'child' ? `Part ${field(r, 'part_number')} · ${field(r, 'parent_title')}` : field(r, 'request_kind') === 'parent' ? `Scope group · ${field(r, 'proposed_part_count', 'child_count') || 0} parts` : `${field(r, 'client_name') || 'No client'} · ${field(r, 'project_name') || 'No project'}`}</div>
       </div>
     ) },
     { key: 'type', label: 'Type', render: r => <StatusBadge value={field(r, 'type') || 'design'} tone="blue" /> },
@@ -320,7 +320,7 @@ export default function Requests() {
       <DetailDrawer
         open={selected}
         title={field(selected, 'title') || 'Request'}
-        subtitle={`${field(selected, 'client', 'client_name') || 'No client'} · ${field(selected, 'project', 'project_name') || 'No project'}`}
+        subtitle={`${field(selected, 'client_name') || 'No client'} · ${field(selected, 'project_name') || 'No project'}`}
         onClose={() => setSelected(null)}
         actions={canManage && (
           <>
