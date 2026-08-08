@@ -1,6 +1,10 @@
 import { Router } from 'express';
+import crypto from 'crypto';
 import db from '../db.js';
 import { authenticate, requireRoles } from '../middleware/auth.js';
+
+const RESET_TOKEN_TTL_MIN = 60;
+const hashToken = (raw) => crypto.createHash('sha256').update(raw).digest('hex');
 
 const router = Router();
 
@@ -92,6 +96,34 @@ router.patch('/:id', authenticate, requireRoles(CLIENT_ACCESS), async (req, res)
     await db.execute(`UPDATE clients SET ${fields.join(', ')} WHERE id = ?`, params);
     const [[client]] = await db.execute('SELECT * FROM clients WHERE id = ?', [id]);
     return res.json({ success: true, client });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Generate a portal reset URL the owner shares with a client (first login OR
+// forgot-password). Returns the raw token/URL exactly once — only the hash is
+// stored — so the owner must copy it now.
+router.post('/:id/reset-token', authenticate, requireRoles(CLIENT_ACCESS), async (req, res) => {
+  try {
+    const [[client]] = await db.execute('SELECT id, name, email FROM clients WHERE id = ?', [req.params.id]);
+    if (!client) return res.status(404).json({ success: false, message: 'Client not found' });
+    const rawToken = crypto.randomBytes(24).toString('base64url');
+    await db.execute(
+      'UPDATE clients SET password_reset_token_hash = ?, password_reset_expires_at = DATE_ADD(NOW(), INTERVAL ? MINUTE) WHERE id = ?',
+      [hashToken(rawToken), RESET_TOKEN_TTL_MIN, client.id]
+    );
+    const base = String(req.body?.portal_base_url || '').replace(/\/+$/, '') || null;
+    const path = `/reset-password?token=${rawToken}`;
+    return res.json({
+      success: true,
+      client: { id: client.id, name: client.name, email: client.email },
+      token: rawToken,
+      path,
+      url: base ? `${base}${path}` : path,
+      expires_in_minutes: RESET_TOKEN_TTL_MIN,
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: 'Server error' });

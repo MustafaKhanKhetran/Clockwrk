@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import https from 'https';
+import crypto from 'crypto';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { NodeHttpHandler } from '@smithy/node-http-handler';
 import db from '../db.js';
@@ -176,6 +177,72 @@ router.post('/change-password', credentialLimiter, clientAuth, async (req, res) 
     const hash = await bcrypt.hash(new_password, 12);
     await db.execute('UPDATE clients SET password_hash = ? WHERE id = ?', [hash, req.client.id]);
     return res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ─── Password reset (also used for first-login: a new client with no
+//     password_hash goes through the same flow) ──────────────────────────────
+const RESET_TOKEN_TTL_MIN = 60;
+const hashToken = (raw) => crypto.createHash('sha256').update(raw).digest('hex');
+
+// The response is the same whether or not the email exists — never leak which
+// addresses are registered. The owner sees the reset link via a dashboard alert
+// (and the /api/clients/:id/reset-token endpoint) rather than by email.
+router.post('/forgot-password', credentialLimiter, async (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const respond = () => res.json({ success: true, message: 'If that email is registered, a reset link has been prepared.' });
+  if (!email) return respond();
+  try {
+    const [[client]] = await db.execute('SELECT id, name FROM clients WHERE LOWER(email) = ?', [email]);
+    if (!client) return respond();
+    const rawToken = crypto.randomBytes(24).toString('base64url');
+    await db.execute(
+      'UPDATE clients SET password_reset_token_hash = ?, password_reset_expires_at = DATE_ADD(NOW(), INTERVAL ? MINUTE) WHERE id = ?',
+      [hashToken(rawToken), RESET_TOKEN_TTL_MIN, client.id]
+    );
+    try {
+      await db.execute(
+        "INSERT INTO dashboard_alerts (type, title, message, link) VALUES ('system', 'Client requested a password reset', ?, '/clients')",
+        [`${client.name}: share link /reset-password?token=${rawToken} (expires in ${RESET_TOKEN_TTL_MIN}min)`]
+      );
+    } catch (alertErr) { console.error('reset alert failed:', alertErr.message); }
+    return respond();
+  } catch (err) {
+    console.error(err);
+    return respond();  // still don't leak
+  }
+});
+
+router.post('/reset-password', credentialLimiter, async (req, res) => {
+  const { token, new_password } = req.body || {};
+  if (!token || !new_password) return res.status(400).json({ success: false, message: 'Token and new password required' });
+  if (String(new_password).length < 8) return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
+  try {
+    const [[client]] = await db.execute(
+      `SELECT id, name, email, phone, company, plan, billing, status
+         FROM clients
+        WHERE password_reset_token_hash = ?
+          AND password_reset_expires_at IS NOT NULL
+          AND password_reset_expires_at > NOW()`,
+      [hashToken(token)]
+    );
+    if (!client) return res.status(400).json({ success: false, message: 'This reset link is invalid or has expired. Ask Clockwrk for a fresh one.' });
+    if (client.status !== 'active') return res.status(403).json({ success: false, message: 'This account is not active.' });
+    const hash = await bcrypt.hash(new_password, 12);
+    await db.execute(
+      'UPDATE clients SET password_hash = ?, password_reset_token_hash = NULL, password_reset_expires_at = NULL WHERE id = ?',
+      [hash, client.id]
+    );
+    // Sign them straight in — no need to re-enter what they just set.
+    const authToken = jwt.sign(
+      { type: 'client', id: client.id, email: client.email, name: client.name, company: client.company, plan: client.plan },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    return res.json({ success: true, token: authToken, client });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: 'Server error' });
