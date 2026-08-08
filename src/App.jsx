@@ -19,6 +19,9 @@ import Calendar   from './pages/Calendar';
 import MyWork     from './pages/MyWork';
 import Files      from './pages/Files';
 import Alerts     from './pages/Alerts';
+import Jobs       from './pages/Jobs';
+import Referrals  from './pages/Referrals';
+import Settings   from './pages/Settings';
 import ComingSoon from './pages/ComingSoon';
 
 const P = ({ roles, children }) => <ProtectedRoute allowedRoles={roles}>{children}</ProtectedRoute>;
@@ -53,16 +56,16 @@ export default function App() {
             <Route path="/coming-soon" element={<P roles={PAGE_ACCESS.overview}>  <ComingSoon /> </P>} />
             <Route path="/newsletter" element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
             <Route path="/pipeline"   element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
-            <Route path="/referrals"  element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
+            <Route path="/referrals"  element={<P roles={PAGE_ACCESS.referrals}>  <Referrals />  </P>} />
             <Route path="/workload"   element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
-            <Route path="/jobs"       element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
+            <Route path="/jobs"       element={<P roles={PAGE_ACCESS.jobs}>       <Jobs />       </P>} />
             <Route path="/reports"    element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
             <Route path="/health"     element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
             <Route path="/workflows"  element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
             <Route path="/audit"      element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
             <Route path="/database"   element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
             <Route path="/knowledge"  element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
-            <Route path="/settings"   element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />
+            <Route path="/settings"   element={<P roles={PAGE_ACCESS.settings}>   <Settings />   </P>} />
             <Route path="*"           element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>

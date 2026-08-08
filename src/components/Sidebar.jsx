@@ -14,14 +14,17 @@ const NAV = [
     { path: '/bookings', label: 'Bookings', icon: 'calendar', roles: ['booking_access'] },
     { path: '/calendar', label: 'Calendar', icon: 'cal', roles: ['delivery', 'managers'] },
     { path: '/finance', label: 'Finance', icon: 'dollar', roles: ['finance_access'] },
+    { path: '/referrals', label: 'Referrals', icon: 'share', roles: ['owner', 'finance', 'sales'] },
   ] },
   { group: 'People', items: [
     { path: '/team', label: 'Team', icon: 'team', roles: ['people_access'] },
+    { path: '/jobs', label: 'HR & Careers', icon: 'hr', roles: ['hr_access'] },
     { path: '/my-work', label: 'My Work', icon: 'briefcase', roles: ['workers'] },
     { path: '/time', label: 'Time', icon: 'clock', roles: ['request_access'] },
   ] },
   { group: 'Ops', items: [
     { path: '/alerts', label: 'Alerts', icon: 'bell', roles: ['system_access'] },
+    { path: '/settings', label: 'Settings', icon: 'settings', roles: ['owner'] },
     { path: '/coming-soon', label: 'Coming Soon', icon: 'zap', roles: [] },
   ] },
 ];

@@ -3,7 +3,7 @@ import DashLayout from '../components/DashLayout';
 import { useAuth } from '../context/AuthContext';
 import { apiPost } from '../utils/dashboardApi';
 
-const API = '/api/query';
+const API = '/api/db/query';
 
 export default function Settings() {
   const { user } = useAuth();
@@ -25,7 +25,7 @@ export default function Settings() {
     { label: 'All requests',         sql: 'SELECT * FROM requests ORDER BY created_at DESC;' },
     { label: 'All projects',         sql: 'SELECT * FROM projects;' },
     { label: 'All job listings',     sql: 'SELECT * FROM job_listings;' },
-    { label: 'All applications',     sql: 'SELECT * FROM applications ORDER BY created_at DESC;' },
+    { label: 'All job applications', sql: 'SELECT * FROM job_applications ORDER BY created_at DESC;' },
     { label: 'Show all tables',      sql: 'SELECT table_name, table_rows FROM information_schema.tables WHERE table_schema = \'agency_db\' ORDER BY table_name;' },
   ];
 
@@ -38,10 +38,11 @@ export default function Settings() {
     try {
       const data = await apiPost(API, { query: query.trim() });
       if (data.success) {
-        setResults(data.results || []);
-        setRowCount(data.results?.length ?? 0);
+        const rows = data.data || data.results || [];
+        setResults(rows);
+        setRowCount(rows.length);
       } else {
-        setError(data.error || 'Query failed');
+        setError(data.message || data.error || 'Query failed');
       }
     } catch (err) {
       setError(err.message);
