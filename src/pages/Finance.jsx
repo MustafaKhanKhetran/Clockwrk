@@ -40,6 +40,11 @@ export default function Finance() {
   const [approveForm, setApproveForm] = useState({ exchange_rate: '', fee_usd: '30', screenshot_url: '', rejection_reason: '' });
   const [processingReleaseId, setProcessingReleaseId] = useState(null);
   const [exchangeRate, setExchangeRate] = useState(PKR_RATE);
+  // Subscription / billing changes reported from the client portal
+  const [changes, setChanges] = useState([]);
+  const [verifyingChange, setVerifyingChange] = useState(null);
+  const [verifyForm, setVerifyForm] = useState({ amount_received: '', reason: '' });
+  const [processingChangeId, setProcessingChangeId] = useState(null);
 
   const fetchData = () => {
     setLoading(true);
@@ -54,7 +59,13 @@ export default function Finance() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchData(); }, []);
+  const fetchChanges = () => {
+    apiGet(`${API}/subscription-changes`)
+      .then(d => { if (d.success) setChanges(d.changes || []); })
+      .catch(() => {});
+  };
+
+  useEffect(() => { fetchData(); fetchChanges(); }, []);
 
   useEffect(() => {
     apiGet(RATE_URL)
@@ -206,6 +217,69 @@ export default function Finance() {
     }
   };
 
+  const openVerifyChange = (change) => {
+    setVerifyForm({ amount_received: String(change.amount_due ?? ''), reason: '' });
+    setVerifyingChange(change);
+  };
+
+  const handleVerifyChange = async () => {
+    if (!verifyingChange) return;
+    setProcessingChangeId(verifyingChange.id);
+    try {
+      const result = await apiPost(`${API}/subscription-changes/${verifyingChange.id}/verify`, {
+        amount_received: Number(verifyForm.amount_received),
+      });
+      if (result.applied === false) {
+        toast.error(`Short by ${fmtUSD(result.shortfall)} — recorded as part-paid, not activated`);
+      } else {
+        toast.success('Payment verified — change activated');
+      }
+      setVerifyingChange(null);
+      fetchChanges();
+      fetchData();
+    } catch (err) {
+      toast.error(err.message || 'Could not verify this change');
+    } finally {
+      setProcessingChangeId(null);
+    }
+  };
+
+  const handleRejectChange = async () => {
+    if (!verifyingChange) return;
+    setProcessingChangeId(verifyingChange.id);
+    try {
+      await apiPost(`${API}/subscription-changes/${verifyingChange.id}/reject`, {
+        reason: verifyForm.reason || null,
+      });
+      toast.success('Change rejected');
+      setVerifyingChange(null);
+      fetchChanges();
+    } catch (err) {
+      toast.error(err.message || 'Could not reject this change');
+    } finally {
+      setProcessingChangeId(null);
+    }
+  };
+
+  const cap = (s) => s ? String(s).charAt(0).toUpperCase() + String(s).slice(1) : '';
+  const describeChange = (c) => {
+    if (c.kind === 'cadence') return `Switch to ${c.to_value} billing`;
+    if (c.kind === 'addon') {
+      const qty = Number(c.quantity) > 1 ? `${c.quantity}× ` : '';
+      return `${c.direction === 'remove' ? 'Remove' : 'Add'} ${qty}${String(c.to_value || '').replace(/_/g, ' ')}`;
+    }
+    const verb = c.direction === 'downgrade' ? 'Downgrade to' : 'Upgrade to';
+    const cadence = c.target_cadence ? ` · ${c.target_cadence}` : '';
+    return `${verb} ${cap(c.to_value)}${cadence}`;
+  };
+  const CHANGE_BADGE = {
+    awaiting_payment: { cls: 'badge-yellow', label: 'Awaiting payment' },
+    payment_reported: { cls: 'badge-accent', label: 'Transfer reported' },
+    partially_paid: { cls: 'badge-yellow', label: 'Part paid' },
+    scheduled: { cls: 'badge-muted', label: 'Scheduled' },
+  };
+  const CHANGE_MODE = { prorate_now: 'Pay difference now', at_renewal: 'At renewal', fresh_cycle: 'Fresh cycle' };
+
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
   const fmtPKR = (n) => 'PKR ' + Number(n || 0).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const fmtPKRConverted = (n) => '₨' + Number(n || 0).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -260,7 +334,9 @@ export default function Finance() {
     released_pkr: releasedPkr,
   };
   const monthlyRevenue = data?.revenue_chart || [];
-  const tabs = ['payments', 'expenses', 'salaries', 'pl', 'elevate'];
+  // Rows that need the owner to act (a transfer has been claimed).
+  const pendingChangesCount = changes.filter(c => ['payment_reported', 'partially_paid'].includes(c.status)).length;
+  const tabs = ['payments', 'changes', 'expenses', 'salaries', 'pl', 'elevate'];
 
   return (
     <DashLayout>
@@ -341,9 +417,12 @@ export default function Finance() {
               className={`referrals-tab ${activeTab === tab ? 'active' : ''}`}
               onClick={() => { setActiveTab(tab); setSearch(''); }}
             >
-              {tab === 'pl' ? 'P&L' : tab === 'elevate' ? 'ElevatePay' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === 'pl' ? 'P&L' : tab === 'elevate' ? 'ElevatePay' : tab === 'changes' ? 'Billing Changes' : tab.charAt(0).toUpperCase() + tab.slice(1)}
               {tab === 'payments' && summary.pending_count > 0 && (
                 <span className="tab-badge">{summary.pending_count}</span>
+              )}
+              {tab === 'changes' && pendingChangesCount > 0 && (
+                <span className="tab-badge">{pendingChangesCount}</span>
               )}
               {tab === 'elevate' && summary.pending_releases > 0 && (
                 <span className="tab-badge">{summary.pending_releases}</span>
@@ -507,7 +586,7 @@ export default function Finance() {
             </table>
           )}
         </div>
-      ) : (
+      ) : activeTab === 'pl' ? (
         <div className="card">
           {monthlyRevenue.length === 0 ? (
             <div className="empty-state"><p>No revenue data yet</p></div>
@@ -535,6 +614,63 @@ export default function Finance() {
                       <td>{fmtPKR(monthExpenses)}</td>
                       <td className={`table-strong ${profit >= 0 ? 'text-success' : 'text-danger'}`}>
                         {fmtPKR(profit)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      ) : null}
+
+      {activeTab === 'changes' && (
+        <div className="card">
+          {changes.length === 0 ? (
+            <div className="empty-state"><p>No billing changes yet</p></div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Change</th>
+                  <th>How</th>
+                  <th>Amount Due</th>
+                  <th>Reference</th>
+                  <th>Requested</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {changes.map(c => {
+                  const badge = CHANGE_BADGE[c.status] || { cls: 'badge-muted', label: c.status };
+                  const actionable = ['payment_reported', 'partially_paid', 'awaiting_payment'].includes(c.status) && Number(c.amount_due) > 0;
+                  return (
+                    <tr key={c.id}>
+                      <td>
+                        <div className="client-cell-name">{c.client_name || c.company || c.client_email}</div>
+                        <div className="client-cell-sub">{c.company || c.client_email}</div>
+                      </td>
+                      <td className="table-strong">{describeChange(c)}</td>
+                      <td>{CHANGE_MODE[c.mode] || c.mode}</td>
+                      <td className="table-strong">
+                        {Number(c.amount_due) > 0 ? fmtUSD(c.amount_due) : <span className="muted-dash">$0</span>}
+                        {Number(c.amount_received) > 0 && Number(c.amount_received) < Number(c.amount_due) && (
+                          <div className="stat-sub" style={{ fontSize: '11px', opacity: 0.6 }}>{fmtUSD(c.amount_received)} received</div>
+                        )}
+                      </td>
+                      <td className="code-cell">{c.payment_ref || '-'}</td>
+                      <td>{fmtDate(c.requested_at)}</td>
+                      <td><span className={`badge ${badge.cls}`}>{badge.label}</span></td>
+                      <td>
+                        {actionable ? (
+                          <button className="btn btn-sm btn-primary" disabled={processingChangeId === c.id} onClick={() => openVerifyChange(c)}>
+                            {c.status === 'partially_paid' ? 'Review' : 'Verify Payment'}
+                          </button>
+                        ) : c.status === 'scheduled' ? (
+                          <span className="paid-meta">Auto-applies {fmtDate(c.effective_date)}</span>
+                        ) : null}
                       </td>
                     </tr>
                   );
@@ -723,6 +859,53 @@ export default function Finance() {
                 <button className="btn btn-ghost" onClick={() => setApprovingRelease(null)}>Cancel</button>
                 <button className="btn btn-primary" disabled={!!processingReleaseId} onClick={() => handleProcessRelease('approved')}>
                   {processingReleaseId ? 'Processing...' : 'Approve & Release'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Owner: Verify / Reject a client billing change */}
+      {verifyingChange && (
+        <div className="modal-overlay" onClick={() => setVerifyingChange(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Verify billing change</h3>
+              <button className="drawer-close" onClick={() => setVerifyingChange(null)}>×</button>
+            </div>
+            <div className="modal-form">
+              <div style={{ padding: '10px 12px', background: 'var(--bg-tertiary)', borderRadius: '8px', fontSize: '13px', marginBottom: '12px' }}>
+                <strong>{verifyingChange.client_name || verifyingChange.company}</strong> — {describeChange(verifyingChange)}
+                <div style={{ marginTop: '4px', opacity: 0.7 }}>
+                  {CHANGE_MODE[verifyingChange.mode] || verifyingChange.mode} · due {fmtUSD(verifyingChange.amount_due)} · ref <strong>{verifyingChange.payment_ref}</strong>
+                </div>
+                {Number(verifyingChange.credit_applied) > 0 && (
+                  <div style={{ marginTop: '2px', opacity: 0.7 }}>Includes {fmtUSD(verifyingChange.credit_applied)} credit for unused time.</div>
+                )}
+              </div>
+              <div className="form-field">
+                <label>Amount received (USD)</label>
+                <input className="dash-input" type="number" step="0.01" min="0"
+                  value={verifyForm.amount_received}
+                  onChange={e => setVerifyForm(f => ({ ...f, amount_received: e.target.value }))} />
+                <div className="stat-sub" style={{ fontSize: '11px', opacity: 0.6, marginTop: '4px' }}>
+                  Less than the amount due records a part-payment and does not activate the change.
+                </div>
+              </div>
+              <div className="form-field">
+                <label>Rejection reason <span style={{ opacity: 0.5, fontSize: '11px' }}>(only if rejecting)</span></label>
+                <input className="dash-input" placeholder="Leave blank if verifying"
+                  value={verifyForm.reason}
+                  onChange={e => setVerifyForm(f => ({ ...f, reason: e.target.value }))} />
+              </div>
+              <div className="modal-actions">
+                <button className="btn btn-danger" disabled={!!processingChangeId} onClick={handleRejectChange}>
+                  {processingChangeId ? '...' : 'Reject'}
+                </button>
+                <button className="btn btn-ghost" onClick={() => setVerifyingChange(null)}>Cancel</button>
+                <button className="btn btn-primary" disabled={!!processingChangeId} onClick={handleVerifyChange}>
+                  {processingChangeId ? 'Processing...' : 'Verify & Activate'}
                 </button>
               </div>
             </div>
