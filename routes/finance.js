@@ -3,6 +3,27 @@ import db from '../db.js';
 import { authenticate, requireRoles } from '../middleware/auth.js';
 import { applyChange, sweepChanges } from '../services/billingChanges.js';
 
+// Post an in-portal invoice/receipt message the moment a payment is verified.
+// Non-fatal: a failed insert must never roll back the confirmation itself.
+async function postInvoiceMessage({ clientId, paymentId, amount, paymentRef, plan, billing }) {
+  if (!clientId || !paymentId) return;
+  try {
+    const invoiceId = `INV-${String(paymentId).padStart(4, '0')}`;
+    const planLine = [plan, billing].filter(Boolean).join(' · ');
+    const paidOn = new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+    const refLine = paymentRef ? ` · reference ${paymentRef}` : '';
+    const body = `Payment confirmed — thank you.\n\n`
+      + `${invoiceId} · $${Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} on ${paidOn}${planLine ? ` · ${planLine}` : ''}${refLine}\n\n`
+      + `Your full billing history is in the Billing page.`;
+    await db.execute(
+      "INSERT INTO client_messages (client_id, sender, content) VALUES (?, 'team', ?)",
+      [clientId, body]
+    );
+  } catch (err) {
+    console.error('invoice message failed:', err.message);
+  }
+}
+
 const router = Router();
 const FINANCE_ACCESS = ['owner', 'admin', 'finance'];
 
@@ -57,22 +78,31 @@ router.post('/payments/:id/confirm', authenticate, requireRoles(FINANCE_ACCESS),
       [fee, received_usd, exchange_rate || 275.62, received_pkr, id]
     );
     // Create client if not exists
+    let clientId = null;
     const [[existing]] = await db.execute('SELECT id FROM clients WHERE email = ?', [payment.email]);
-    if (!existing) {
+    if (existing) {
+      clientId = existing.id;
+    } else {
       const [clientResult] = await db.execute(
         `INSERT INTO clients (name, email, company, plan, billing, whitelabel, status, payment_ref, referral_code, subscribed_at)
          VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, NOW())`,
         [payment.name, payment.email, payment.company, payment.plan, payment.billing, payment.whitelabel, payment.payment_ref, payment.referral_code || '']
       );
+      clientId = clientResult.insertId;
       await db.execute(
         `INSERT INTO projects (client_id, name, status) VALUES (?, ?, 'active')`,
-        [clientResult.insertId, `${payment.company || payment.name} Project`]
+        [clientId, `${payment.company || payment.name} Project`]
       );
     }
     await db.execute(
       `INSERT INTO dashboard_alerts (type, title, message, link) VALUES ('payment', 'Payment confirmed', ?, '/finance')`,
       [`${payment.name} — $${payment.amount} confirmed`]
     );
+    // Send the client an in-portal invoice/receipt message.
+    await postInvoiceMessage({
+      clientId, paymentId: payment.id, amount: payment.amount,
+      paymentRef: payment.payment_ref, plan: payment.plan, billing: payment.billing,
+    });
     return res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -274,15 +304,26 @@ router.post('/subscription-changes/:id/verify', authenticate, requireRoles(FINAN
       [received, change.id]
     );
 
-    // Record the money against the client so it shows in their invoice history.
+    // Record the money against the client so it shows in their invoice history,
+    // then post an in-portal receipt/invoice message.
+    let payment = null;
     try {
-      await db.execute(
+      const [ins] = await db.execute(
         `INSERT INTO payments (name, email, company, plan, billing, amount, status, payment_ref, submitted_at, confirmed_at)
          SELECT c.name, c.email, c.company, c.plan, c.billing, ?, 'confirmed', ?, NOW(), NOW()
            FROM clients c WHERE c.id = ?`,
         [received, change.payment_ref, change.client_id]
       );
+      const [[row]] = await db.execute('SELECT id, plan, billing, payment_ref FROM payments WHERE id = ?', [ins.insertId]);
+      payment = row;
     } catch (payErr) { console.error('payment record failed:', payErr.message); }
+
+    if (payment) {
+      await postInvoiceMessage({
+        clientId: change.client_id, paymentId: payment.id, amount: received,
+        paymentRef: payment.payment_ref, plan: payment.plan, billing: payment.billing,
+      });
+    }
 
     return res.json({ success: true, applied: true });
   } catch (err) {
