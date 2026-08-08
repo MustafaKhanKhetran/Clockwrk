@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Secrets — never commit real credentials (.env.example is the template)
+.env
+.env.local
+.env.*.local
+
+# Logs / OS junk
+*.log
+.DS_Store
