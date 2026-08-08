@@ -1850,6 +1850,58 @@ body:has(.v3-dialog-layer) :is(.v3-nav, .v3-live-rail, .v3-mobile-nav) {
 }
 .v3-login-mode-toggle:hover { color: var(--ink); }
 
+/* Composer attachment tray (Messages + NewRequest brief step) */
+.v3-composer-attach-tray {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 8px 12px; border-top: 1px solid var(--line); background: var(--paper);
+}
+.v3-composer-attach-tray > span {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 6px 4px 10px;
+  background: var(--sheet); border: 1px solid var(--line); border-radius: 999px;
+  font-size: 12px; color: var(--ink);
+}
+.v3-composer-attach-tray > span > button {
+  width: 18px; height: 18px; display: grid; place-items: center;
+  background: transparent; color: var(--muted); border-radius: 50%;
+}
+.v3-composer-attach-tray > span > button:hover { color: var(--ink); background: var(--paper); }
+
+/* Attachments listed inside a chat bubble */
+.v3-msg-attachments {
+  list-style: none; display: grid; gap: 4px; margin-top: 6px; padding: 0;
+}
+.v3-msg-attachments li > a {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 8px; background: rgba(160, 233, 42, .08);
+  border: 1px solid var(--line); border-radius: 8px;
+  color: var(--ink); font-size: 12px; text-decoration: none;
+}
+.v3-msg-attachments li > a:hover { border-color: var(--lime); }
+
+/* New-request attach box */
+.v3-brief-attach { margin-top: 12px; }
+.v3-brief-attach > button {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border: 1px dashed var(--line-dark); border-radius: 10px;
+  background: var(--sheet); color: var(--muted); font-size: 13px; font-weight: 650;
+}
+.v3-brief-attach > button:hover:not(:disabled) { color: var(--ink); border-color: var(--ink); }
+.v3-brief-attach > ul {
+  list-style: none; display: grid; gap: 6px; margin-top: 10px; padding: 0;
+}
+.v3-brief-attach > ul li {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; font-size: 13px;
+}
+.v3-brief-attach > ul li > a { color: var(--ink); font-weight: 650; text-decoration: none; }
+.v3-brief-attach > ul li > a:hover { text-decoration: underline; }
+.v3-brief-attach > ul li > button {
+  margin-left: auto; width: 22px; height: 22px; display: grid; place-items: center;
+  background: transparent; color: var(--muted); border-radius: 50%;
+}
+.v3-brief-attach > ul li > button:hover { color: var(--ink); background: var(--paper); }
+
 /* Submit failure inside the request composer footer. */
 .v3-composer-error { color: var(--coral); font-weight: 700; }
 
@@ -2931,4 +2983,184 @@ body:has(.v3-dialog-layer) :is(.v3-nav, .v3-live-rail, .v3-mobile-nav) {
   .v3-ticket-open { min-height: 216px; padding: 18px; }
   .v3-queue-actions button { width: 40px; height: 40px; }
   .clockwrk-tour.driver-popover { max-width: calc(100vw - 28px); }
+}
+
+/* Help, settings and empty-workspace finish pass. */
+.v3-meter > span,
+.v3-meter > span > i { border-radius: 999px; }
+.v3-now-dial circle.is-progress { stroke-linecap: round; }
+
+.v3-support-page .v3-page-intro { padding-top: 8px; }
+.v3-help-route {
+  gap: 12px;
+  padding: 32px 0 44px;
+  border-bottom: 1px solid var(--line-dark);
+  background: transparent;
+}
+.v3-help-route > button {
+  min-height: 154px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--sheet);
+  transition: border-color .28s ease, background-color .28s ease, transform .42s var(--ease), box-shadow .42s var(--ease);
+}
+.v3-help-route > button:nth-child(2) { background: var(--sheet); }
+.v3-help-route > button:hover {
+  border-color: var(--line-dark);
+  background: var(--lime-pale);
+  box-shadow: 0 16px 34px var(--line);
+  transform: translateY(-5px);
+}
+.v3-help-route > button > svg:first-child {
+  width: 42px;
+  height: 42px;
+  padding: 11px;
+  border-radius: 14px;
+  background: var(--paper);
+}
+.v3-help-route strong { font-size: 16px; }
+.v3-help-route small { margin-top: 6px; font-size: 12px; line-height: 1.45; }
+
+.v3-ticket-table { min-height: 0; padding: 44px 0; }
+.v3-ticket-table > header { margin-bottom: 20px; }
+.v3-ticket-table > .v3-chat-note {
+  min-height: 116px;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  border: 1px dashed var(--line-dark);
+  border-radius: 20px;
+  background: var(--sheet);
+  text-align: center;
+}
+
+.v3-answers { padding: 64px 0 80px; }
+.v3-answers > header { align-items: end; gap: 30px; }
+.v3-answers > header h2 { max-width: 660px; font-size: clamp(34px, 4vw, 56px); line-height: .96; text-wrap: balance; }
+.v3-faq-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.v3-faq-list article { overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: var(--sheet); transition: border-color .3s ease, background-color .3s ease, transform .35s var(--ease); }
+.v3-faq-list article:hover { border-color: var(--line-dark); transform: translateY(-2px); }
+.v3-faq-list article.is-open { border-color: var(--lime); background: var(--lime-pale); }
+.v3-faq-list article > button { width: 100%; min-height: 82px; display: grid; grid-template-columns: 30px minmax(0, 1fr) 34px; align-items: center; gap: 12px; padding: 16px 18px; background: transparent; text-align: left; }
+.v3-faq-list article > button > span { color: var(--muted); font: 700 10px/1 "SFMono-Regular", Consolas, monospace; }
+.v3-faq-list article > button > strong { font-size: 15px; line-height: 1.3; }
+.v3-faq-list article > button > i { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: var(--paper); transition: background-color .3s ease, color .3s ease, transform .5s var(--ease); }
+.v3-faq-list article.is-open > button > i { background: var(--ink); color: var(--paper); transform: rotate(45deg); }
+.v3-faq-list article > div { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .5s var(--ease), opacity .35s ease; }
+.v3-faq-list article > div > p { min-height: 0; overflow: hidden; padding: 0 62px 0 60px; color: var(--muted); font-size: 13px; line-height: 1.6; transition: padding .5s var(--ease); }
+.v3-faq-list article.is-open > div { grid-template-rows: 1fr; opacity: 1; }
+.v3-faq-list article.is-open > div > p { padding-bottom: 22px; }
+
+.v3-dialog-layer { padding: 24px; background: #090a0878; backdrop-filter: blur(5px) saturate(.88); }
+.v3-dialog-layer > section, .v3-dialog-layer > form { border-color: var(--line); border-radius: 26px; box-shadow: 0 20px 54px #090a08; }
+.v3-dialog-layer > section > header, .v3-dialog-layer > form > header { min-height: 68px; padding: 14px 24px; }
+.v3-dialog-layer > section > header button, .v3-dialog-layer > form > header button { width: 38px; height: 38px; }
+.v3-dialog-body { padding: clamp(24px, 4vw, 38px); }
+.v3-dialog-kicker { display: block; margin-bottom: 8px; color: var(--muted); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.v3-dialog-copy { max-width: 460px; margin: 10px 0 28px; color: var(--muted); font-size: 13px; }
+.v3-ticket-dialog { width: min(640px, 100%) !important; padding: 0; }
+.v3-ticket-dialog .v3-dialog-body > h2 { margin: 0; font: 700 clamp(30px, 4vw, 42px)/1 "Basis Grotesque Arabic Pro", Arial, sans-serif; text-wrap: balance; }
+.v3-ticket-dialog .v3-dialog-body > label { display: grid; gap: 8px; margin: 18px 0 0; }
+.v3-ticket-dialog .v3-dialog-body label > span { color: var(--muted); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.v3-ticket-dialog .v3-dialog-body input,
+.v3-ticket-dialog .v3-dialog-body textarea { width: 100%; min-height: 52px; padding: 14px 16px; border: 1px solid var(--line-dark); border-radius: 16px; background: var(--paper); outline: 0; transition: border-color .25s ease, box-shadow .25s ease; }
+.v3-ticket-dialog .v3-dialog-body textarea { min-height: 150px; resize: vertical; }
+.v3-ticket-dialog .v3-dialog-body :is(input, textarea):focus { border-color: var(--lime); box-shadow: 0 0 0 4px var(--lime-pale); }
+.v3-ticket-dialog .v3-dialog-body > .v3-action { margin: 24px 0 0; }
+
+.v3-custom-select { position: relative; }
+.v3-custom-select > button { width: 100%; min-height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border: 1px solid var(--line-dark); border-radius: 16px; background: var(--paper); text-align: left; }
+.v3-custom-select > button svg { transition: transform .35s var(--ease); }
+.v3-custom-select.is-open > button { border-color: var(--lime); box-shadow: 0 0 0 4px var(--lime-pale); }
+.v3-custom-select.is-open > button svg { transform: rotate(180deg); }
+.v3-custom-select > div { position: absolute; z-index: 8; top: calc(100% + 8px); right: 0; left: 0; display: grid; gap: 3px; padding: 7px; border: 1px solid var(--line-dark); border-radius: 18px; background: var(--sheet); box-shadow: var(--shadow); animation: pop .3s var(--ease); }
+.v3-custom-select > div > button { min-height: 42px; display: flex; align-items: center; justify-content: space-between; padding: 8px 11px; border-radius: 12px; background: transparent; text-align: left; font-size: 13px; }
+.v3-custom-select > div > button:hover, .v3-custom-select > div > button.is-active { background: var(--lime-pale); }
+
+.v3-call-dialog { width: min(620px, 100%) !important; padding-bottom: 0; }
+.v3-call-dialog > .v3-dialog-body { margin: 0; }
+.v3-call-dialog .v3-dialog-body > h2 { margin: 0; font-size: clamp(30px, 4vw, 42px); line-height: 1; }
+.v3-call-dialog .v3-dialog-body > p { margin: 12px 0 0; }
+.v3-call-dialog .v3-dialog-body > .v3-day-strip { margin: 26px 0 16px; padding-bottom: 7px; }
+.v3-call-dialog .v3-dialog-body > .v3-time-grid { margin-bottom: 22px; }
+.v3-call-dialog .v3-dialog-body > .v3-action { margin: 22px 0 0; }
+
+.v3-settings-page > .v3-page-intro { padding-top: 0; }
+.v3-settings-index { top: 74px; gap: 6px; padding: 10px 0; }
+.v3-settings-index a { min-height: 36px; display: inline-flex; align-items: center; padding: 0 13px; border-radius: 999px; font-size: 12px; transition: color .25s ease, background-color .25s ease, transform .25s ease; }
+.v3-settings-index a:hover { background: var(--sheet); transform: translateY(-1px); }
+.v3-settings-sheet { max-width: 1080px; }
+.v3-settings-sheet > section { padding: 64px 0; scroll-margin-top: 124px; }
+.v3-settings-sheet section > header { margin-bottom: 34px; }
+.v3-settings-sheet section > header > span { padding-top: 6px; font-size: 11px; }
+.v3-settings-sheet h2 { font-size: clamp(36px, 4vw, 50px); line-height: .96; }
+.v3-settings-sheet section > header p { max-width: 560px; margin-top: 10px; font-size: 14px; line-height: 1.5; }
+.v3-settings-sheet label > span { font-size: 10px; }
+.v3-settings-sheet input, .v3-settings-sheet textarea, .v3-settings-sheet select, .v3-invite input { min-height: 54px; padding-inline: 16px; font-size: 14px; }
+.v3-settings-sheet .v3-action { min-height: 48px; margin-top: 8px; font-size: 13px; }
+.v3-setting-toggle { min-height: 78px; }
+.v3-setting-toggle strong { font-size: 14px; }
+.v3-setting-toggle small { margin-top: 3px; font-size: 12px; text-transform: none; }
+.v3-setting-toggle > i, .v3-setting-toggle > i::after { border-radius: 999px; }
+.v3-settings-sheet section > footer button { min-height: 42px; padding: 9px 15px; border-radius: 999px; font-size: 12px; transition: background-color .25s ease, border-color .25s ease, color .25s ease, transform .3s var(--ease); }
+.v3-settings-sheet section > footer button:hover { border-color: var(--ink); background: var(--sheet); transform: translateY(-2px); }
+
+.v3-project-builder .v3-type-grid + label { margin-top: 34px; }
+.v3-project-builder > main > aside ol { position: relative; display: grid; gap: 12px; margin-top: 54px; }
+.v3-project-builder > main > aside ol::before { content: ''; position: absolute; top: 22px; bottom: 22px; left: 21px; width: 2px; border-radius: 999px; background: var(--line); }
+.v3-project-builder > main > aside li { position: relative; z-index: 1; min-height: 46px; gap: 13px; padding: 5px 9px 5px 0; border-radius: 999px; font-size: 12px; transition: color .3s ease, transform .4s var(--ease); }
+.v3-project-builder > main > aside li i { width: 44px; height: 44px; flex: none; border: 1px solid var(--line-dark); border-radius: 50%; background: var(--paper); font-size: 11px; transition: background-color .3s ease, border-color .3s ease, transform .45s var(--ease); }
+.v3-project-builder > main > aside li.is-active { color: var(--ink); transform: translateX(5px); }
+.v3-project-builder > main > aside li.is-active i { border-color: var(--ink); background: var(--ink); color: var(--lime); transform: scale(1.06); }
+
+[data-v3-theme='dark'] {
+  --paper: #0d0e0b;
+  --sheet: #171914;
+  --ink: #f4f5ef;
+  --muted: #a8ada2;
+  --line: #292d25;
+  --line-dark: #41473a;
+  --lime-pale: #24350d;
+  --coral-pale: #44231f;
+  --blue-pale: #20231d;
+  --yellow-pale: #3a3116;
+  --shadow: 0 22px 60px #070806;
+}
+[data-v3-theme='dark'] .v3-help-route > button:hover { box-shadow: 0 16px 34px #070806; }
+[data-v3-theme='dark'] .v3-dialog-layer { background: #070806a8; }
+[data-v3-theme='dark'] .v3-dialog-layer > section, [data-v3-theme='dark'] .v3-dialog-layer > form { box-shadow: 0 20px 54px #050604; }
+[data-v3-theme='dark'] .v3-faq-list article.is-open { color: var(--ink); }
+[data-v3-theme='dark'] .v3-custom-select > div > button:is(:hover, .is-active) { color: var(--ink); }
+[data-v3-theme='dark'] .v3-action { border-color: var(--lime); background: var(--lime); color: #090a08; }
+[data-v3-theme='dark'] .v3-action > i { background: #f4f5ef; color: #090a08; }
+[data-v3-theme='dark'] .v3-action:hover { border-color: #f4f5ef; background: #f4f5ef; color: #090a08; }
+
+@media (max-width: 760px) {
+  .v3-help-route { grid-template-columns: 1fr; gap: 10px; padding: 24px 0 34px; }
+  .v3-help-route > button { min-height: 112px; }
+  .v3-ticket-table { padding: 34px 0; }
+  .v3-ticket-table > .v3-chat-note { min-height: 104px; }
+  .v3-answers { padding: 46px 0 62px; }
+  .v3-answers > header { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .v3-answers > header h2 { font-size: 38px; }
+  .v3-faq-list { grid-template-columns: 1fr; }
+  .v3-faq-list article > button { min-height: 76px; grid-template-columns: 25px minmax(0, 1fr) 34px; padding: 14px; }
+  .v3-faq-list article > div > p { padding-inline: 51px 48px; }
+  .v3-faq-list article.is-open > div > p { padding-bottom: 19px; }
+  .v3-dialog-layer { align-items: end; padding: 12px; }
+  .v3-dialog-layer > section, .v3-dialog-layer > form { max-height: calc(100dvh - 24px); border-radius: 24px; }
+  .v3-dialog-layer > section > header, .v3-dialog-layer > form > header { min-height: 62px; padding: 11px 18px; }
+  .v3-dialog-body { padding: 24px 18px calc(24px + env(safe-area-inset-bottom)); }
+  .v3-ticket-dialog .v3-dialog-body > h2, .v3-call-dialog .v3-dialog-body > h2 { font-size: 32px; }
+  .v3-settings-index { top: 62px; margin-inline: -20px; padding-inline: 20px; }
+  .v3-settings-sheet > section { padding-block: 48px; scroll-margin-top: 112px; }
+  .v3-settings-sheet h2 { font-size: 34px; }
+  .v3-settings-sheet section > header p { font-size: 13px; }
+  .v3-settings-sheet section > footer { flex-wrap: wrap; }
+  .v3-project-builder > main > aside ol { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .v3-project-builder > main > aside ol::before { top: 22px; right: 16%; bottom: auto; left: 16%; width: auto; height: 2px; }
+  .v3-project-builder > main > aside li { min-width: 0; flex-direction: column; align-items: center; gap: 7px; padding: 0; text-align: center; }
+  .v3-project-builder > main > aside li.is-active { transform: translateY(-3px); }
+  .v3-project-builder .v3-type-grid + label { margin-top: 28px; }
 }

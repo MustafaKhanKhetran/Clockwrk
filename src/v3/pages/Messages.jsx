@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useStore } from '../../store';
 import Icon from '../Icon';
-import { api } from '../api';
+import { api, uploadFile } from '../api';
 import BookCall from '../BookCall';
 import { Avatar, PageIntro, ProjectCode } from '../Primitives';
 
@@ -30,7 +30,29 @@ export default function Messages() {
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
   const [callOpen, setCallOpen] = useState(false);
+  const [attachments, setAttachments] = useState([]);    // [{ url, name, size, mime }]
+  const [uploadingCount, setUploadingCount] = useState(0);
+  const fileInput = useRef(null);
   const end = useRef(null);
+
+  const pickFiles = () => fileInput.current?.click();
+  const onFilesChosen = async (event) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = '';
+    if (!files.length) return;
+    setUploadingCount((n) => n + files.length);
+    for (const file of files) {
+      try {
+        const result = await uploadFile(file);
+        setAttachments((current) => [...current, { url: result.url, name: result.name, size: result.size, mime: result.mime }]);
+      } catch (err) {
+        setError(err.message || `Could not attach ${file.name}.`);
+      } finally {
+        setUploadingCount((n) => n - 1);
+      }
+    }
+  };
+  const removeAttachment = (url) => setAttachments((current) => current.filter((item) => item.url !== url));
 
   // Re-sync when the seed list is replaced by the client's real projects, or the
   // selection would silently keep pointing at a mock project.
@@ -69,19 +91,23 @@ export default function Messages() {
   const send = async (event) => {
     event.preventDefault();
     const body = text.trim();
-    if (!body || !channel || sending) return;
+    // Allow send if there's text OR at least one attachment.
+    if ((!body && attachments.length === 0) || !channel || sending || uploadingCount > 0) return;
     setSending(true);
     setText('');
+    const sentAttachments = attachments;
+    setAttachments([]);
     // Optimistic: show it immediately, reconcile from the server response.
     const optimisticId = `tmp-${Date.now()}`;
-    setMessages((current) => [...current, { id: optimisticId, sender: 'client', content: body, created_at: new Date().toISOString(), pending: true }]);
+    setMessages((current) => [...current, { id: optimisticId, sender: 'client', content: body, created_at: new Date().toISOString(), attachments: sentAttachments, pending: true }]);
     try {
-      const { message } = await api.sendMessage(body, channel.id);
+      const { message } = await api.sendMessage(body, channel.id, sentAttachments);
       setMessages((current) => current.map((item) => item.id === optimisticId ? message : item));
     } catch (err) {
       setMessages((current) => current.filter((item) => item.id !== optimisticId));
       setError(err.message || 'Message not sent.');
       setText(body);
+      setAttachments(sentAttachments);
     } finally {
       setSending(false);
     }
@@ -105,12 +131,18 @@ export default function Messages() {
             const mine = message.sender === 'client';
             return <div key={message.id} className={`${mine ? 'is-me' : ''}${message.pending ? ' is-pending' : ''}`}>
               {!mine && <Avatar name="Clockwrk" size="sm" online />}
-              <span><header><strong>{mine ? 'You' : 'Clockwrk'}</strong><small>{message.pending ? 'Sending…' : formatAt(message.created_at)}</small></header><p>{message.content}</p></span>
+              <span><header><strong>{mine ? 'You' : 'Clockwrk'}</strong><small>{message.pending ? 'Sending…' : formatAt(message.created_at)}</small></header>{message.content && <p>{message.content}</p>}{(message.attachments || []).length > 0 && <ul className="v3-msg-attachments">{message.attachments.map((file) => <li key={file.id || file.url}><a href={file.url} target="_blank" rel="noreferrer"><Icon name="attach" size={13} />{file.name}</a></li>)}</ul>}</span>
             </div>;
           })}
           <i ref={end} />
         </div>
-        <form onSubmit={send}><button type="button" aria-label="Attach file" disabled><Icon name="attach" size={18} /></button><input value={text} onChange={(event) => setText(event.target.value)} placeholder={`Message ${channel.name}`} /><button type="submit" disabled={!text.trim() || sending} aria-label="Send message"><Icon name="send" size={18} /></button></form>
+        {attachments.length > 0 && <div className="v3-composer-attach-tray">{attachments.map((file) => <span key={file.url}>{file.name}<button type="button" onClick={() => removeAttachment(file.url)} aria-label={`Remove ${file.name}`}><Icon name="close" size={12} /></button></span>)}</div>}
+        <form onSubmit={send}>
+          <input ref={fileInput} type="file" multiple hidden onChange={onFilesChosen} />
+          <button type="button" aria-label="Attach file" onClick={pickFiles} disabled={sending}><Icon name="attach" size={18} /></button>
+          <input value={text} onChange={(event) => setText(event.target.value)} placeholder={uploadingCount > 0 ? `Uploading ${uploadingCount}…` : `Message ${channel.name}`} />
+          <button type="submit" disabled={(!text.trim() && attachments.length === 0) || sending || uploadingCount > 0} aria-label="Send message"><Icon name="send" size={18} /></button>
+        </form>
       </div></section>
     {callOpen && <BookCall projectId={channel.id} projectName={channel.name} onClose={() => setCallOpen(false)} />}
   </div>;

@@ -73,7 +73,7 @@ function routeIncludedServiceToRequest(service) {
 // add-on), move the newest active requests back to the front of the queue.
 function enforceSlotCap(s) {
   const total = s.baseSlots + s.extraSlots;
-  const active = s.requests.filter((r) => r.status === 'active');
+  const active = s.requests.filter((r) => r.status === 'active' && !r.isParent);
   const overflow = active.length - total;
   if (overflow <= 0) return;
   // Newest first — prefer most recently started; fall back to request order.
@@ -91,7 +91,7 @@ function enforceSlotCap(s) {
   });
   // Demoted items keep priority (front of queue), then the existing queue order.
   const existing = s.requests
-    .filter((r) => r.status === 'queued' && !demoted.has(r))
+    .filter((r) => r.status === 'queued' && !r.isParent && !demoted.has(r))
     .sort((a, b) => a.queuePos - b.queuePos);
   [...demote, ...existing].forEach((r, i) => { r.queuePos = i + 1; });
 }
@@ -132,11 +132,29 @@ export const store = {
     emit();
   },
 
-  reorderQueue(from, to) {
-    const queued = state.requests.filter((x) => x.status === 'queued').sort((a, b) => a.queuePos - b.queuePos);
+  async reorderQueue(from, to) {
+    const queued = state.requests.filter((x) => x.status === 'queued' && !x.isParent).sort((a, b) => a.queuePos - b.queuePos);
     const [moved] = queued.splice(from, 1);
+    if (!moved || to < 0 || to >= queued.length + 1) return;
     queued.splice(to, 0, moved);
     queued.forEach((x, i) => { x.queuePos = i + 1; });
+    emit();
+    try {
+      await api.reorderQueue(queued.map((item) => item.id));
+    } catch (error) {
+      await store.loadFromApi();
+      throw error;
+    }
+  },
+
+  async approveBreakdown(id) {
+    await api.approveBreakdown(id);
+    await store.loadFromApi();
+  },
+
+  async completeOnboarding(version) {
+    const result = await api.saveOnboarding(version);
+    state.account = { ...(state.account || {}), portal_onboarding_version: result.portal_onboarding_version };
     emit();
   },
 
@@ -320,13 +338,14 @@ export const store = {
   },
 
   /** Create a request server-side, then merge it in without a full refetch. */
-  async createRequest({ projectId, title, brief, type, priority }) {
+  async createRequest({ projectId, title, brief, type, priority, attachments }) {
     const { request } = await api.createRequest({
       project_id: projectId,
       title,
       description: brief,
       type,
       priority,
+      attachments,
     });
     state.requests = [request, ...state.requests];
     state.dataSource = 'server';

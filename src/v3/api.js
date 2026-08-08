@@ -158,7 +158,7 @@ export const api = {
   removeProjectResource: (id, resourceId) => request(`/projects/${id}/resources/${resourceId}`, { method: 'DELETE' }),
 
   messages: (projectId) => request(projectId ? `/messages?project_id=${projectId}` : '/messages'),
-  sendMessage: (content, projectId) => request('/messages', { method: 'POST', body: { content, project_id: projectId } }),
+  sendMessage: (content, projectId, attachments) => request('/messages', { method: 'POST', body: { content, project_id: projectId, attachments } }),
 
   availability: (days = 8) => request(`/bookings/availability?days=${days}`),
   bookings: () => request('/bookings'),
