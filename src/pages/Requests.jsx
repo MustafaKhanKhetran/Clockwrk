@@ -57,6 +57,23 @@ export default function Requests() {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [breakdownParts, setBreakdownParts] = useState([]);
   const [breakdownBusy, setBreakdownBusy] = useState(false);
+  const [dragIndex, setDragIndex] = useState(null);
+
+  // Reorder breakdown parts, then clear any dependency that would now point to
+  // a later part (a part can only depend on an earlier one — the API enforces
+  // the same rule, and the "Starts after" dropdown only shows earlier parts).
+  const movePart = (from, to) => {
+    if (from === to || from < 0 || to < 0) return;
+    setBreakdownParts(parts => {
+      const next = [...parts];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next.map((item, idx) => {
+        const dep = Number(item.depends_on_position);
+        return { ...item, position: idx + 1, depends_on_position: dep && dep <= idx ? dep : '' };
+      });
+    });
+  };
 
   const fetchRequests = () => {
     setLoading(true);
@@ -436,8 +453,26 @@ export default function Requests() {
         actions={<><button type="button" className="btn btn-ghost" onClick={() => setBreakdownOpen(false)}>Cancel</button><button type="submit" className="btn btn-primary" disabled={breakdownBusy || breakdownParts.length < 2 || breakdownParts.some(part => !part.title.trim())}>{breakdownBusy ? 'Sending...' : 'Send breakdown for approval'}</button></>}
       >
         <div className="drawer-notes"><span>Original request</span><p>{field(selected, 'title')} · {field(selected, 'client_name')} · {field(selected, 'project_name')}</p></div>
-        {breakdownParts.map((part, index) => <div className="card" style={{ padding: '16px', marginBottom: '12px' }} key={`part-${index}`}>
-          <div className="inline-stack" style={{ marginBottom: '12px' }}><strong>Part {index + 1}</strong><button type="button" className="btn btn-sm btn-ghost" style={{ marginLeft: 'auto' }} disabled={breakdownParts.length <= 2} onClick={() => setBreakdownParts(parts => parts.filter((_, itemIndex) => itemIndex !== index).map((item, position) => ({ ...item, position: position + 1, depends_on_position: Number(item.depends_on_position) > position ? '' : item.depends_on_position })))}>Remove</button></div>
+        {breakdownParts.map((part, index) => <div
+          className={`card breakdown-part ${dragIndex === index ? 'is-dragging' : ''}`}
+          style={{ padding: '16px', marginBottom: '12px' }}
+          key={`part-${index}`}
+          onDragOver={event => { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; }}
+          onDrop={event => { event.preventDefault(); movePart(dragIndex, index); setDragIndex(null); }}
+        >
+          <div className="inline-stack" style={{ marginBottom: '12px' }}>
+            <button
+              type="button"
+              className="breakdown-drag-handle"
+              draggable
+              onDragStart={event => { setDragIndex(index); event.dataTransfer.effectAllowed = 'move'; }}
+              onDragEnd={() => setDragIndex(null)}
+              aria-label={`Drag part ${index + 1}`}
+              title="Drag to reorder"
+            >≡</button>
+            <strong>Part {index + 1}</strong>
+            <button type="button" className="btn btn-sm btn-ghost" style={{ marginLeft: 'auto' }} disabled={breakdownParts.length <= 2} onClick={() => setBreakdownParts(parts => parts.filter((_, itemIndex) => itemIndex !== index).map((item, position) => ({ ...item, position: position + 1, depends_on_position: Number(item.depends_on_position) > position ? '' : item.depends_on_position })))}>Remove</button>
+          </div>
           <div className="form-field"><label>Title *</label><input className="dash-input" value={part.title} onChange={event => setBreakdownParts(parts => parts.map((item, itemIndex) => itemIndex === index ? { ...item, title: event.target.value } : item))} /></div>
           <div className="form-field"><label>Scope</label><textarea className="dash-input" rows={2} value={part.description} onChange={event => setBreakdownParts(parts => parts.map((item, itemIndex) => itemIndex === index ? { ...item, description: event.target.value } : item))} /></div>
           <div className="form-row">

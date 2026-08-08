@@ -3164,6 +3164,26 @@ html[data-theme="light"] .urgency-noshow {
   background: var(--accent);
 }
 
+/* Drag-to-reorder handle inside the breakdown-part header */
+.breakdown-part { transition: transform .12s ease, opacity .12s ease; }
+.breakdown-part.is-dragging { opacity: 0.5; transform: scale(0.99); }
+.breakdown-drag-handle {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--glass-bg);
+  color: var(--text-3);
+  cursor: grab;
+  font-size: 14px;
+  line-height: 1;
+  user-select: none;
+}
+.breakdown-drag-handle:hover { color: var(--text-1); border-color: var(--text-3); }
+.breakdown-drag-handle:active { cursor: grabbing; }
+
 .drawer-actions,
 .modal-actions {
   display: flex;
