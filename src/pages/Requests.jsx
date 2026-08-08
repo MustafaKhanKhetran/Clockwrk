@@ -255,6 +255,19 @@ export default function Requests() {
     ) : <span className="backend-note">Read only</span> },
   ];
 
+  // A parent request's children are live rows already in the list — no extra
+  // fetch needed, and their statuses stay current as production moves.
+  const childrenOf = (parent) => requests
+    .filter(r => field(r, 'parent_request_id') !== '' && String(field(r, 'parent_request_id')) === String(parent?.id))
+    .sort((a, b) => (Number(field(a, 'part_number')) || 0) - (Number(field(b, 'part_number')) || 0));
+
+  const isParentSelected = field(selected, 'request_kind') === 'parent';
+  const selectedChildren = isParentSelected ? childrenOf(selected) : [];
+  const deliveredCount = selectedChildren.filter(k => field(k, 'status') === 'completed').length;
+  const parentOfSelected = field(selected, 'request_kind') === 'child'
+    ? requests.find(r => String(r.id) === String(field(selected, 'parent_request_id')))
+    : null;
+
   return (
     <DashLayout>
       <div className="page-header">
@@ -312,6 +325,7 @@ export default function Requests() {
         actions={canManage && (
           <>
             <button className="btn btn-primary" onClick={() => openEdit(selected)}>Edit request</button>
+            {field(selected, 'request_kind') === 'child' && parentOfSelected && <button className="btn btn-ghost" onClick={() => setSelected(parentOfSelected)}>View parent request</button>}
             {field(selected, 'request_kind') !== 'child' && field(selected, 'status') === 'queue' && field(selected, 'request_kind') !== 'parent' && <button className="btn btn-ghost" disabled={breakdownBusy} onClick={() => startScopeReview(selected)}>Scope as multiple parts</button>}
             {field(selected, 'request_kind') === 'parent' && field(selected, 'scope_status') !== 'approved' && <button className="btn btn-primary" disabled={breakdownBusy} onClick={() => openBreakdown(selected)}>{field(selected, 'scope_status') === 'proposed' ? 'Edit proposed breakdown' : 'Build breakdown'}</button>}
             {field(selected, 'request_kind') === 'parent' && field(selected, 'scope_status') !== 'approved' && <button className="btn btn-ghost" disabled={breakdownBusy} onClick={() => returnToQueue(selected)}>Keep as one request</button>}
@@ -322,22 +336,61 @@ export default function Requests() {
           </>
         )}
       >
-        <DrawerRow label="Status"><StatusBadge value={field(selected, 'status') || 'queue'} /></DrawerRow>
-        <DrawerRow label="Structure" value={field(selected, 'request_kind') === 'parent' ? `Request group · ${field(selected, 'scope_status')}` : field(selected, 'request_kind') === 'child' ? `Part ${field(selected, 'part_number')} of ${field(selected, 'parent_title')}` : 'Single request'} />
-        {field(selected, 'dependency_title') && <DrawerRow label="Dependency" value={field(selected, 'dependency_title')} />}
-        <DrawerRow label="Priority"><StatusBadge value={field(selected, 'priority') || 'normal'} /></DrawerRow>
-        <DrawerRow label="Type" value={field(selected, 'type') || 'design'} />
-        <DrawerRow label="Assigned To" value={field(selected, 'assigned_to')} />
-        <DrawerRow label="Collaborators" value={field(selected, 'collaborators')} />
-        <DrawerRow label="Due Date" value={fmtDate(field(selected, 'due_date'))} />
-        <DrawerRow label="Hours" value={`${Number(field(selected, 'logged_hours') || 0)} logged / ${field(selected, 'estimated_hours') || 0} estimated`} />
-        <DrawerRow label="Completion" value={`${Number(field(selected, 'completion_percent') || 0)}%`} />
-        <DrawerRow label="Approval" value={field(selected, 'approval_status') || 'pending'} />
-        <div className="drawer-notes"><span>Brief</span><p>{field(selected, 'request_brief') || 'No brief added yet.'}</p></div>
-        <div className="drawer-notes"><span>Client Instructions</span><p>{field(selected, 'client_instructions') || 'No client instructions yet.'}</p></div>
-        <div className="drawer-notes"><span>Internal Notes</span><p>{field(selected, 'internal_notes') || 'No internal notes yet.'}</p></div>
-        <div className="drawer-notes"><span>Revision Notes</span><p>{field(selected, 'revision_notes') || 'No revision notes yet.'}</p></div>
-        <FileList entityType="request" entityId={selected?.id} canManage={canManage} />
+        {isParentSelected ? (
+          <>
+            {/* A request group is an overview, never a production job — real child
+                statuses, not a fabricated completion percentage. */}
+            <DrawerRow label="Structure" value={`Request group · ${field(selected, 'scope_status') || 'proposed'}`} />
+            <DrawerRow label="Progress" value={`${deliveredCount} / ${selectedChildren.length} delivered`} />
+            <DrawerRow label="Priority"><StatusBadge value={field(selected, 'priority') || 'normal'} /></DrawerRow>
+            <DrawerRow label="Requested" value={fmtDate(field(selected, 'created_at'))} />
+            <div className="drawer-notes"><span>Original brief</span><p>{field(selected, 'request_brief', 'description') || 'No brief added yet.'}</p></div>
+            <div className="drawer-notes">
+              <span>Parts · {selectedChildren.length}</span>
+              {selectedChildren.length === 0
+                ? <p className="backend-note">{field(selected, 'scope_status') === 'approved' ? 'No linked parts found.' : 'Parts are created once the client approves the proposed breakdown.'}</p>
+                : (
+                  <div className="drawer-parts">
+                    {selectedChildren.map(child => (
+                      <button type="button" key={child.id} className="drawer-part-row" onClick={() => setSelected(child)}>
+                        <span className="drawer-part-num">{field(child, 'part_number') || '·'}</span>
+                        <span className="drawer-part-title">{field(child, 'title') || 'Untitled part'}</span>
+                        <StatusBadge value={field(child, 'status') || 'queue'} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+            </div>
+            <div className="drawer-notes">
+              <span>Activity</span>
+              <ul className="drawer-activity">
+                {field(selected, 'created_at') && <li><span className="drawer-activity-dot" />Client submitted request<em>{fmtDate(field(selected, 'created_at'))}</em></li>}
+                {field(selected, 'breakdown_approved_at') && <li><span className="drawer-activity-dot" />Breakdown approved · {selectedChildren.length} parts created<em>{fmtDate(field(selected, 'breakdown_approved_at'))}</em></li>}
+                {deliveredCount > 0 && <li><span className="drawer-activity-dot" />{deliveredCount} of {selectedChildren.length} parts delivered</li>}
+              </ul>
+            </div>
+            <FileList entityType="request" entityId={selected?.id} canManage={canManage} />
+          </>
+        ) : (
+          <>
+            <DrawerRow label="Status"><StatusBadge value={field(selected, 'status') || 'queue'} /></DrawerRow>
+            <DrawerRow label="Structure" value={field(selected, 'request_kind') === 'child' ? `Part ${field(selected, 'part_number')} of ${field(selected, 'parent_title')}` : 'Single request'} />
+            {field(selected, 'dependency_title') && <DrawerRow label="Dependency" value={field(selected, 'dependency_title')} />}
+            <DrawerRow label="Priority"><StatusBadge value={field(selected, 'priority') || 'normal'} /></DrawerRow>
+            <DrawerRow label="Type" value={field(selected, 'type') || 'design'} />
+            <DrawerRow label="Assigned To" value={field(selected, 'assigned_to')} />
+            <DrawerRow label="Collaborators" value={field(selected, 'collaborators')} />
+            <DrawerRow label="Due Date" value={fmtDate(field(selected, 'due_date'))} />
+            <DrawerRow label="Hours" value={`${Number(field(selected, 'logged_hours') || 0)} logged / ${field(selected, 'estimated_hours') || 0} estimated`} />
+            <DrawerRow label="Completion" value={`${Number(field(selected, 'completion_percent') || 0)}%`} />
+            <DrawerRow label="Approval" value={field(selected, 'approval_status') || 'pending'} />
+            <div className="drawer-notes"><span>Brief</span><p>{field(selected, 'request_brief') || 'No brief added yet.'}</p></div>
+            <div className="drawer-notes"><span>Client Instructions</span><p>{field(selected, 'client_instructions') || 'No client instructions yet.'}</p></div>
+            <div className="drawer-notes"><span>Internal Notes</span><p>{field(selected, 'internal_notes') || 'No internal notes yet.'}</p></div>
+            <div className="drawer-notes"><span>Revision Notes</span><p>{field(selected, 'revision_notes') || 'No revision notes yet.'}</p></div>
+            <FileList entityType="request" entityId={selected?.id} canManage={canManage} />
+          </>
+        )}
       </DetailDrawer>
 
       <FormModal
