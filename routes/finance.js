@@ -135,7 +135,7 @@ router.post('/releases', authenticate, async (req, res) => {
       [req.user.id, parseFloat(amount_usd), parseFloat(fee_usd || 30), notes || null]
     );
     await db.execute(
-      `INSERT INTO dashboard_alerts (type, title, message, link) VALUES ('finance', 'Release requested', ?, '/finance')`,
+      `INSERT INTO dashboard_alerts (type, title, message, link) VALUES ('payment', 'Release requested', ?, '/finance')`,
       [`${req.user.name || req.user.email} requested $${amount_usd} release from ElevatePay`]
     );
     return res.json({ success: true, id: result.insertId });
@@ -182,7 +182,7 @@ router.patch('/releases/:id', authenticate, requireRoles(['owner', 'admin']), as
 
     if (status === 'approved') {
       await db.execute(
-        `INSERT INTO dashboard_alerts (type, title, message, link) VALUES ('finance', 'Release approved', ?, '/finance')`,
+        `INSERT INTO dashboard_alerts (type, title, message, link) VALUES ('payment', 'Release approved', ?, '/finance')`,
         [`Release of $${release.amount_usd} approved @ ${effectiveRate} → ₨${received_pkr?.toLocaleString()}`]
       );
     }

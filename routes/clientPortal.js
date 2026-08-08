@@ -733,6 +733,13 @@ router.post('/requests', clientAuth, async (req, res) => {
       [result.insertId]
     );
     await conn.commit();
+    // Fire-and-forget: never let a failed alert kill the request creation.
+    try {
+      await db.execute(
+        "INSERT INTO dashboard_alerts (type, title, message, link) VALUES ('system', 'New client request', ?, '/requests')",
+        [`${req.client.name}: ${title.trim()}`]
+      );
+    } catch (alertErr) { console.error('new-request alert failed:', alertErr.message); }
     return res.status(201).json({ success: true, request: toPortalRequest(row) });
   } catch (err) {
     await conn.rollback();
