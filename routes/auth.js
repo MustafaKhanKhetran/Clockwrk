@@ -17,18 +17,11 @@ router.post('/login', async (req, res) => {
          FROM employees WHERE email = ? AND status = 'active' LIMIT 1`,
       [email]
     );
-    if (!employee) {
+    if (!employee || !employee.password_hash?.startsWith('$2')) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
-    const legacyHash = crypto.createHash('sha256').update(password).digest('hex');
-    const isBcrypt = employee.password_hash?.startsWith('$2');
-    const valid = isBcrypt
-      ? await bcrypt.compare(password, employee.password_hash)
-      : employee.password_hash === legacyHash;
+    const valid = await bcrypt.compare(password, employee.password_hash);
     if (!valid) return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    if (!isBcrypt) {
-      await db.execute('UPDATE employees SET password_hash = ? WHERE id = ?', [await bcrypt.hash(password, 12), employee.id]);
-    }
     const { password_hash, ...user } = employee;
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
