@@ -5,6 +5,12 @@ import { authenticate, requireRoles } from '../middleware/auth.js';
 const router = Router();
 
 const PROJECT_ACCESS = ['owner','admin','head_of_delivery','head_of_design','head_of_development','project_manager','account_manager','designer','motion_designer','illustrator','copywriter','video_editor','frontend_developer','backend_developer','fullstack_developer','mobile_developer','devops','qa_engineer'];
+const PROJECT_LINK_KINDS = new Set(['production','staging','figma','github','appstore','docs','prototype','other']);
+const PROJECT_RESOURCE_KINDS = new Set(['brand','website','requirements','competitor','figma','drive','research','other']);
+
+const normalizedKind = (value, allowed) => allowed.has(String(value || '').toLowerCase())
+  ? String(value).toLowerCase()
+  : 'other';
 
 router.get('/', authenticate, requireRoles(PROJECT_ACCESS), async (req, res) => {
   try {
@@ -43,13 +49,42 @@ router.get('/', authenticate, requireRoles(PROJECT_ACCESS), async (req, res) => 
   }
 });
 
+router.get('/:id', authenticate, requireRoles(PROJECT_ACCESS), async (req, res) => {
+  try {
+    const [[project]] = await db.execute(
+      `SELECT p.*, c.name AS client_name, c.company AS client_company, c.email AS client_email,
+              e.name AS project_manager_name
+       FROM projects p JOIN clients c ON c.id=p.client_id LEFT JOIN employees e ON e.id=p.project_manager_id
+       WHERE p.id=?`, [req.params.id]
+    );
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    const [requests] = await db.execute(
+      `SELECT r.*, e.name AS assigned_to_name, dependency.title AS dependency_title
+       FROM requests r LEFT JOIN employees e ON e.id=r.assigned_to
+       LEFT JOIN requests dependency ON dependency.id=r.depends_on_request_id
+       WHERE r.project_id=? ORDER BY FIELD(r.status,'revision','in_review','in_progress','queue','completed'), r.queue_position`, [project.id]
+    );
+    const [files] = await db.execute('SELECT * FROM files WHERE project_id=? ORDER BY created_at DESC', [project.id]);
+    const [links] = await db.execute('SELECT * FROM project_links WHERE project_id=? ORDER BY id', [project.id]);
+    const [resources] = await db.execute('SELECT * FROM project_resources WHERE project_id=? ORDER BY created_at DESC', [project.id]);
+    const [activity] = await db.execute(
+      `SELECT ra.*, r.title AS request_title FROM request_activity ra JOIN requests r ON r.id=ra.request_id
+       WHERE r.project_id=? ORDER BY ra.created_at DESC LIMIT 50`, [project.id]
+    );
+    return res.json({ success: true, project, requests, files, links, resources, activity });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 router.post('/', authenticate, requireRoles(PROJECT_ACCESS), async (req, res) => {
-  const { client_id, name, status, notes, project_manager_id, priority, start_date, due_date, estimated_hours, github_repo, staging_url, live_url, tech_stack } = req.body;
+  const { client_id, name, type, icon_emoji, status, notes, goal, audience, success_measure, project_manager_id, priority, start_date, due_date, estimated_hours, github_repo, staging_url, live_url, tech_stack } = req.body;
   try {
     const [result] = await db.execute(
-      `INSERT INTO projects (client_id, name, status, notes, project_manager_id, priority, start_date, due_date, estimated_hours, github_repo, staging_url, live_url, tech_stack)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [client_id, name, status || 'active', notes || '', project_manager_id || null, priority || 'normal', start_date || null, due_date || null, estimated_hours || null, github_repo || '', staging_url || '', live_url || '', tech_stack || '']
+      `INSERT INTO projects (client_id, name, type, icon_emoji, status, notes, goal, audience, success_measure, project_manager_id, priority, start_date, due_date, estimated_hours, github_repo, staging_url, live_url, tech_stack)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [client_id, name, type || null, icon_emoji || null, status || 'active', notes || '', goal || null, audience || null, success_measure || null, project_manager_id || null, priority || 'normal', start_date || null, due_date || null, estimated_hours || null, github_repo || '', staging_url || '', live_url || '', tech_stack || '']
     );
     const [[project]] = await db.execute('SELECT * FROM projects WHERE id = ?', [result.insertId]);
     return res.json({ success: true, project });
@@ -61,7 +96,7 @@ router.post('/', authenticate, requireRoles(PROJECT_ACCESS), async (req, res) =>
 
 router.patch('/:id', authenticate, requireRoles(PROJECT_ACCESS), async (req, res) => {
   const { id } = req.params;
-  const allowed = ['name','status','notes','project_manager_id','priority','progress_percent','start_date','due_date','estimated_hours','github_repo','staging_url','live_url','tech_stack','health_status'];
+  const allowed = ['name','type','icon_emoji','status','notes','goal','audience','success_measure','project_manager_id','priority','progress_percent','start_date','due_date','estimated_hours','github_repo','staging_url','live_url','tech_stack','health_status'];
   const fields = []; const params = [];
   for (const key of allowed) {
     if (req.body[key] !== undefined) { fields.push(`${key} = ?`); params.push(req.body[key]); }
@@ -76,6 +111,33 @@ router.patch('/:id', authenticate, requireRoles(PROJECT_ACCESS), async (req, res
     console.error(err);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
+});
+
+router.post('/:id/links', authenticate, requireRoles(PROJECT_ACCESS), async (req, res) => {
+  const { kind='other', label, url } = req.body;
+  if (!label || !url) return res.status(400).json({ success:false, message:'Label and URL are required' });
+  try {
+    const [result] = await db.execute('INSERT INTO project_links (project_id, kind, label, url) VALUES (?, ?, ?, ?)', [req.params.id, normalizedKind(kind, PROJECT_LINK_KINDS), label, url]);
+    const [[link]] = await db.execute('SELECT * FROM project_links WHERE id=?', [result.insertId]);
+    return res.json({ success:true, link });
+  } catch (err) { console.error(err); return res.status(500).json({success:false,message:'Server error'}); }
+});
+
+router.delete('/:id/links/:linkId', authenticate, requireRoles(PROJECT_ACCESS), async (req, res) => {
+  await db.execute('DELETE FROM project_links WHERE id=? AND project_id=?', [req.params.linkId, req.params.id]);
+  return res.json({ success:true });
+});
+
+router.post('/:id/resources', authenticate, requireRoles(PROJECT_ACCESS), async (req, res) => {
+  const { kind='other', title, url, file_url, file_name, notes } = req.body;
+  if (!title) return res.status(400).json({ success:false, message:'Title is required' });
+  try {
+    const [[project]] = await db.execute('SELECT client_id FROM projects WHERE id=?', [req.params.id]);
+    if (!project) return res.status(404).json({success:false,message:'Project not found'});
+    const [result] = await db.execute('INSERT INTO project_resources (project_id, client_id, kind, title, url, file_url, file_name, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [req.params.id, project.client_id, normalizedKind(kind, PROJECT_RESOURCE_KINDS), title, url||null, file_url||null, file_name||null, notes||null]);
+    const [[resource]] = await db.execute('SELECT * FROM project_resources WHERE id=?', [result.insertId]);
+    return res.json({success:true,resource});
+  } catch (err) { console.error(err); return res.status(500).json({success:false,message:'Server error'}); }
 });
 
 router.delete('/:id', authenticate, requireRoles(['owner','admin','head_of_delivery']), async (req, res) => {

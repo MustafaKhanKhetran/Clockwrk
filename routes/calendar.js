@@ -52,8 +52,24 @@ router.get('/', authenticate, async (req, res) => {
        ORDER BY b.booking_date, b.booking_time`
     );
 
+    const [requestDates] = await db.execute(
+      `SELECT r.id,'request_due' AS event_type,r.title,p.name AS project_name,c.company,
+              r.due_date AS event_date,NULL AS event_time,r.status,r.assigned_to,e.name AS assignee_name
+       FROM requests r JOIN projects p ON p.id=r.project_id JOIN clients c ON c.id=r.client_id
+       LEFT JOIN employees e ON e.id=r.assigned_to
+       WHERE r.due_date BETWEEN DATE_SUB(CURDATE(),INTERVAL 30 DAY) AND DATE_ADD(CURDATE(),INTERVAL 90 DAY)
+         AND r.request_kind!='parent'`);
+    const [projectDates] = await db.execute(
+      `SELECT p.id,'project_due' AS event_type,p.name AS title,p.name AS project_name,c.company,
+              p.due_date AS event_date,NULL AS event_time,p.status,p.project_manager_id AS assigned_to,e.name AS assignee_name
+       FROM projects p JOIN clients c ON c.id=p.client_id LEFT JOIN employees e ON e.id=p.project_manager_id
+       WHERE p.due_date BETWEEN DATE_SUB(CURDATE(),INTERVAL 30 DAY) AND DATE_ADD(CURDATE(),INTERVAL 90 DAY)`);
+    const [paymentDates] = await db.execute(
+      `SELECT c.id,'payment_due' AS event_type,CONCAT(c.company,' payment due') AS title,NULL AS project_name,c.company,
+              c.next_payment_due AS event_date,NULL AS event_time,c.status,NULL AS assigned_to,NULL AS assignee_name
+       FROM clients c WHERE c.next_payment_due BETWEEN DATE_SUB(CURDATE(),INTERVAL 30 DAY) AND DATE_ADD(CURDATE(),INTERVAL 90 DAY)`);
     const today = new Date().toISOString().slice(0, 10);
-    const all = [...bookings];
+    const all = [...bookings, ...requestDates, ...projectDates, ...paymentDates];
 
     // Normalise event_date to YYYY-MM-DD — MySQL DATE columns come back as JS Date objects
     const toISO = d => {

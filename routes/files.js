@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
-import https from 'https';
 import cors from 'cors';
+import db from '../db.js';
 import { authenticate } from '../middleware/auth.js';
 
 // Open CORS for public endpoints (cv-upload, job listings)
@@ -10,15 +10,8 @@ import {
   S3Client, ListObjectsV2Command, PutObjectCommand,
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
-import { NodeHttpHandler } from '@smithy/node-http-handler';
 
 const router = Router();
-
-const tlsAgent = new https.Agent({
-  rejectUnauthorized: false,
-  secureOptions: 0x4, // SSL_OP_LEGACY_SERVER_CONNECT
-  ciphers: 'ALL',
-});
 
 const s3 = new S3Client({
   region: 'auto',
@@ -27,7 +20,6 @@ const s3 = new S3Client({
     accessKeyId:     process.env.R2_ACCESS_KEY_ID,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
-  requestHandler: new NodeHttpHandler({ httpsAgent: tlsAgent }),
 });
 
 const BUCKET     = process.env.R2_BUCKET;
@@ -108,6 +100,63 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
     console.error(err);
     return res.status(500).json({ success: false, message: err.message });
   }
+});
+
+// Request-linked upload. This is the canonical bridge between the internal
+// dashboard and the client portal: the object and its relational metadata are
+// created together so a deliverable cannot become an orphaned R2 object.
+router.post('/request-upload', authenticate, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ success:false, message:'No file provided' });
+  const requestId = Number(req.body.request_id);
+  if (!requestId) return res.status(400).json({success:false,message:'request_id is required'});
+  try {
+    const [[request]] = await db.execute('SELECT id,client_id,project_id FROM requests WHERE id=?', [requestId]);
+    if (!request) return res.status(404).json({success:false,message:'Request not found'});
+    const key = `clients/${request.client_id}/requests/${request.id}/${Date.now()}-${safeKey(req.file.originalname)}`;
+    await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:key,Body:req.file.buffer,ContentType:req.file.mimetype}));
+    const url = `${PUBLIC_URL}/${key}`;
+    const [result] = await db.execute(
+      `INSERT INTO files (client_id,project_id,request_id,uploaded_by,file_name,file_url,file_type,category,version,notes)
+       VALUES (?,?,?,?,?,?,?,?,?,?)`,
+      [request.client_id,request.project_id,request.id,req.user.id,req.file.originalname,url,req.file.mimetype,req.body.category||'deliverable',req.body.version||'Latest',req.body.notes||null]
+    );
+    const [[file]] = await db.execute('SELECT * FROM files WHERE id=?', [result.insertId]);
+    return res.json({success:true,file});
+  } catch(err) { console.error(err); return res.status(500).json({success:false,message:err.message||'Upload failed'}); }
+});
+
+router.get('/records', authenticate, async (req, res) => {
+  try {
+    const {client_id,project_id,request_id,search} = req.query;
+    let sql=`SELECT f.*,c.company AS client_company,p.name AS project_name,r.title AS request_title,e.name AS uploaded_by_name
+      FROM files f LEFT JOIN clients c ON c.id=f.client_id LEFT JOIN projects p ON p.id=f.project_id
+      LEFT JOIN requests r ON r.id=f.request_id LEFT JOIN employees e ON e.id=f.uploaded_by`;
+    const where=[]; const params=[];
+    if(client_id){where.push('f.client_id=?');params.push(client_id);} if(project_id){where.push('f.project_id=?');params.push(project_id);}
+    if(request_id){where.push('f.request_id=?');params.push(request_id);} if(search){where.push('(f.file_name LIKE ? OR p.name LIKE ? OR r.title LIKE ?)');params.push(`%${search}%`,`%${search}%`,`%${search}%`);}
+    if(where.length) sql+=` WHERE ${where.join(' AND ')}`; sql+=' ORDER BY f.created_at DESC LIMIT 250';
+    const [files]=await db.execute(sql,params); return res.json({success:true,files});
+  } catch(err){console.error(err);return res.status(500).json({success:false,message:'Server error'});}
+});
+
+router.patch('/records/:id', authenticate, async (req,res)=>{
+  const allowed=['file_name','category','version','notes'];const fields=[];const params=[];
+  for(const key of allowed) if(req.body[key]!==undefined){fields.push(`${key}=?`);params.push(req.body[key]);}
+  if(!fields.length)return res.status(400).json({success:false,message:'No fields to update'});
+  params.push(req.params.id);await db.execute(`UPDATE files SET ${fields.join(',')} WHERE id=?`,params);
+  const [[file]]=await db.execute('SELECT * FROM files WHERE id=?',[req.params.id]);return res.json({success:true,file});
+});
+
+router.delete('/records/:id', authenticate, async (req,res)=>{
+  try{
+    const [[file]]=await db.execute('SELECT * FROM files WHERE id=?',[req.params.id]);
+    if(!file)return res.status(404).json({success:false,message:'File not found'});
+    if(file.file_url?.startsWith(`${PUBLIC_URL}/`)){
+      const key=decodeURIComponent(file.file_url.slice(`${PUBLIC_URL}/`.length));
+      await s3.send(new DeleteObjectCommand({Bucket:BUCKET,Key:key}));
+    }
+    await db.execute('DELETE FROM files WHERE id=?',[file.id]);return res.json({success:true});
+  }catch(err){console.error(err);return res.status(500).json({success:false,message:err.message||'Delete failed'});}
 });
 
 // ─── Get public URL ───────────────────────────────────────────────────────────

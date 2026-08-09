@@ -30,11 +30,11 @@ router.get('/', authenticate, requireRoles(TIME_ACCESS), async (req, res) => {
 });
 
 router.post('/', authenticate, requireRoles(TIME_ACCESS), async (req, res) => {
-  const { request_id, project_id, hours, description, log_date } = req.body;
+  const { request_id, project_id, employee_id, hours, description, log_date } = req.body;
   try {
     const [result] = await db.execute(
       `INSERT INTO time_logs (request_id, project_id, employee_id, hours, description, log_date) VALUES (?, ?, ?, ?, ?, ?)`,
-      [request_id || null, project_id || null, req.user.id, hours, description || '', log_date || new Date().toISOString().slice(0, 10)]
+      [request_id || null, project_id || null, ['owner','admin'].includes(req.user.role) && employee_id ? employee_id : req.user.id, hours, description || '', log_date || new Date().toISOString().slice(0, 10)]
     );
     const [[log]] = await db.execute('SELECT * FROM time_logs WHERE id = ?', [result.insertId]);
     return res.json({ success: true, log });
@@ -44,8 +44,25 @@ router.post('/', authenticate, requireRoles(TIME_ACCESS), async (req, res) => {
   }
 });
 
+router.patch('/:id', authenticate, requireRoles(TIME_ACCESS), async (req, res) => {
+  try {
+    const [[existing]] = await db.execute('SELECT * FROM time_logs WHERE id=?', [req.params.id]);
+    if (!existing) return res.status(404).json({success:false,message:'Time entry not found'});
+    if (!['owner','admin'].includes(req.user.role) && Number(existing.employee_id) !== Number(req.user.id)) return res.status(403).json({success:false,message:'You can only edit your own time entries'});
+    const allowed=['request_id','project_id','hours','description','log_date']; const fields=[]; const params=[];
+    for (const key of allowed) if (req.body[key] !== undefined) { fields.push(`${key}=?`); params.push(req.body[key] || null); }
+    if (!fields.length) return res.status(400).json({success:false,message:'No fields to update'});
+    params.push(req.params.id); await db.execute(`UPDATE time_logs SET ${fields.join(',')} WHERE id=?`, params);
+    const [[log]] = await db.execute('SELECT * FROM time_logs WHERE id=?', [req.params.id]);
+    return res.json({success:true,log});
+  } catch(err) { console.error(err); return res.status(500).json({success:false,message:'Server error'}); }
+});
+
 router.delete('/:id', authenticate, requireRoles(TIME_ACCESS), async (req, res) => {
   try {
+    const [[existing]] = await db.execute('SELECT employee_id FROM time_logs WHERE id=?', [req.params.id]);
+    if (!existing) return res.status(404).json({success:false,message:'Time entry not found'});
+    if (!['owner','admin'].includes(req.user.role) && Number(existing.employee_id) !== Number(req.user.id)) return res.status(403).json({success:false,message:'You can only delete your own time entries'});
     await db.execute('DELETE FROM time_logs WHERE id = ?', [req.params.id]);
     return res.json({ success: true });
   } catch (err) {

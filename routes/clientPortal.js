@@ -3,10 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
-import https from 'https';
 import crypto from 'crypto';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { NodeHttpHandler } from '@smithy/node-http-handler';
 import db from '../db.js';
 import {
   ADDONS, PLANS, applyChange, expiryFor, paymentRef, quote, slotsFor, sweepChanges,
@@ -30,9 +28,6 @@ const s3 = new S3Client({
     accessKeyId: process.env.R2_ACCESS_KEY_ID,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
-  requestHandler: new NodeHttpHandler({
-    httpsAgent: new https.Agent({ rejectUnauthorized: false, secureOptions: 0x4, ciphers: 'ALL' }),
-  }),
 });
 const R2_BUCKET = process.env.R2_BUCKET;
 const R2_PUBLIC = process.env.R2_PUBLIC_URL || 'https://files.clockwrk.io';
@@ -83,7 +78,7 @@ router.post('/login', credentialLimiter, async (req, res) => {
   if (!email || !password) return res.status(400).json({ success: false, message: 'Email and password required' });
   try {
     const [[client]] = await db.execute(
-      `SELECT id, name, email, phone, company, plan, billing, status, password_hash, subscribed_at,
+      `SELECT id, name, email, phone, company, avatar_url, plan, billing, status, password_hash, subscribed_at,
               portal_onboarding_version, onboarding_completed_at
          FROM clients WHERE email = ?`,
       [email]
@@ -112,7 +107,7 @@ router.post('/login', credentialLimiter, async (req, res) => {
 router.get('/me', clientAuth, async (req, res) => {
   try {
     const [[client]] = await db.execute(
-      `SELECT id, name, email, phone, company, plan, billing, status, subscribed_at,
+      `SELECT id, name, email, phone, company, avatar_url, plan, billing, status, subscribed_at,
               next_payment_due, last_payment_date, notify_prefs,
               portal_onboarding_version, onboarding_completed_at
          FROM clients WHERE id = ?`,
@@ -148,14 +143,14 @@ router.put('/onboarding', clientAuth, async (req, res) => {
 
 // ─── PATCH /api/client/me ─────────────────────────────────────────────────────
 router.patch('/me', clientAuth, async (req, res) => {
-  const { name, phone, company } = req.body;
+  const { name, phone, company, avatar_url } = req.body;
   try {
     await db.execute(
-      'UPDATE clients SET name = COALESCE(?, name), phone = COALESCE(?, phone), company = COALESCE(?, company) WHERE id = ?',
-      [name || null, phone || null, company || null, req.client.id]
+      'UPDATE clients SET name = COALESCE(?, name), phone = COALESCE(?, phone), company = COALESCE(?, company), avatar_url = COALESCE(?, avatar_url) WHERE id = ?',
+      [name || null, phone || null, company || null, avatar_url || null, req.client.id]
     );
     const [[client]] = await db.execute(
-      'SELECT id, name, email, phone, company, plan, billing, status, subscribed_at FROM clients WHERE id = ?',
+      'SELECT id, name, email, phone, company, avatar_url, plan, billing, status, subscribed_at FROM clients WHERE id = ?',
       [req.client.id]
     );
     return res.json({ success: true, client });
@@ -183,10 +178,146 @@ router.post('/change-password', credentialLimiter, clientAuth, async (req, res) 
   }
 });
 
-// ─── Password reset (also used for first-login: a new client with no
-//     password_hash goes through the same flow) ──────────────────────────────
+// ─── Password reset ─────────────────────────────────────────────────────────
 const RESET_TOKEN_TTL_MIN = 60;
 const hashToken = (raw) => crypto.createHash('sha256').update(raw).digest('hex');
+
+async function findSetupClient(rawToken) {
+  if (!rawToken) return null;
+  const [[client]] = await db.execute(
+    `SELECT id, name, email, phone, company, avatar_url, plan, billing, status,
+            account_setup_expires_at, account_setup_completed_at
+       FROM clients
+      WHERE account_setup_token_hash = ?
+        AND account_setup_expires_at IS NOT NULL
+        AND account_setup_expires_at > NOW()
+        AND account_setup_completed_at IS NULL`,
+    [hashToken(String(rawToken))]
+  );
+  return client || null;
+}
+
+function setupClientView(client) {
+  return {
+    id: client.id,
+    name: client.name,
+    email: client.email,
+    phone: client.phone,
+    company: client.company,
+    avatar_url: client.avatar_url,
+    plan: client.plan,
+    billing: client.billing,
+    setup_expires_at: client.account_setup_expires_at,
+  };
+}
+
+// ─── First-time account setup ────────────────────────────────────────────────
+router.get('/setup', credentialLimiter, async (req, res) => {
+  try {
+    const client = await findSetupClient(req.query.token);
+    if (!client) return res.status(400).json({ success: false, message: 'This setup link is invalid, expired, or has already been used.' });
+    if (client.status !== 'active') return res.status(403).json({ success: false, message: 'This account is not active.' });
+    return res.json({ success: true, client: setupClientView(client) });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.post('/setup/avatar', credentialLimiter, (req, res) => {
+  clientUpload(req, res, async (uploadErr) => {
+    if (uploadErr) return res.status(400).json({ success: false, message: uploadErr.message });
+    try {
+      const client = await findSetupClient(req.body?.token);
+      if (!client) return res.status(400).json({ success: false, message: 'This setup link is invalid or has expired.' });
+      if (!req.file) return res.status(400).json({ success: false, message: 'Choose a profile image first.' });
+      if (!req.file.mimetype.startsWith('image/')) return res.status(400).json({ success: false, message: 'Profile pictures must be an image.' });
+      const key = `clients/${client.id}/profile-${Date.now()}-${safeKey(req.file.originalname)}`;
+      await s3.send(new PutObjectCommand({
+        Bucket: R2_BUCKET,
+        Key: key,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      }));
+      return res.json({ success: true, url: `${R2_PUBLIC}/${key}` });
+    } catch (err) {
+      console.error('setup avatar upload failed:', err);
+      return res.status(500).json({ success: false, message: 'Profile picture upload failed. You can skip it and add one later.' });
+    }
+  });
+});
+
+router.post('/setup', credentialLimiter, async (req, res) => {
+  const { token, name, company, phone, avatar_url, password, teammates = [] } = req.body || {};
+  const cleanName = String(name || '').trim();
+  const cleanCompany = String(company || '').trim();
+  if (cleanName.length < 2) return res.status(400).json({ success: false, message: 'Enter your full name.' });
+  if (String(password || '').length < 10) return res.status(400).json({ success: false, message: 'Password must be at least 10 characters.' });
+  if (!Array.isArray(teammates) || teammates.length > 10) return res.status(400).json({ success: false, message: 'You can add up to 10 teammates during setup.' });
+
+  const normalizedTeammates = [];
+  const seenEmails = new Set();
+  for (const person of teammates) {
+    const email = String(person?.email || '').trim().toLowerCase();
+    if (!email) continue;
+    if (!email.includes('@')) return res.status(400).json({ success: false, message: `Enter a valid email for ${person?.name || 'your teammate'}.` });
+    if (seenEmails.has(email)) continue;
+    seenEmails.add(email);
+    normalizedTeammates.push({
+      name: String(person?.name || email.split('@')[0]).trim().slice(0, 160),
+      email,
+      role: String(person?.role || 'Team member').trim().slice(0, 120),
+    });
+  }
+
+  let connection;
+  try {
+    const client = await findSetupClient(token);
+    if (!client) return res.status(400).json({ success: false, message: 'This setup link is invalid, expired, or has already been used.' });
+    if (client.status !== 'active') return res.status(403).json({ success: false, message: 'This account is not active.' });
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+    await connection.execute(
+      `UPDATE clients
+          SET name = ?, company = ?, phone = ?, avatar_url = ?, password_hash = ?,
+              account_setup_token_hash = NULL, account_setup_expires_at = NULL,
+              account_setup_completed_at = NOW()
+        WHERE id = ? AND account_setup_completed_at IS NULL`,
+      [cleanName, cleanCompany || client.company || null, String(phone || '').trim() || null, String(avatar_url || '').trim() || null, passwordHash, client.id]
+    );
+    for (const person of normalizedTeammates) {
+      await connection.execute(
+        `INSERT INTO client_contacts (client_id, name, email, role, can_approve, can_bill)
+         VALUES (?, ?, ?, ?, 1, 0)
+         ON DUPLICATE KEY UPDATE name = VALUES(name), role = VALUES(role)`,
+        [client.id, person.name, person.email, person.role]
+      );
+    }
+    await connection.commit();
+
+    const [[updated]] = await db.execute(
+      `SELECT id, name, email, phone, company, avatar_url, plan, billing, status,
+              subscribed_at, portal_onboarding_version, onboarding_completed_at,
+              account_setup_completed_at
+         FROM clients WHERE id = ?`,
+      [client.id]
+    );
+    const authToken = jwt.sign(
+      { type: 'client', id: updated.id, email: updated.email, name: updated.name, company: updated.company, plan: updated.plan },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    return res.json({ success: true, token: authToken, client: updated });
+  } catch (err) {
+    if (connection) await connection.rollback().catch(() => {});
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'Could not finish setup. Nothing was saved; please try again.' });
+  } finally {
+    connection?.release();
+  }
+});
 
 // The response is the same whether or not the email exists — never leak which
 // addresses are registered. The owner sees the reset link via a dashboard alert
@@ -222,7 +353,7 @@ router.post('/reset-password', credentialLimiter, async (req, res) => {
   if (String(new_password).length < 8) return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
   try {
     const [[client]] = await db.execute(
-      `SELECT id, name, email, phone, company, plan, billing, status
+      `SELECT id, name, email, phone, company, avatar_url, plan, billing, status
          FROM clients
         WHERE password_reset_token_hash = ?
           AND password_reset_expires_at IS NOT NULL
@@ -1023,8 +1154,15 @@ router.post('/requests/:id/comments', clientAuth, async (req, res) => {
 router.post('/projects', clientAuth, async (req, res) => {
   const { name, type, icon, description, goal, audience, success_measure, target_date, links = [], resources = [] } = req.body;
   if (!name?.trim()) return res.status(400).json({ success: false, message: 'name required' });
+  const linkKinds = new Set(['production','staging','figma','github','appstore','docs','prototype','other']);
+  const resourceKinds = new Set(['brand','website','requirements','competitor','figma','drive','research','other']);
+  const normalizeKind = (value, allowed) => allowed.has(String(value || '').toLowerCase())
+    ? String(value).toLowerCase()
+    : 'other';
+  const conn = await db.getConnection();
   try {
-    const [result] = await db.execute(
+    await conn.beginTransaction();
+    const [result] = await conn.execute(
       `INSERT INTO projects (client_id, name, type, icon_emoji, status, notes, goal, audience,
                              success_measure, due_date, start_date)
        VALUES (?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, CURDATE())`,
@@ -1034,19 +1172,20 @@ router.post('/projects', clientAuth, async (req, res) => {
     // Links and resources supplied during setup.
     for (const link of Array.isArray(links) ? links.slice(0, 20) : []) {
       if (!link?.url?.trim()) continue;
-      await db.execute(
+      await conn.execute(
         'INSERT INTO project_links (project_id, kind, label, url) VALUES (?, ?, ?, ?)',
-        [result.insertId, link.kind || 'other', (link.label || 'Link').slice(0, 120), link.url.trim()]
+        [result.insertId, normalizeKind(link.kind, linkKinds), (link.label || 'Link').slice(0, 120), link.url.trim()]
       );
     }
     for (const item of Array.isArray(resources) ? resources.slice(0, 30) : []) {
       if (!item?.title?.trim()) continue;
-      await db.execute(
+      await conn.execute(
         'INSERT INTO project_resources (project_id, client_id, kind, title, url, file_url, file_name, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [result.insertId, req.client.id, item.kind || 'other', item.title.trim().slice(0, 200),
+        [result.insertId, req.client.id, normalizeKind(item.kind, resourceKinds), item.title.trim().slice(0, 200),
          item.url || null, item.file_url || null, item.file_name || null, item.notes || null]
       );
     }
+    await conn.commit();
     try {
       await db.execute(
         "INSERT INTO dashboard_alerts (type, title, message, link) VALUES ('system', 'New client project', ?, '/projects')",
@@ -1055,8 +1194,11 @@ router.post('/projects', clientAuth, async (req, res) => {
     } catch (alertErr) { console.error('project alert failed:', alertErr.message); }
     return res.status(201).json({ success: true, id: result.insertId });
   } catch (err) {
+    await conn.rollback();
     console.error(err);
     return res.status(500).json({ success: false, message: 'Server error' });
+  } finally {
+    conn.release();
   }
 });
 
@@ -1166,11 +1308,13 @@ router.post('/projects/:id/links', clientAuth, async (req, res) => {
   try {
     const row = await ownedProject(req.client.id, req.params.id);
     if (!row) return res.status(404).json({ success: false, message: 'Project not found' });
+    const allowedKinds = new Set(['production','staging','figma','github','appstore','docs','prototype','other']);
+    const safeKind = allowedKinds.has(String(kind || '').toLowerCase()) ? String(kind).toLowerCase() : 'other';
     const [result] = await db.execute(
       'INSERT INTO project_links (project_id, kind, label, url) VALUES (?, ?, ?, ?)',
-      [row.id, kind || 'other', (label || 'Link').slice(0, 120), url.trim()]
+      [row.id, safeKind, (label || 'Link').slice(0, 120), url.trim()]
     );
-    return res.status(201).json({ success: true, link: { id: result.insertId, kind: kind || 'other', label: label || 'Link', url: url.trim() } });
+    return res.status(201).json({ success: true, link: { id: result.insertId, kind: safeKind, label: label || 'Link', url: url.trim() } });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: 'Server error' });
@@ -1197,9 +1341,11 @@ router.post('/projects/:id/resources', clientAuth, async (req, res) => {
   try {
     const row = await ownedProject(req.client.id, req.params.id);
     if (!row) return res.status(404).json({ success: false, message: 'Project not found' });
+    const allowedKinds = new Set(['brand','website','requirements','competitor','figma','drive','research','other']);
+    const safeKind = allowedKinds.has(String(kind || '').toLowerCase()) ? String(kind).toLowerCase() : 'other';
     const [result] = await db.execute(
       'INSERT INTO project_resources (project_id, client_id, kind, title, url, file_url, file_name, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [row.id, req.client.id, kind || 'other', title.trim().slice(0, 200), url?.trim() || null, file_url || null, file_name || null, notes || null]
+      [row.id, req.client.id, safeKind, title.trim().slice(0, 200), url?.trim() || null, file_url || null, file_name || null, notes || null]
     );
     const [[created]] = await db.execute('SELECT id, kind, title, url, file_url, file_name, notes, created_at FROM project_resources WHERE id = ?', [result.insertId]);
     return res.status(201).json({ success: true, resource: created });

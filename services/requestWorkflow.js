@@ -37,7 +37,7 @@ export async function loadBreakdown(executor, parentRequestId) {
   return parts;
 }
 
-export async function saveBreakdownProposal({ parentRequestId, parts, employeeId }) {
+export async function saveBreakdownProposal({ parentRequestId, parts, employeeId, sendToClient = true }) {
   if (!Array.isArray(parts) || parts.length < 2 || parts.length > 50) {
     const error = new Error('A breakdown must contain between 2 and 50 parts.');
     error.status = 400;
@@ -95,12 +95,12 @@ export async function saveBreakdownProposal({ parentRequestId, parts, employeeId
     }
     await conn.execute(
       `UPDATE requests
-          SET request_kind = 'parent', scope_status = 'proposed', queue_position = NULL,
+          SET request_kind = 'parent', scope_status = ?, queue_position = NULL,
               assigned_to = NULL, updated_at = NOW()
         WHERE id = ?`,
-      [parent.id]
+      [sendToClient ? 'proposed' : 'reviewing', parent.id]
     );
-    await addRequestActivity(conn, parent.id, 'breakdown_proposed', `Breakdown proposed · ${normalized.length} parts`, {
+    await addRequestActivity(conn, parent.id, sendToClient ? 'breakdown_proposed' : 'breakdown_draft_saved', `${sendToClient ? 'Breakdown proposed' : 'Breakdown draft saved'} · ${normalized.length} parts`, {
       actorType: 'employee', actorId: employeeId, metadata: { part_count: normalized.length },
     });
     await conn.commit();
@@ -111,6 +111,23 @@ export async function saveBreakdownProposal({ parentRequestId, parts, employeeId
   } finally {
     conn.release();
   }
+}
+
+export async function sendBreakdownToClient({ parentRequestId, employeeId }) {
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [[parent]] = await conn.execute('SELECT * FROM requests WHERE id=? FOR UPDATE', [parentRequestId]);
+    if (!parent) { const error=new Error('Request not found.'); error.status=404; throw error; }
+    if (parent.request_kind !== 'parent' || parent.scope_status !== 'reviewing') { const error=new Error('Save a valid breakdown draft before sending it.'); error.status=409; throw error; }
+    const [[{ count }]] = await conn.execute('SELECT COUNT(*) AS count FROM request_breakdown_parts WHERE parent_request_id=?', [parent.id]);
+    if (Number(count) < 2) { const error=new Error('A breakdown needs at least two parts.'); error.status=409; throw error; }
+    await conn.execute("UPDATE requests SET scope_status='proposed', updated_at=NOW() WHERE id=?", [parent.id]);
+    await addRequestActivity(conn, parent.id, 'breakdown_proposed', `Breakdown sent to client · ${count} parts`, { actorType:'employee', actorId:employeeId });
+    await conn.execute(`INSERT INTO dashboard_alerts (type,title,message,link) VALUES ('system','Breakdown sent to client',?,?)`, [`${parent.title} is awaiting client approval.`, `/requests/${parent.id}`]);
+    await conn.commit();
+    return Number(count);
+  } catch(error) { await conn.rollback(); throw error; } finally { conn.release(); }
 }
 
 export async function markScopeReview({ requestId, employeeId }) {

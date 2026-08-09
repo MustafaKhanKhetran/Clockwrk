@@ -1,4 +1,4 @@
--- Client password reset / first-login token.
+-- Client password reset token. First-time setup uses migration 007.
 -- Store the SHA-256 hash of the token, not the token itself, so a DB leak
 -- can't be used to hijack an account.
 

@@ -271,11 +271,23 @@ router.get('/subscription-changes', authenticate, requireRoles(FINANCE_ACCESS), 
         WHERE sc.status IN ('awaiting_payment','payment_reported','partially_paid','scheduled')
         ORDER BY FIELD(sc.status,'payment_reported','partially_paid','awaiting_payment','scheduled'), sc.requested_at`
     );
-    return res.json({ success: true, changes: rows });
+    const [billingTickets] = await db.execute(
+      `SELECT t.*,c.name AS client_name,c.company,c.email AS client_email
+       FROM client_tickets t JOIN clients c ON c.id=t.client_id
+       WHERE t.category='Billing Question' AND t.status IN ('Open','In Progress') ORDER BY t.created_at`
+    );
+    return res.json({ success: true, changes: rows, billing_tickets: billingTickets });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
+});
+
+router.patch('/billing-tickets/:id', authenticate, requireRoles(FINANCE_ACCESS), async (req,res)=>{
+  const status=req.body.status;
+  if(!['Open','In Progress','Resolved','Closed'].includes(status))return res.status(400).json({success:false,message:'Invalid ticket status'});
+  await db.execute('UPDATE client_tickets SET status=? WHERE id=? AND category=\'Billing Question\'',[status,req.params.id]);
+  return res.json({success:true});
 });
 
 router.post('/subscription-changes/:id/verify', authenticate, requireRoles(FINANCE_ACCESS), async (req, res) => {

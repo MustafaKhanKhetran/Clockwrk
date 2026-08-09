@@ -8,7 +8,11 @@ import {
   nextQueuePosition,
   returnToNormalQueue,
   saveBreakdownProposal,
+  sendBreakdownToClient,
+  reorderClientQueue,
+  promoteNextQueued,
 } from '../services/requestWorkflow.js';
+import { slotsFor } from '../services/billingChanges.js';
 
 const router = Router();
 
@@ -83,6 +87,43 @@ router.post('/', authenticate, requireRoles(REQUEST_ACCESS), async (req, res) =>
   }
 });
 
+router.get('/:id', authenticate, requireRoles(REQUEST_ACCESS), async (req, res) => {
+  try {
+    const [[request]] = await db.execute(
+      `SELECT r.*, c.name AS client_name, c.company AS client_company, c.plan AS client_plan,
+              p.name AS project_name, e.name AS assigned_to_name,
+              parent.title AS parent_title, dependency.title AS dependency_title,
+              dependency.status AS dependency_status
+       FROM requests r JOIN clients c ON c.id=r.client_id JOIN projects p ON p.id=r.project_id
+       LEFT JOIN employees e ON e.id=r.assigned_to LEFT JOIN requests parent ON parent.id=r.parent_request_id
+       LEFT JOIN requests dependency ON dependency.id=r.depends_on_request_id WHERE r.id=?`, [req.params.id]
+    );
+    if (!request) return res.status(404).json({success:false,message:'Request not found'});
+    const [comments] = await db.execute(
+      `SELECT rc.*, COALESCE(e.name,c.name) AS author_name,
+              CASE WHEN rc.client_id IS NOT NULL THEN 'client' ELSE 'employee' END AS author_type
+       FROM request_comments rc LEFT JOIN employees e ON e.id=rc.employee_id LEFT JOIN clients c ON c.id=rc.client_id
+       WHERE rc.request_id=? ORDER BY rc.created_at`, [request.id]
+    );
+    const [files] = await db.execute('SELECT * FROM files WHERE request_id=? ORDER BY created_at DESC', [request.id]);
+    const [activity] = await db.execute('SELECT * FROM request_activity WHERE request_id=? ORDER BY created_at DESC', [request.id]);
+    const [children] = await db.execute(
+      `SELECT r.*, dependency.title AS dependency_title FROM requests r LEFT JOIN requests dependency ON dependency.id=r.depends_on_request_id
+       WHERE r.parent_request_id=? ORDER BY r.part_number`, [request.id]
+    );
+    const parts = await loadBreakdown(db, request.id);
+    const [team] = await db.execute("SELECT id,name,role,status FROM employees WHERE status='active' ORDER BY name");
+    return res.json({success:true,request,comments,files,activity,children,parts,team});
+  } catch(err) { console.error(err); return res.status(500).json({success:false,message:'Server error'}); }
+});
+
+router.post('/queue/reorder', authenticate, requireRoles(REQUEST_ACCESS), async (req, res) => {
+  try {
+    const orderedIds = await reorderClientQueue({clientId:Number(req.body.client_id),orderedIds:req.body.ordered_ids});
+    return res.json({success:true,ordered_ids:orderedIds});
+  } catch(err) { return res.status(err.status||500).json({success:false,message:err.message||'Server error'}); }
+});
+
 router.get('/:id/breakdown', authenticate, requireRoles(REQUEST_ACCESS), async (req, res) => {
   try {
     const [[request]] = await db.execute('SELECT * FROM requests WHERE id = ?', [req.params.id]);
@@ -128,18 +169,22 @@ router.put('/:id/breakdown', authenticate, requireRoles(REQUEST_ACCESS), async (
       parentRequestId: Number(req.params.id),
       parts: req.body.parts,
       employeeId: req.user.id,
+      sendToClient: req.body.send_to_client === true,
     });
     const [[request]] = await db.execute('SELECT * FROM requests WHERE id = ?', [req.params.id]);
-    await db.execute(
-      `INSERT INTO dashboard_alerts (type, title, message, link)
-       VALUES ('system', 'Breakdown ready for client review', ?, ?)`,
-      [`${request.title} was split into ${result.parts.length} proposed parts.`, `/requests/${request.id}`]
-    );
     return res.json({ success: true, request, parts: result.parts });
   } catch (err) {
     console.error(err);
     return res.status(err.status || 500).json({ success: false, message: err.message || 'Server error' });
   }
+});
+
+router.post('/:id/breakdown/send', authenticate, requireRoles(REQUEST_ACCESS), async (req, res) => {
+  try {
+    const partCount = await sendBreakdownToClient({parentRequestId:Number(req.params.id),employeeId:req.user.id});
+    const [[request]] = await db.execute('SELECT * FROM requests WHERE id=?', [req.params.id]);
+    return res.json({success:true,request,part_count:partCount});
+  } catch(err) { return res.status(err.status||500).json({success:false,message:err.message||'Server error'}); }
 });
 
 router.patch('/:id', authenticate, requireRoles(REQUEST_ACCESS), async (req, res) => {
@@ -158,6 +203,15 @@ router.patch('/:id', authenticate, requireRoles(REQUEST_ACCESS), async (req, res
     if (existing.request_kind === 'parent' && req.body.status && req.body.status !== existing.status) {
       return res.status(409).json({ success: false, message: 'A request group status is controlled by its parts.' });
     }
+    if (req.body.status === 'in_progress' && existing.status !== 'in_progress') {
+      if (existing.depends_on_request_id) {
+        const [[dependency]] = await db.execute('SELECT status,title FROM requests WHERE id=?', [existing.depends_on_request_id]);
+        if (dependency && dependency.status !== 'completed') return res.status(409).json({success:false,message:`Blocked until ${dependency.title} is delivered.`});
+      }
+      const slots = await slotsFor(existing.client_id);
+      const [[{active}]] = await db.execute("SELECT COUNT(*) AS active FROM requests WHERE client_id=? AND request_kind!='parent' AND status IN ('in_progress','revision') AND id!=?", [existing.client_id,id]);
+      if (Number(active) >= Number(slots)) return res.status(409).json({success:false,message:`All ${slots} production slots are currently in use.`});
+    }
     await db.execute(`UPDATE requests SET ${fields.join(', ')} WHERE id = ?`, params);
     if (req.body.status && req.body.status !== existing.status) {
       await addRequestActivity(db, Number(id), 'status_changed', `Status changed to ${req.body.status.replaceAll('_', ' ')}`, {
@@ -165,6 +219,7 @@ router.patch('/:id', authenticate, requireRoles(REQUEST_ACCESS), async (req, res
       });
     }
     const [[request]] = await db.execute('SELECT * FROM requests WHERE id = ?', [id]);
+    if (req.body.status === 'completed' && existing.status !== 'completed') await promoteNextQueued(existing.client_id);
     return res.json({ success: true, request });
   } catch (err) {
     console.error(err);

@@ -21,12 +21,22 @@ router.get('/', authenticate, requireRoles(BOOKING_ACCESS), async (req, res) => 
   }
 });
 
+router.get('/:id', authenticate, requireRoles(BOOKING_ACCESS), async (req, res) => {
+  try {
+    const [[booking]] = await db.execute(`SELECT b.*, e.name AS assignee_name, e.email AS assignee_email FROM bookings b LEFT JOIN employees e ON e.id=b.assigned_to WHERE b.id=?`, [req.params.id]);
+    if (!booking) return res.status(404).json({success:false,message:'Booking not found'});
+    return res.json({success:true,booking});
+  } catch(err) { console.error(err); return res.status(500).json({success:false,message:'Server error'}); }
+});
+
 router.patch('/:id', authenticate, requireRoles(BOOKING_ACCESS), async (req, res) => {
-  const { status, assigned_to, notes } = req.body;
+  const { status, assigned_to, notes, booking_date, booking_time } = req.body;
   const fields = []; const params = [];
   if (status !== undefined) { fields.push('status = ?'); params.push(status); }
   if (assigned_to !== undefined) { fields.push('assigned_to = ?'); params.push(assigned_to); }
   if (notes !== undefined) { fields.push('notes = ?'); params.push(notes); }
+  if (booking_date !== undefined) { fields.push('booking_date = ?'); params.push(booking_date); }
+  if (booking_time !== undefined) { fields.push('booking_time = ?'); params.push(booking_time); }
   if (!fields.length) return res.status(400).json({ success: false, message: 'No fields to update' });
   params.push(req.params.id);
   try {
