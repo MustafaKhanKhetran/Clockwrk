@@ -1,5 +1,6 @@
 packages:
   - "apps/*"
+  - "apps/api/workers-scaffold"
   - "packages/*"
 allowBuilds:
   esbuild: true

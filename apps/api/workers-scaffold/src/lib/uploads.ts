@@ -36,8 +36,8 @@ export async function readUpload(request: Request, field: string): Promise<File[
   const form = await request.formData();
   const values = form.getAll(field);
   const files: File[] = [];
-  for (const v of values) {
-    if (v instanceof File) files.push(v);
+  for (const value of values) {
+    if (typeof value === 'object' && value !== null && 'arrayBuffer' in value) files.push(value as File);
   }
   return files;
 }

@@ -42,7 +42,6 @@ app.use('*', secureHeaders({
   xContentTypeOptions: 'nosniff',
   referrerPolicy: 'no-referrer',
   crossOriginResourcePolicy: 'cross-origin',
-  contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
 }));
 
