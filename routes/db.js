@@ -242,10 +242,23 @@ router.post('/tables/:table/columns', async (req, res) => {
   const safeType = ALLOWED_TYPES.find(t => t.toUpperCase() === type.toUpperCase());
   if (!safeType) return res.status(400).json({ success: false, message: `Type not allowed. Use: ${ALLOWED_TYPES.join(', ')}` });
 
-  const nullClause     = nullable ? 'NULL' : 'NOT NULL';
-  const defaultClause  = default_value !== undefined && default_value !== ''
-    ? `DEFAULT '${String(default_value).replace(/'/g, "\\'")}'`
-    : '';
+  const nullClause = nullable ? 'NULL' : 'NOT NULL';
+
+  // Defaults can't be parameterized in DDL, and hand-rolled quoting is
+  // fragile. Allow only simple scalars we can render safely, and reject
+  // anything else — owner can always add a nuanced default via /api/db/query.
+  let defaultClause = '';
+  if (default_value !== undefined && default_value !== '') {
+    if (typeof default_value === 'number' && Number.isFinite(default_value)) {
+      defaultClause = `DEFAULT ${default_value}`;
+    } else if (typeof default_value === 'boolean') {
+      defaultClause = `DEFAULT ${default_value ? 1 : 0}`;
+    } else if (typeof default_value === 'string' && /^[A-Za-z0-9_ \-.:@]{0,64}$/.test(default_value)) {
+      defaultClause = `DEFAULT '${default_value}'`;
+    } else {
+      return res.status(400).json({ success: false, message: 'default_value must be a number, boolean, or short alphanumeric string' });
+    }
+  }
 
   try {
     await db.execute(
@@ -277,9 +290,17 @@ router.delete('/tables/:table/columns/:column', async (req, res) => {
 
 // ─── Raw SQL query (replaces /api/query) ─────────────────────────────────────
 // POST /api/db/query   body: { query: "SELECT ..." }
+// Owner-only. Also gated by the ALLOW_RAW_SQL env flag so prod can
+// disable it entirely without pulling the route out of the code.
+const RAW_SQL_ENABLED = String(process.env.ALLOW_RAW_SQL ?? 'true').toLowerCase() === 'true';
 router.post('/query', async (req, res) => {
+  if (!RAW_SQL_ENABLED) {
+    return res.status(403).json({ success: false, message: 'Raw SQL is disabled on this server.' });
+  }
   const { query: sql } = req.body;
   if (!sql) return res.status(400).json({ success: false, message: 'Query required' });
+  // Every raw execution is audited so a leaked owner token leaves a trail.
+  console.warn(`[db/query] employee=${req.user?.id} email=${req.user?.email} sql=${sql.slice(0, 500)}`);
   try {
     const [rows] = await db.execute(sql);
     return res.json({ success: true, data: rows });

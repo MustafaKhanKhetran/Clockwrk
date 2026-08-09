@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
 const loginLimiter = rateLimit({
@@ -47,8 +48,18 @@ import predictionsRoutes from './routes/predictions.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Trust Cloudflare's proxy (required for rate limiting + X-Forwarded-For)
-app.set('trust proxy', 1);
+// Trust exactly the number of proxy hops in front of the API — default 1
+// (Cloudflare). Set TRUST_PROXY_HOPS to change this if you add more hops;
+// setting it too high makes the rate-limit key (X-Forwarded-For) spoofable.
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS ?? 1));
+
+// API returns JSON only, so we keep helmet's HTML-oriented policies off
+// (CSP / COEP / frame-guessing) and rely on the response body type.
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
 
