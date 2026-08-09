@@ -2,17 +2,22 @@
 //
 //   * * * * *   — booking auto-assign sweep (every minute; matches the
 //                 60s poller the Express version ran with setInterval)
+//   0 */6 * * * — refresh payment predictions every six hours
 //   0 3 * * *   — nightly D1 export → R2 backup (03:00 UTC)
 //
 // Cloudflare picks the trigger by `event.cron`, so we branch on that.
 
 import type { Env } from './types';
 import { sweepBookingAutoAssign } from './services/bookingAutoAssign';
+import { runPredictionEngine } from './routes/predictions';
 
 export const scheduled: ExportedHandlerScheduledHandler<Env> = async (event, env, ctx) => {
   switch (event.cron) {
     case '* * * * *':
       ctx.waitUntil(sweepBookingAutoAssign(env).catch(err => console.error('booking sweep:', err)));
+      return;
+    case '0 */6 * * *':
+      ctx.waitUntil(runPredictionEngine(env.DB).catch(err => console.error('prediction run:', err)));
       return;
     case '0 3 * * *':
       ctx.waitUntil(backupD1(env).catch(err => console.error('nightly backup:', err)));
