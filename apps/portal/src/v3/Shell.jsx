@@ -1,0 +1,162 @@
+import { useEffect, useMemo, useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { store, useStore } from '../store';
+import { useSession } from './session';
+import Icon from './Icon';
+import ErrorBoundary from './ErrorBoundary';
+import InstallPrompt from './InstallPrompt';
+import OnboardingTour from './OnboardingTour';
+import { Avatar } from './Primitives';
+
+const links = [
+  ['Home', '/home', 'home'],
+  ['Requests', '/requests', 'requests'],
+  ['Projects', '/projects', 'projects'],
+  ['Deliverables', '/deliverables', 'files'],
+  ['Messages', '/messages', 'messages'],
+];
+const utility = [
+  ['Billing', '/billing', 'billing'],
+  ['Help', '/support', 'help'],
+  ['Settings', '/settings', 'settings'],
+];
+const allLinks = [...links, ...utility];
+
+export default function Shell({ children }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { requests, projects, accountMode, hoursRemaining, hoursAllowance, baseSlots, extraSlots, notifications } = useStore();
+  const { client } = useSession();
+  // Empty until the session resolves — never a mock identity.
+  const identity = client || { name: '', company: '' };
+  const [theme, setTheme] = useState(() => localStorage.getItem('portal_theme') || 'light');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [searchIndex, setSearchIndex] = useState(0);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const active = requests.filter((item) => item.status === 'active' && !item.isParent);
+  const reviews = requests.filter((item) => item.status === 'review' && !item.isParent);
+  const queued = requests.filter((item) => item.status === 'queued' && !item.isParent);
+  const current = allLinks.find(([, path]) => location.pathname === path || location.pathname.startsWith(`${path}/`))?.[0] || 'Workspace';
+
+  // Pull the signed-in client's real projects and requests once per session.
+  useEffect(() => {
+    store.loadFromApi();
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.v3Theme = theme;
+    localStorage.setItem('portal_theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
+    setCreateOpen(false);
+    setAccountOpen(false);
+    setAlertsOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handle = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setSearchOpen(true);
+      }
+      if (event.key === 'Escape') setSearchOpen(false);
+    };
+    window.addEventListener('keydown', handle);
+    return () => window.removeEventListener('keydown', handle);
+  }, []);
+
+  const results = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const items = [
+      ...allLinks.map(([label, to, icon]) => ({ id: `nav-${to}`, label, meta: 'Page', to, icon })),
+      ...projects.map((project) => ({ id: `project-${project.id}`, label: project.name, meta: 'Project', to: `/projects/${project.id}`, icon: 'projects' })),
+      ...requests.map((request) => ({ id: `request-${request.id}`, label: request.title, meta: 'Request', to: `/requests/${request.id}`, icon: 'requests' })),
+    ];
+    return (query ? items.filter((item) => `${item.label} ${item.meta}`.toLowerCase().includes(query)) : items).slice(0, 9);
+  }, [projects, requests, search]);
+
+  useEffect(() => {
+    setSearchIndex(0);
+  }, [search, searchOpen]);
+
+  useEffect(() => {
+    if (!searchOpen || !results.length) return;
+    document.getElementById(`v3-search-result-${searchIndex}`)?.scrollIntoView({ block: 'nearest' });
+  }, [results.length, searchIndex, searchOpen]);
+
+  const jump = (to) => {
+    navigate(to);
+    setSearchOpen(false);
+    setSearch('');
+  };
+
+  const handleSearchKeyDown = (event) => {
+    if (!results.length) return;
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setSearchIndex((index) => (index + 1) % results.length);
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setSearchIndex((index) => (index - 1 + results.length) % results.length);
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const selected = results[Math.min(searchIndex, results.length - 1)];
+      if (selected) jump(selected.to);
+    }
+  };
+
+  return (
+    <div className="v3-shell">
+      <a href="#v3-content" className="v3-skip">Skip to content</a>
+      <header className="v3-nav">
+        <button className="v3-wordmark" data-tour="workspace-home" onClick={() => navigate('/home')} aria-label="Clockwrk home"><img src="/brand/cw-logo.png" alt="" /></button>
+        <nav aria-label="Main navigation">
+          {links.map(([label, to]) => <NavLink key={to} to={to} data-tour={label.toLowerCase()}>{label}</NavLink>)}
+        </nav>
+        <div className="v3-nav-tools">
+          <button className="v3-search-trigger" onClick={() => setSearchOpen(true)}><Icon name="search" size={16} /><span>Find</span><kbd>⌘K</kbd></button>
+          <button className="v3-icon-button" onClick={() => setAlertsOpen(!alertsOpen)} aria-label="Notifications"><Icon name="bell" size={18} />{notifications.some((item) => item.unread) && <i />}</button>
+          <button className="v3-icon-button" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Change theme"><Icon name={theme === 'light' ? 'moon' : 'sun'} size={18} /></button>
+          <div className="v3-create-wrap">
+            <button className="v3-create" data-tour="create-primary" onClick={() => setCreateOpen(!createOpen)}><span>Create</span><Icon name="plus" size={18} /></button>
+            {createOpen && <div className="v3-create-menu"><button onClick={() => navigate('/requests/new')}><Icon name="requests" />New request<small>Send work to the team</small></button><button onClick={() => navigate('/projects/new')}><Icon name="projects" />New project<small>Open a fresh workspace</small></button></div>}
+          </div>
+          <button className="v3-account" data-tour="account-primary" onClick={() => setAccountOpen(!accountOpen)} aria-label="Account menu"><Avatar name={identity.name} src={identity.avatar_url} size="sm" /></button>
+        </div>
+        {alertsOpen && <aside className="v3-popover v3-alerts"><header><strong>Updates</strong><button onClick={() => setAlertsOpen(false)}><Icon name="close" size={15} /></button></header>{notifications.map((item) => <button key={item.id} onClick={() => navigate(item.to || '/requests')}><i className={item.unread ? 'is-new' : ''} /><span>{item.text}<small>{item.to === '/billing' ? 'Review billing' : 'Open workspace'}</small></span></button>)}</aside>}
+        {accountOpen && <aside className="v3-popover v3-account-menu"><div><Avatar name={identity.name} src={identity.avatar_url} /><span><strong>{identity.name}</strong><small>{identity.company}</small></span></div><button className="v3-mobile-menu-only" onClick={() => navigate('/messages')}><Icon name="messages" size={16} />Messages<Icon name="arrow" size={14} /></button>{utility.map(([label, to, icon]) => <button key={to} onClick={() => navigate(to)}><Icon name={icon} size={16} />{label}<Icon name="arrow" size={14} /></button>)}</aside>}
+      </header>
+
+      <div className="v3-live-rail" aria-label="Workspace status">
+        <span><i className="is-live" />Team online</span>
+        <span><strong>{active.length}</strong> building now</span>
+        <span className={reviews.length ? 'is-attention' : ''}><strong>{reviews.length}</strong> awaiting approval</span>
+        <span><strong>{queued.length}</strong> in queue</span>
+        <span>{accountMode === 'retainer' ? <><strong>{hoursRemaining}</strong> of {hoursAllowance} hours left</> : <><strong>{active.length}</strong> of {baseSlots + extraSlots} slots used</>}</span>
+        <span className="v3-live-route">{current}</span>
+      </div>
+
+      <main id="v3-content" key={location.pathname}><ErrorBoundary routeKey={location.pathname}>{children}</ErrorBoundary></main>
+
+      <nav className="v3-mobile-nav" aria-label="Mobile navigation">
+        {links.slice(0, 4).map(([label, to, icon]) => <NavLink key={to} to={to} data-tour={`mobile-${label.toLowerCase()}`} aria-label={label}><Icon name={icon} size={20} /><span>{label}</span></NavLink>)}
+        <button data-tour="mobile-create" onClick={() => setCreateOpen(!createOpen)} aria-label="Create"><Icon name="plus" size={20} /><span>Create</span></button>
+        <button data-tour="mobile-account" onClick={() => setAccountOpen(!accountOpen)} aria-label="More"><Icon name="settings" size={20} /><span>More</span></button>
+      </nav>
+
+      {searchOpen && <div className="v3-search-layer" onMouseDown={() => setSearchOpen(false)}><section onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="Search workspace"><header><Icon name="search" size={22} /><input autoFocus aria-label="Search workspace" aria-activedescendant={results.length ? `v3-search-result-${searchIndex}` : undefined} value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={handleSearchKeyDown} placeholder="Search requests, projects, pages…" /><button onClick={() => setSearchOpen(false)}>Esc</button></header><div><span>{search ? 'Results' : 'Go somewhere'}<small>↑↓ to move · Enter to open</small></span>{results.map((item, index) => <button id={`v3-search-result-${index}`} key={item.id} className={index === searchIndex ? 'is-active' : ''} aria-current={index === searchIndex ? 'true' : undefined} onMouseEnter={() => setSearchIndex(index)} onClick={() => jump(item.to)}><i><Icon name={item.icon} size={17} /></i><strong>{item.label}</strong><small>{item.meta}</small><Icon name="arrow" size={15} /></button>)}</div></section></div>}
+
+      {/* Add-to-home-screen helper + service worker update toast. Renders nothing
+          when already installed, on the first visit, or while dismissed. */}
+      <InstallPrompt />
+      <OnboardingTour />
+    </div>
+  );
+}
