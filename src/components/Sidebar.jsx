@@ -5,8 +5,8 @@ import { hasRole } from './RoleGuard';
 import './Sidebar.css';
 
 const NAV = [
-  { group: null, items: [{ path: '/overview', label: 'Overview', icon: 'grid', roles: [] }] },
-  { group: 'Launch', items: [
+  { group: null, items: [
+    { path: '/overview', label: 'Overview', icon: 'grid', roles: [] },
     { path: '/clients', label: 'Clients', icon: 'users', roles: ['client_access'] },
     { path: '/projects', label: 'Projects', icon: 'folder', roles: ['project_access'] },
     { path: '/requests', label: 'Requests', icon: 'check', roles: ['managers', 'delivery_heads'] },
@@ -14,18 +14,13 @@ const NAV = [
     { path: '/bookings', label: 'Bookings', icon: 'calendar', roles: ['booking_access'] },
     { path: '/calendar', label: 'Calendar', icon: 'cal', roles: ['delivery', 'managers'] },
     { path: '/finance', label: 'Finance', icon: 'dollar', roles: ['finance_access'] },
-    { path: '/referrals', label: 'Referrals', icon: 'share', roles: ['owner', 'finance', 'sales'] },
   ] },
-  { group: 'People', items: [
-    { path: '/team', label: 'Team', icon: 'team', roles: ['people_access'] },
-    { path: '/jobs', label: 'HR & Careers', icon: 'hr', roles: ['hr_access'] },
+  { group: 'Your work', items: [
     { path: '/my-work', label: 'My Work', icon: 'briefcase', roles: ['workers'] },
     { path: '/time', label: 'Time', icon: 'clock', roles: ['request_access'] },
-  ] },
-  { group: 'Ops', items: [
+    { path: '/team', label: 'Team', icon: 'team', roles: ['people_access'] },
+    { path: '/jobs', label: 'Jobs & HR', icon: 'hr', roles: ['hr_access'] },
     { path: '/alerts', label: 'Alerts', icon: 'bell', roles: ['system_access'] },
-    { path: '/settings', label: 'Settings', icon: 'settings', roles: ['owner'] },
-    { path: '/coming-soon', label: 'Coming Soon', icon: 'zap', roles: [] },
   ] },
 ];
 
@@ -56,12 +51,11 @@ const ICONS = {
 };
 
 export default function Sidebar() {
-  const { user, logout, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const handleLogout = () => {
-    if (logout) logout();
-    else if (signOut) signOut();
+    signOut();
     navigate('/login');
   };
   const query = search.trim().toLowerCase();
@@ -109,6 +103,7 @@ export default function Sidebar() {
         ))}
       </nav>
       <div className="sidebar-footer">
+        {hasRole(user, ['owner']) && <NavLink to="/settings" className={({isActive})=>`sidebar-item ${isActive?'sidebar-item-active':''}`}><span className="sidebar-icon">{ICONS.settings}</span><span className="sidebar-label">Settings</span></NavLink>}
         <div className="sidebar-user">
           <div className="sidebar-user-avatar">{initials}</div>
           <div className="sidebar-user-info">

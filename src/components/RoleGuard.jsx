@@ -22,10 +22,10 @@ const PERMISSION_GROUPS = {
   hr_access: PAGE_ACCESS.jobs,
   comms_access: PAGE_ACCESS.newsletter,
   sales_access: ROLE_GROUPS.sales,
-  system_access: ROLE_GROUPS.leadership,
+  system_access: ROLE_GROUPS.allStaff,
   managers: ['owner', 'admin', 'head_of_delivery', 'project_manager', 'account_manager'],
   delivery_heads: ['owner', 'admin', 'head_of_delivery'],
-  workers: ROLE_GROUPS.creative,
+  workers: PAGE_ACCESS.requests,
 };
 
 const expandRoles = (roles = []) => {

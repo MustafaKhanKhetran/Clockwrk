@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { callDashboardApi, getList } from '../utils/dashboardApi';
+import { apiGet, getList } from '../utils/dashboardApi';
 
 const API = '/api/communications';
 
@@ -19,7 +19,7 @@ export default function CommunicationTimeline({ clientId }) {
     if (!clientId) return;
     setLoading(true);
     setError(null);
-    callDashboardApi(API, 'list_by_client', { client_id: clientId })
+    apiGet(API, { entity_type: 'client', entity_id: clientId })
       .then(data => setItems(getList(data, ['timeline', 'communications', 'logs'])))
       .catch(err => {
         console.error(err);

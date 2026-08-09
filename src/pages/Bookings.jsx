@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashLayout from '../components/DashLayout';
 import PillSelect from '../components/PillSelect';
 import SkeletonBlock from '../components/SkeletonBlock';
 import { toast } from '../components/Toast';
 import InsightStrip from '../components/InsightStrip';
-import { apiGet, apiPost } from '../utils/dashboardApi';
+import { apiFetch, apiGet } from '../utils/dashboardApi';
 
 const API = '/api/bookings';
 const STATUSES = ['confirmed', 'cancelled', 'no-show'];
 const STATUS_FILTERS = [{ value: 'all', label: 'All statuses' }, ...STATUSES];
 
 export default function Bookings() {
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -35,7 +37,7 @@ export default function Bookings() {
 
   const handleStatusChange = async (bookingId, status) => {
     try {
-      await apiPost(API, { action: 'update_status', booking_id: bookingId, status });
+      await apiFetch(`${API}/${bookingId}`, { method: 'PATCH', body: { status } });
       setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status } : b));
       if (selected?.id === bookingId) setSelected(prev => ({ ...prev, status }));
       toast.success('Status updated');
@@ -105,7 +107,7 @@ export default function Bookings() {
         </thead>
         <tbody>
           {items.map(b => (
-            <tr key={b.id} onClick={() => setSelected(b)} className={isPast ? 'is-muted-row' : ''}>
+            <tr key={b.id} onClick={() => navigate(`/bookings/${b.id}`)} className={isPast ? 'is-muted-row' : ''}>
               <td>
                 <div className="client-cell">
                   <div className="client-cell-avatar">

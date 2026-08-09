@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -23,11 +24,11 @@ import SkeletonBlock from '../components/SkeletonBlock';
 import { toast } from '../components/Toast';
 import { canWrite } from '../config/roles';
 import { useAuth } from '../context/AuthContext';
-import { callDashboardApi, getList } from '../utils/dashboardApi';
+import { apiGet, callDashboardApi, getList } from '../utils/dashboardApi';
 import './Projects.css';
 
 const API = '/api/projects';
-const STATUSES = ['planning', 'active', 'in_progress', 'in_review', 'completed', 'paused', 'archived'];
+const STATUSES = ['active', 'paused', 'completed'];
 const PRIORITIES = ['low', 'normal', 'high', 'urgent'];
 const TYPES = ['website', 'branding', 'web_app', 'automation', 'support', 'internal'];
 const DRAWER_TABS = ['overview', 'activity', 'requests', 'files', 'links'];
@@ -37,7 +38,7 @@ const EMPTY_PROJECT = {
   client: '',
   plan: 'business',
   project_type: 'website',
-  status: 'planning',
+  status: 'active',
   priority: 'normal',
   start_date: '',
   due_date: '',
@@ -338,6 +339,8 @@ function ProgressBar({ value }) {
 }
 
 export default function Projects() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const canManage = canWrite(user?.role, 'projects');
   const [projects, setProjects] = useState([]);
@@ -353,6 +356,9 @@ export default function Projects() {
   const [status, setStatus] = useState('all');
   const [priority, setPriority] = useState('all');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'desc' });
+  const [clients, setClients] = useState([]);
+  const [team, setTeam] = useState([]);
+  const clientContext = searchParams.get('client_id');
 
   const fetchProjects = () => {
     setLoading(true);
@@ -368,7 +374,21 @@ export default function Projects() {
   };
 
   useEffect(() => { fetchProjects(); }, []);
+  useEffect(() => {
+    Promise.all([apiGet('/api/clients'), apiGet('/api/team')])
+      .then(([clientData, teamData]) => { setClients(clientData.clients || []); setTeam(teamData.employees || []); })
+      .catch(() => {});
+  }, []);
   useEffect(() => { if (selected) setDrawerTab('overview'); }, [selected?.id]);
+  useEffect(() => {
+    if (searchParams.get('create') !== '1' || !canManage) return;
+    setEditing(null);
+    setForm({ ...EMPTY_PROJECT, client_id: clientContext || '' });
+    setShowForm(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('create');
+    setSearchParams(next, { replace: true });
+  }, [canManage, clientContext, searchParams, setSearchParams]);
 
   const handleSort = key => {
     setSortConfig(current => ({
@@ -380,6 +400,7 @@ export default function Projects() {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     const rows = projects.filter(project => {
+      if (clientContext && String(project.client_id) !== String(clientContext)) return false;
       if (status !== 'all' && statusOf(project) !== status) return false;
       if (priority !== 'all' && priorityOf(project) !== priority) return false;
       if (!query) return true;
@@ -409,7 +430,7 @@ export default function Projects() {
         : aValue - bValue;
       return sortConfig.direction === 'asc' ? diff : -diff;
     });
-  }, [projects, search, status, priority, sortConfig]);
+  }, [projects, search, status, priority, sortConfig, clientContext]);
 
   const metrics = useMemo(() => {
     const active = projects.filter(project => ACTIVE_STATUSES.includes(statusOf(project))).length;
@@ -453,7 +474,9 @@ export default function Projects() {
       ...project,
       project_name: projectName(project),
       client: clientName(project),
+      client_id: project.client_id,
       project_type: field(project, 'project_type', 'type') || 'website',
+      project_manager_id: project.project_manager_id || '',
       progress: progressOf(project),
       staging_link: field(project, 'staging_link', 'staging_url'),
       live_link: field(project, 'live_link', 'live_url'),
@@ -506,7 +529,7 @@ export default function Projects() {
                     className={`pj-lineup-card ${overdue ? 'is-overdue' : ''}`}
                     type="button"
                     key={project.id || projectName(project)}
-                    onClick={() => setSelected(project)}
+                    onClick={() => navigate(`/projects/${project.id}`)}
                   >
                     <div className="pj-lineup-top">
                       <span className="pj-lineup-type"><i>{initials(typeOf(project)).slice(0, 1)}</i>{human(typeOf(project))}</span>
@@ -698,7 +721,7 @@ export default function Projects() {
                     <span className="pj-side-caption">{clientName(metrics.topProject)}</span>
                     <strong className="pj-big">{progressOf(metrics.topProject)}%</strong>
                     <span className="pj-side-caption">On track · finishes {fmtDate(field(metrics.topProject, 'due_date'))}</span>
-                    <button className="pj-link" type="button" onClick={() => setSelected(metrics.topProject)}>
+                    <button className="pj-link" type="button" onClick={() => navigate(`/projects/${metrics.topProject.id}`)}>
                       View project <ArrowRight size={13} />
                     </button>
                   </>
@@ -710,7 +733,7 @@ export default function Projects() {
                 <h2>{metrics.risk.length} need attention</h2>
                 <div className="pj-side-list">
                   {metrics.risk.slice(0, 4).map(project => (
-                    <button className="pj-side-row" type="button" key={project.id || projectName(project)} onClick={() => setSelected(project)}>
+                    <button className="pj-side-row" type="button" key={project.id || projectName(project)} onClick={() => navigate(`/projects/${project.id}`)}>
                       <ProjectAvatar project={project} size="sm" />
                       <span className="pj-side-row-text">
                         <strong>{projectName(project)}</strong>
@@ -741,7 +764,7 @@ export default function Projects() {
                 <span className="tw-kicker">Recent Activity</span>
                 <div className="pj-side-list">
                   {metrics.recent.map(project => (
-                    <button className="pj-side-row" type="button" key={project.id || projectName(project)} onClick={() => setSelected(project)}>
+                    <button className="pj-side-row" type="button" key={project.id || projectName(project)} onClick={() => navigate(`/projects/${project.id}`)}>
                       <ProjectAvatar project={project} size="sm" />
                       <span className="pj-side-row-text"><strong>{projectName(project)}</strong><span>{clientName(project)}</span></span>
                       <span className="pj-side-row-meta">{relativeTime(field(project, 'updated_at', 'start_date'))}</span>
@@ -793,7 +816,7 @@ export default function Projects() {
               <form className="modal-form" onSubmit={handleSubmit}>
                 <div className="form-row">
                   <div className="form-field"><label>Project name *</label><input className="dash-input" required value={form.project_name} onChange={event => setForm(current => ({ ...current, project_name: event.target.value }))} /></div>
-                  <div className="form-field"><label>Client</label><input className="dash-input" value={form.client} onChange={event => setForm(current => ({ ...current, client: event.target.value }))} /></div>
+                  <div className="form-field"><label>Client *</label><PillSelect value={String(form.client_id || '')} onChange={client_id => setForm(current => ({ ...current, client_id }))} ariaLabel="Choose client" options={[{value:'',label:'Choose client'},...clients.map(client=>({value:String(client.id),label:client.company||client.name}))]}/></div>
                 </div>
                 <div className="form-row">
                   <div className="form-field"><label>Type</label><PillSelect value={form.project_type} options={TYPES} onChange={project_type => setForm(current => ({ ...current, project_type }))} ariaLabel="Project type" /></div>
@@ -808,12 +831,8 @@ export default function Projects() {
                   <div className="form-field"><label>Due date</label><input className="dash-input" type="date" value={form.due_date || ''} onChange={event => setForm(current => ({ ...current, due_date: event.target.value }))} /></div>
                 </div>
                 <div className="form-row">
-                  <div className="form-field"><label>Project manager</label><input className="dash-input" value={form.assigned_project_manager} onChange={event => setForm(current => ({ ...current, assigned_project_manager: event.target.value }))} /></div>
+                  <div className="form-field"><label>Project manager</label><PillSelect value={String(form.project_manager_id || '')} onChange={project_manager_id => setForm(current => ({ ...current, project_manager_id }))} ariaLabel="Choose project manager" options={[{value:'',label:'Unassigned'},...team.map(member=>({value:String(member.id),label:member.name}))]}/></div>
                   <div className="form-field"><label>Tech stack</label><input className="dash-input" value={form.tech_stack} onChange={event => setForm(current => ({ ...current, tech_stack: event.target.value }))} /></div>
-                </div>
-                <div className="form-row">
-                  <div className="form-field"><label>Designers</label><input className="dash-input" value={form.assigned_designers} onChange={event => setForm(current => ({ ...current, assigned_designers: event.target.value }))} /></div>
-                  <div className="form-field"><label>Developers</label><input className="dash-input" value={form.assigned_developers} onChange={event => setForm(current => ({ ...current, assigned_developers: event.target.value }))} /></div>
                 </div>
                 <div className="form-row">
                   <div className="form-field"><label>GitHub repo</label><input className="dash-input" value={form.github_repo} onChange={event => setForm(current => ({ ...current, github_repo: event.target.value }))} /></div>

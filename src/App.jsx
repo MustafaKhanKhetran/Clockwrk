@@ -23,6 +23,12 @@ import Jobs       from './pages/Jobs';
 import Referrals  from './pages/Referrals';
 import Settings   from './pages/Settings';
 import ComingSoon from './pages/ComingSoon';
+import ClientDetail from './pages/ClientDetail';
+import ProjectDetail from './pages/ProjectDetail';
+import RequestDetail from './pages/RequestDetail';
+import EmployeeDetail from './pages/EmployeeDetail';
+import BookingDetail from './pages/BookingDetail';
+import SetupPassword from './pages/SetupPassword';
 
 const P = ({ roles, children }) => <ProtectedRoute allowedRoles={roles}>{children}</ProtectedRoute>;
 const G = ({ roles, children }) => (
@@ -40,16 +46,22 @@ export default function App() {
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/login"      element={<Login />} />
+            <Route path="/setup-password" element={<SetupPassword />} />
             <Route path="/"           element={<P roles={PAGE_ACCESS.overview}>   <Overview />   </P>} />
             <Route path="/overview"   element={<P roles={PAGE_ACCESS.overview}>   <Overview />   </P>} />
             <Route path="/clients"    element={<P roles={PAGE_ACCESS.clients}>    <Clients />    </P>} />
+            <Route path="/clients/:id" element={<P roles={PAGE_ACCESS.clients}>   <ClientDetail /></P>} />
             <Route path="/projects"   element={<P roles={PAGE_ACCESS.projects}>   <Projects />   </P>} />
+            <Route path="/projects/:id" element={<P roles={PAGE_ACCESS.projects}> <ProjectDetail /></P>} />
             <Route path="/requests"   element={<P roles={PAGE_ACCESS.requests}>   <Requests />   </P>} />
+            <Route path="/requests/:id" element={<P roles={PAGE_ACCESS.requests}> <RequestDetail /></P>} />
             <Route path="/my-work"    element={<G roles={['workers']}>            <MyWork />     </G>} />
             <Route path="/time"       element={<P roles={PAGE_ACCESS.time}>       <Time />       </P>} />
             <Route path="/team"       element={<P roles={PAGE_ACCESS.team}>       <Team />       </P>} />
+            <Route path="/team/:id"   element={<P roles={PAGE_ACCESS.team}>       <EmployeeDetail /></P>} />
             <Route path="/finance"    element={<P roles={PAGE_ACCESS.finance}>    <Finance />    </P>} />
             <Route path="/bookings"   element={<P roles={PAGE_ACCESS.bookings}>   <Bookings />   </P>} />
+            <Route path="/bookings/:id" element={<P roles={PAGE_ACCESS.bookings}> <BookingDetail /></P>} />
             <Route path="/calendar"   element={<G roles={['delivery', 'managers']}> <Calendar /> </G>} />
             <Route path="/alerts"     element={<P roles={PAGE_ACCESS.alerts}>     <Alerts />     </P>} />
             <Route path="/files"      element={<G roles={['allStaff']}>           <Files />      </G>} />

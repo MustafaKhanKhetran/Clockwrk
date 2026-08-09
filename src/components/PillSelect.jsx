@@ -1,16 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 const formatLabel = (value) => String(value || '')
   .replace(/[-_]/g, ' ')
   .replace(/\b\w/g, c => c.toUpperCase());
 
-export default function PillSelect({ value, options, onChange, className = '', ariaLabel }) {
+export default function PillSelect({ value, options, onChange, className = '', ariaLabel, disabled = false }) {
   const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const ref = useRef(null);
+  const optionRefs = useRef([]);
+  const menuId = useId();
   const normalized = options.map(option => (
     typeof option === 'string' ? { value: option, label: formatLabel(option) } : option
   ));
   const selected = normalized.find(option => option.value === value) || normalized[0];
+  const selectedIndex = Math.max(0, normalized.findIndex(option => option.value === selected?.value));
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -21,9 +25,39 @@ export default function PillSelect({ value, options, onChange, className = '', a
     return () => document.removeEventListener('pointerdown', handlePointerDown);
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+    setActiveIndex(selectedIndex);
+    requestAnimationFrame(() => optionRefs.current[selectedIndex]?.scrollIntoView({ block: 'nearest' }));
+  }, [open, selectedIndex]);
+
   const handleSelect = (nextValue) => {
     onChange(nextValue);
     setOpen(false);
+  };
+
+  const moveActive = (direction) => {
+    setActiveIndex(current => {
+      const next = (current + direction + normalized.length) % normalized.length;
+      requestAnimationFrame(() => optionRefs.current[next]?.scrollIntoView({ block: 'nearest' }));
+      return next;
+    });
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape') { setOpen(false); return; }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (!open) { setOpen(true); return; }
+      moveActive(event.key === 'ArrowDown' ? 1 : -1);
+      return;
+    }
+    if (event.key === 'Home' && open) { event.preventDefault(); setActiveIndex(0); return; }
+    if (event.key === 'End' && open) { event.preventDefault(); setActiveIndex(normalized.length - 1); return; }
+    if ((event.key === 'Enter' || event.key === ' ') && open) {
+      event.preventDefault();
+      handleSelect(normalized[activeIndex].value);
+    }
   };
 
   return (
@@ -33,10 +67,10 @@ export default function PillSelect({ value, options, onChange, className = '', a
         type="button"
         aria-label={ariaLabel}
         aria-expanded={open}
+        aria-controls={menuId}
+        disabled={disabled}
         onClick={() => setOpen(current => !current)}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') setOpen(false);
-        }}
+        onKeyDown={handleKeyDown}
       >
         <span>{selected?.label}</span>
         <span className="pill-select-icon">
@@ -44,14 +78,17 @@ export default function PillSelect({ value, options, onChange, className = '', a
         </span>
       </button>
 
-      <div className="pill-select-menu" role="listbox">
-        {normalized.map(option => (
+      <div className="pill-select-menu" id={menuId} role="listbox" aria-label={ariaLabel}>
+        {normalized.map((option, index) => (
           <button
             key={option.value}
-            className={`pill-select-option ${option.value === value ? 'is-selected' : ''}`}
+            ref={node => { optionRefs.current[index] = node; }}
+            className={`pill-select-option ${option.value === value ? 'is-selected' : ''} ${index === activeIndex ? 'is-active' : ''}`}
             type="button"
             role="option"
+            tabIndex={-1}
             aria-selected={option.value === value}
+            onPointerEnter={() => setActiveIndex(index)}
             onClick={() => handleSelect(option.value)}
           >
             <span>{option.label}</span>

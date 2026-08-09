@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashLayout from '../components/DashLayout';
 import DataTable from '../components/DataTable';
 import DetailDrawer, { DrawerRow } from '../components/DetailDrawer';
@@ -35,6 +36,7 @@ const fmtPKR = (n) => n ? 'PKR ' + Number(n).toLocaleString('en-PK') : '-';
 const field = (item, ...keys) => keys.map(k => item?.[k]).find(v => v !== undefined && v !== null && v !== '') || '';
 
 export default function Team() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const canManage = canWrite(user?.role, 'team');
   const [employees, setEmployees] = useState([]);
@@ -49,6 +51,7 @@ export default function Team() {
   const [department, setDepartment] = useState('all');
   const [role, setRole] = useState('all');
   const [status, setStatus] = useState('all');
+  const [inviteUrl, setInviteUrl] = useState('');
 
   const fetchTeam = () => {
     setLoading(true);
@@ -101,7 +104,8 @@ export default function Team() {
     if (!canManage) return;
     setSubmitting(true);
     try {
-      await callDashboardApi(API, editing ? 'update' : 'create', { employee_id: editing?.id, ...form });
+      const result = await callDashboardApi(API, editing ? 'update' : 'create', { employee_id: editing?.id, ...form, dashboard_base_url: window.location.origin });
+      if (!editing && result.invite_url) setInviteUrl(result.invite_url);
       toast.success(editing ? 'Employee updated' : 'Employee added');
       setShowForm(false);
       fetchTeam();
@@ -183,7 +187,7 @@ export default function Team() {
         <PillSelect value={status} options={[{ value: 'all', label: 'All statuses' }, ...STATUSES]} onChange={setStatus} ariaLabel="Filter status" />
       </div>
 
-      <DataTable columns={columns} rows={filtered} loading={loading} onRowClick={setSelected} emptyTitle="No employees found" emptySubtitle="Connect dashboard-team to manage employees, workload, and permissions." />
+      <DataTable columns={columns} rows={filtered} loading={loading} onRowClick={employee => navigate(`/team/${employee.id}`)} emptyTitle="No employees found" emptySubtitle="No team members match these filters." />
 
       <DetailDrawer
         open={selected}
@@ -211,11 +215,11 @@ export default function Team() {
       <FormModal
         open={showForm}
         title={editing ? 'Edit Employee' : 'Add Employee'}
-        subtitle="Writes to dashboard-team with action create/update."
+        subtitle={editing ? 'Update role, department and account status.' : 'The employee stays inactive until they set a private password from their invite.'}
         onClose={() => setShowForm(false)}
         onSubmit={handleSubmit}
         size="modal-lg"
-        actions={<><button type="button" className="btn btn-ghost" onClick={() => setShowForm(false)}>Cancel</button><button type="submit" className="btn btn-primary" disabled={submitting || !canManage}>{submitting ? 'Saving...' : 'Save Employee'}</button></>}
+        actions={<><button type="button" className="btn btn-ghost" onClick={() => setShowForm(false)}>Cancel</button><button type="submit" className="btn btn-primary" disabled={submitting || !canManage}>{submitting ? 'Creating...' : editing ? 'Save employee' : 'Create employee & invite'}</button></>}
       >
         <div className="form-row">
           <div className="form-field"><label>Name *</label><input className="dash-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
@@ -226,7 +230,7 @@ export default function Team() {
           <div className="form-field"><label>Department</label><PillSelect value={form.department} options={DEPARTMENTS} onChange={department => setForm(f => ({ ...f, department }))} ariaLabel="Department" /></div>
         </div>
         <div className="form-row">
-          <div className="form-field"><label>Status</label><PillSelect value={form.status} options={STATUSES} onChange={status => setForm(f => ({ ...f, status }))} ariaLabel="Employee status" /></div>
+          {editing ? <div className="form-field"><label>Status</label><PillSelect value={form.status} options={STATUSES} onChange={status => setForm(f => ({ ...f, status }))} ariaLabel="Employee status" /></div> : <div className="account-invite-note"><strong>Password setup</strong><span>The account remains inactive until the employee opens the invite and creates a password.</span></div>}
           <div className="form-field"><label>Salary</label><input className="dash-input" type="number" value={form.salary} onChange={e => setForm(f => ({ ...f, salary: e.target.value }))} /></div>
         </div>
         <div className="form-row">
@@ -238,6 +242,7 @@ export default function Team() {
         <div className="form-field"><label>Assigned Requests</label><input className="dash-input" value={form.assigned_requests} onChange={e => setForm(f => ({ ...f, assigned_requests: e.target.value }))} /></div>
         <div className="form-field"><label>Performance Notes</label><textarea className="dash-input" rows={3} value={form.performance_notes} onChange={e => setForm(f => ({ ...f, performance_notes: e.target.value }))} /></div>
       </FormModal>
+      <FormModal open={Boolean(inviteUrl)} title="Employee login is ready" subtitle="Send this private link to the employee. They choose their own password; no default password exists." onClose={()=>setInviteUrl('')} onSubmit={e=>e.preventDefault()} actions={<><button type="button" className="btn btn-ghost" onClick={()=>setInviteUrl('')}>Done</button><button type="button" className="btn btn-primary" onClick={()=>navigator.clipboard.writeText(inviteUrl).then(()=>toast.success('Setup link copied'))}>Copy setup link</button></>}><div className="account-setup-flow"><span><b>1</b> Copy the invite</span><span><b>2</b> Employee opens it within 72 hours</span><span><b>3</b> Employee creates a password and the account activates</span></div><div className="secure-link-box"><code>{inviteUrl}</code></div></FormModal>
     </DashLayout>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import DashLayout from '../components/DashLayout';
 import DataTable from '../components/DataTable';
 import DetailDrawer, { DrawerRow } from '../components/DetailDrawer';
@@ -10,11 +11,11 @@ import FileList from '../components/FileList';
 import { toast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
 import { canWrite } from '../config/roles';
-import { apiFetch, callDashboardApi, getList } from '../utils/dashboardApi';
+import { apiFetch, apiGet, callDashboardApi, getList } from '../utils/dashboardApi';
 
 const API = '/api/requests';
 const TYPES = ['design', 'development', 'bug', 'revision', 'support', 'content', 'meeting', 'admin'];
-const STATUSES = ['queue', 'in_progress', 'in_review', 'revision', 'completed', 'cancelled'];
+const STATUSES = ['queue', 'in_progress', 'in_review', 'revision', 'completed'];
 const PRIORITIES = ['low', 'normal', 'high', 'urgent'];
 
 const EMPTY_REQUEST = {
@@ -39,6 +40,8 @@ const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'sho
 const field = (item, ...keys) => keys.map(k => item?.[k]).find(v => v !== undefined && v !== null && v !== '') || '';
 
 export default function Requests() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const canManage = canWrite(user?.role, 'requests');
   const [requests, setRequests] = useState([]);
@@ -58,6 +61,10 @@ export default function Requests() {
   const [breakdownParts, setBreakdownParts] = useState([]);
   const [breakdownBusy, setBreakdownBusy] = useState(false);
   const [dragIndex, setDragIndex] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [team, setTeam] = useState([]);
+  const projectContext = searchParams.get('project_id');
 
   // Reorder breakdown parts, then clear any dependency that would now point to
   // a later part (a part can only depend on an earlier one — the API enforces
@@ -89,6 +96,26 @@ export default function Requests() {
   };
 
   useEffect(() => { fetchRequests(); }, []);
+  useEffect(() => {
+    Promise.all([apiGet('/api/clients'), apiGet('/api/projects'), apiGet('/api/team')])
+      .then(([clientData, projectData, teamData]) => { setClients(clientData.clients || []); setProjects(projectData.projects || []); setTeam(teamData.employees || []); })
+      .catch(() => {});
+  }, []);
+  useEffect(() => {
+    if (searchParams.get('create') !== '1' || !canManage) return;
+    const project = projects.find(item => String(item.id) === String(projectContext));
+    if (projectContext && !project) return;
+    setEditing(null);
+    setForm({
+      ...EMPTY_REQUEST,
+      project: projectContext || '',
+      client: project?.client_id || '',
+    });
+    setShowForm(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('create');
+    setSearchParams(next, { replace: true });
+  }, [canManage, projectContext, projects, searchParams, setSearchParams]);
 
   const isOverdue = (r) => field(r, 'due_date') && new Date(field(r, 'due_date')) < new Date() && field(r, 'status') !== 'completed';
   const dueToday = (r) => {
@@ -107,6 +134,7 @@ export default function Requests() {
       field(request, 'project_name'),
       field(request, 'assigned_to'),
     ].join(' ').toLowerCase();
+    if (projectContext && String(request.project_id) !== String(projectContext)) return false;
     if (view === 'my_tasks' && field(request, 'assigned_to') !== user?.name && field(request, 'assigned_to') !== user?.email) return false;
     if (view === 'overdue' && !isOverdue(request)) return false;
     if (view === 'today' && !dueToday(request)) return false;
@@ -116,7 +144,27 @@ export default function Requests() {
     if (type !== 'all' && reqType !== type) return false;
     if (search && !haystack.includes(search.toLowerCase())) return false;
     return true;
-  }), [requests, search, status, priority, type, view, user]);
+  }), [requests, search, status, priority, type, view, user, projectContext]);
+
+  const moveQueuedRequest = async (request, direction) => {
+    const queue = requests
+      .filter(item => field(item, 'status') === 'queue' && Number(item.client_id) === Number(request.client_id) && field(item, 'request_kind') !== 'parent')
+      .sort((a, b) => (Number(a.queue_position) || Number.MAX_SAFE_INTEGER) - (Number(b.queue_position) || Number.MAX_SAFE_INTEGER));
+    const index = queue.findIndex(item => item.id === request.id);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= queue.length) return;
+    [queue[index], queue[target]] = [queue[target], queue[index]];
+    try {
+      await apiFetch(`${API}/queue/reorder`, {
+        method: 'POST',
+        body: { client_id: request.client_id, ordered_ids: queue.map(item => item.id) },
+      });
+      toast.success('Queue order updated');
+      fetchRequests();
+    } catch (err) {
+      toast.error(err.message || 'Could not reorder the queue');
+    }
+  };
 
   const stats = {
     open: requests.filter(r => field(r, 'request_kind') !== 'parent' && !['completed', 'cancelled'].includes(field(r, 'status'))).length,
@@ -133,7 +181,7 @@ export default function Requests() {
 
   const openEdit = (request) => {
     setEditing(request);
-    setForm({ ...EMPTY_REQUEST, ...request });
+    setForm({ ...EMPTY_REQUEST, ...request, client: request.client_id || '', project: request.project_id || '', request_brief: request.description || '' });
     setShowForm(true);
   };
 
@@ -266,6 +314,8 @@ export default function Requests() {
     { key: 'due_date', label: 'Due', render: r => <span className={isOverdue(r) ? 'text-danger' : ''}>{fmtDate(field(r, 'due_date'))}</span> },
     { key: 'actions', label: '', stopClick: true, render: r => canManage ? (
       <div className="table-actions">
+        {field(r, 'status') === 'queue' && <button className="btn btn-sm btn-ghost" aria-label="Move request up" onClick={() => moveQueuedRequest(r, -1)}>Up</button>}
+        {field(r, 'status') === 'queue' && <button className="btn btn-sm btn-ghost" aria-label="Move request down" onClick={() => moveQueuedRequest(r, 1)}>Down</button>}
         <button className="btn btn-sm btn-ghost" onClick={() => openEdit(r)}>Edit</button>
         {field(r, 'status') !== 'completed' && <button className="btn btn-sm btn-primary" onClick={() => handleStatusChange(r, 'completed')}>Complete</button>}
       </div>
@@ -332,7 +382,7 @@ export default function Requests() {
         <PillSelect value={type} options={[{ value: 'all', label: 'All types' }, ...TYPES]} onChange={setType} ariaLabel="Filter type" />
       </div>
 
-      <DataTable columns={columns} rows={filtered} loading={loading} onRowClick={setSelected} emptyTitle="No requests found" emptySubtitle="Client portal requests will appear here as soon as they are submitted." />
+      <DataTable columns={columns} rows={filtered} loading={loading} onRowClick={request => navigate(`/requests/${request.id}`)} emptyTitle="No requests found" emptySubtitle="Client portal requests will appear here as soon as they are submitted." />
 
       <DetailDrawer
         open={selected}
@@ -421,11 +471,11 @@ export default function Requests() {
       >
         <div className="form-row">
           <div className="form-field"><label>Title *</label><input className="dash-input" required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} /></div>
-          <div className="form-field"><label>Client</label><input className="dash-input" value={form.client} onChange={e => setForm(f => ({ ...f, client: e.target.value }))} /></div>
+          <div className="form-field"><label>Client *</label><PillSelect value={form.client} onChange={client => setForm(f => ({ ...f, client, project: '' }))} ariaLabel="Choose client" options={[{value:'',label:'Choose client'},...clients.map(client=>({value:String(client.id),label:client.company||client.name}))]}/></div>
         </div>
         <div className="form-row">
-          <div className="form-field"><label>Project</label><input className="dash-input" value={form.project} onChange={e => setForm(f => ({ ...f, project: e.target.value }))} /></div>
-          <div className="form-field"><label>Assigned To</label><input className="dash-input" value={form.assigned_to} onChange={e => setForm(f => ({ ...f, assigned_to: e.target.value }))} /></div>
+          <div className="form-field"><label>Project *</label><PillSelect value={form.project} onChange={project => setForm(f => ({ ...f, project }))} ariaLabel="Choose project" options={[{value:'',label:'Choose project'},...projects.filter(project=>!form.client||Number(project.client_id)===Number(form.client)).map(project=>({value:String(project.id),label:project.name}))]}/></div>
+          <div className="form-field"><label>Assigned To</label><PillSelect value={form.assigned_to || ''} onChange={assigned_to => setForm(f => ({ ...f, assigned_to }))} ariaLabel="Assign request" options={[{value:'',label:'Unassigned'},...team.map(member=>({value:String(member.id),label:member.name}))]}/></div>
         </div>
         <div className="form-row">
           <div className="form-field"><label>Type</label><PillSelect value={form.type} options={TYPES} onChange={type => setForm(f => ({ ...f, type }))} ariaLabel="Request type" /></div>
@@ -477,7 +527,7 @@ export default function Requests() {
           <div className="form-field"><label>Scope</label><textarea className="dash-input" rows={2} value={part.description} onChange={event => setBreakdownParts(parts => parts.map((item, itemIndex) => itemIndex === index ? { ...item, description: event.target.value } : item))} /></div>
           <div className="form-row">
             <div className="form-field"><label>Priority</label><PillSelect value={part.priority} options={PRIORITIES} onChange={value => setBreakdownParts(parts => parts.map((item, itemIndex) => itemIndex === index ? { ...item, priority: value } : item))} ariaLabel={`Part ${index + 1} priority`} /></div>
-            <div className="form-field"><label>Starts after</label><select className="dash-input" value={part.depends_on_position} onChange={event => setBreakdownParts(parts => parts.map((item, itemIndex) => itemIndex === index ? { ...item, depends_on_position: event.target.value } : item))}><option value="">No dependency</option>{breakdownParts.slice(0, index).map((dependency, dependencyIndex) => <option key={dependencyIndex} value={dependencyIndex + 1}>Part {dependencyIndex + 1} · {dependency.title || 'Untitled'}</option>)}</select></div>
+            <div className="form-field"><label>Starts after</label><PillSelect value={String(part.depends_on_position||'')} onChange={depends_on_position => setBreakdownParts(parts => parts.map((item,itemIndex)=>itemIndex===index?{...item,depends_on_position}:item))} ariaLabel={`Part ${index+1} dependency`} options={[{value:'',label:'No dependency'},...breakdownParts.slice(0,index).map((dependency,dependencyIndex)=>({value:String(dependencyIndex+1),label:`Part ${dependencyIndex+1} · ${dependency.title||'Untitled'}`}))]}/></div>
           </div>
         </div>)}
         <button type="button" className="btn btn-ghost" onClick={() => setBreakdownParts(parts => [...parts, { title: '', description: '', type: selected?.type || 'development', priority: 'normal', depends_on_position: parts.length, position: parts.length + 1 }])}>+ Add another part</button>

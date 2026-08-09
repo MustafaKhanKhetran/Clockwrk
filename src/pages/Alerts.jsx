@@ -3,7 +3,7 @@ import DashLayout from '../components/DashLayout';
 import PillSelect from '../components/PillSelect';
 import SkeletonBlock from '../components/SkeletonBlock';
 import { toast } from '../components/Toast';
-import { apiGet, apiPost } from '../utils/dashboardApi';
+import { apiDelete, apiFetch, apiGet, apiPost } from '../utils/dashboardApi';
 
 const API = '/api/alerts';
 
@@ -70,7 +70,7 @@ export default function Alerts() {
 
   const handleMarkRead = async (alertId) => {
     try {
-      await apiPost(API, { action: 'mark_read', alert_id: alertId });
+      await apiFetch(`${API}/${alertId}/read`, { method: 'PATCH' });
       setAlerts(prev => prev.map(a => a.id === alertId ? { ...a, is_read: 1 } : a));
       setUnreadCount(prev => Math.max(0, prev - 1));
       toast.success('Marked as read');
@@ -81,7 +81,7 @@ export default function Alerts() {
 
   const handleMarkAllRead = async () => {
     try {
-      await apiPost(API, { action: 'mark_all_read' });
+      await apiPost(`${API}/mark-all-read`);
       setAlerts(prev => prev.map(a => ({ ...a, is_read: 1 })));
       setUnreadCount(0);
       toast.success('Marked as read');
@@ -93,7 +93,7 @@ export default function Alerts() {
   const handleClearAll = async () => {
     if (!window.confirm('Delete all read alerts? This cannot be undone.')) return;
     try {
-      await apiPost(API, { action: 'clear_all' });
+      await apiDelete(`${API}/clear-read`);
       setAlerts(prev => prev.filter(a => !a.is_read));
       toast.success('Read alerts cleared');
     } catch (err) {

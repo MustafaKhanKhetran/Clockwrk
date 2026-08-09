@@ -9,7 +9,7 @@ import StatusBadge from '../components/StatusBadge';
 import { toast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
 import { canWrite } from '../config/roles';
-import { callDashboardApi, getList } from '../utils/dashboardApi';
+import { apiGet, callDashboardApi, getList } from '../utils/dashboardApi';
 
 const API = '/api/time-logs';
 
@@ -22,6 +22,7 @@ const EMPTY_LOG = {
   hours: '',
   description: '',
   billable: 'billable',
+  employee_id: '', project_id: '', request_id: '',
 };
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
@@ -41,6 +42,9 @@ export default function Time() {
   const [search, setSearch] = useState('');
   const [billableFilter, setBillableFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('');
+  const [projects, setProjects] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [team, setTeam] = useState([]);
 
   const fetchLogs = () => {
     setLoading(true);
@@ -56,6 +60,7 @@ export default function Time() {
   };
 
   useEffect(() => { fetchLogs(); }, []);
+  useEffect(() => { Promise.all([apiGet('/api/projects'), apiGet('/api/requests'), apiGet('/api/team')]).then(([p,r,t])=>{setProjects(p.projects||[]);setRequests(r.requests||[]);setTeam(t.employees||[]);}).catch(()=>{}); }, []);
 
   const filtered = useMemo(() => logs.filter(log => {
     const haystack = [
@@ -96,6 +101,7 @@ export default function Time() {
       request: field(log, 'request', 'request_title'),
       log_date: field(log, 'log_date', 'date') ? String(field(log, 'log_date', 'date')).slice(0, 10) : EMPTY_LOG.log_date,
       hours: field(log, 'hours', 'duration', 'manual_hours'),
+      employee_id: log.employee_id || '', project_id: log.project_id || '', request_id: log.request_id || '',
       billable: field(log, 'billable') === false || field(log, 'billable') === 0 || field(log, 'billable') === 'non_billable' ? 'non_billable' : 'billable',
     });
     setShowForm(true);
@@ -216,15 +222,14 @@ export default function Time() {
         actions={<><button type="button" className="btn btn-ghost" onClick={() => setShowForm(false)}>Cancel</button><button type="submit" className="btn btn-primary" disabled={submitting || !canManage}>{submitting ? 'Saving...' : 'Save Time'}</button></>}
       >
         <div className="form-row">
-          <div className="form-field"><label>Employee *</label><input className="dash-input" required value={form.employee} onChange={e => setForm(f => ({ ...f, employee: e.target.value }))} /></div>
+          <div className="form-field"><label>Employee</label><PillSelect value={String(form.employee_id || user?.id || '')} onChange={employee_id => setForm(f => ({ ...f, employee_id }))} disabled={!['owner','admin'].includes(user?.role)} ariaLabel="Choose employee" options={team.map(member=>({value:String(member.id),label:member.name}))}/></div>
           <div className="form-field"><label>Date *</label><input className="dash-input" required type="date" value={form.log_date} onChange={e => setForm(f => ({ ...f, log_date: e.target.value }))} /></div>
         </div>
         <div className="form-row">
-          <div className="form-field"><label>Client</label><input className="dash-input" value={form.client} onChange={e => setForm(f => ({ ...f, client: e.target.value }))} /></div>
-          <div className="form-field"><label>Project</label><input className="dash-input" value={form.project} onChange={e => setForm(f => ({ ...f, project: e.target.value }))} /></div>
+          <div className="form-field"><label>Project</label><PillSelect value={String(form.project_id||'')} onChange={project_id=>setForm(f=>({...f,project_id,request_id:''}))} ariaLabel="Choose project" options={[{value:'',label:'No project'},...projects.map(project=>({value:String(project.id),label:`${project.client_company||project.client_name} · ${project.name}`}))]}/></div>
         </div>
         <div className="form-row">
-          <div className="form-field"><label>Request</label><input className="dash-input" value={form.request} onChange={e => setForm(f => ({ ...f, request: e.target.value }))} /></div>
+          <div className="form-field"><label>Request</label><PillSelect value={String(form.request_id||'')} onChange={request_id=>setForm(f=>({...f,request_id}))} ariaLabel="Choose request" options={[{value:'',label:'No request'},...requests.filter(request=>!form.project_id||Number(request.project_id)===Number(form.project_id)).map(request=>({value:String(request.id),label:request.title}))]}/></div>
           <div className="form-field"><label>Hours *</label><input className="dash-input" required type="number" step="0.25" value={form.hours} onChange={e => setForm(f => ({ ...f, hours: e.target.value }))} /></div>
         </div>
         <div className="form-field"><label>Type</label><PillSelect value={form.billable} options={[{ value: 'billable', label: 'Billable' }, { value: 'non_billable', label: 'Non-billable' }]} onChange={billable => setForm(f => ({ ...f, billable }))} ariaLabel="Time type" /></div>

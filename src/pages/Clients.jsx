@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   Bell,
@@ -215,6 +216,7 @@ function SortHeader({ label, sortKey, sortConfig, onSort, iconSide = 'left' }) {
 }
 
 export default function Clients() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const isOwnerAdmin = hasRole(user, ['owner', 'admin']);
   const isAssignedManager = hasRole(user, ['project_manager', 'account_manager']);
@@ -228,6 +230,7 @@ export default function Clients() {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+  const [inviteUrl, setInviteUrl] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPlan, setFilterPlan] = useState('all');
   const [filterBilling, setFilterBilling] = useState('all');
@@ -280,12 +283,15 @@ export default function Clients() {
     if (!isOwnerAdmin) return;
     setSubmitting(true);
     try {
-      const data = await apiPost(API, { action: 'add', ...form });
+      const portalBase = import.meta.env.VITE_PORTAL_URL
+        || (window.location.hostname === 'localhost' ? 'http://localhost:5173' : 'https://my.clockwrk.io');
+      const data = await apiPost(API, { action: 'add', ...form, portal_base_url: portalBase });
       if (data.success) {
         setShowAdd(false);
         setForm(EMPTY_FORM);
         fetchClients();
-        toast.success('Client added');
+        setInviteUrl(data.invite_url || '');
+        toast.success('Client account created');
       }
     } catch {
       toast.error('Something went wrong. Please try again.');
@@ -346,7 +352,7 @@ export default function Clients() {
   }, [clients]);
 
   const openClient = (client) => {
-    if (canOpenDrawer) setSelected(client);
+    if (canOpenDrawer) navigate(`/clients/${client.id}`);
   };
 
   const todayLabel = new Date().toLocaleDateString('en-US', {
@@ -493,7 +499,7 @@ export default function Clients() {
                     <strong className="cl-big">{fmtMoney(metrics.topClient.total_revenue)}</strong>
                     <span className="cl-side-caption">Lifetime revenue</span>
                     {canOpenDrawer && (
-                      <button className="cl-link" type="button" onClick={() => setSelected(metrics.topClient)}>
+                      <button className="cl-link" type="button" onClick={() => openClient(metrics.topClient)}>
                         View profile <ArrowRight size={13} />
                       </button>
                     )}
@@ -640,9 +646,17 @@ export default function Clients() {
                 <div className="form-field"><label>Notes</label><textarea className="dash-input" rows={3} value={form.notes} onChange={event => setForm(current => ({ ...current, notes: event.target.value }))} placeholder="Any notes about this client..." /></div>
                 <div className="modal-actions">
                   <button type="button" className="btn btn-ghost" onClick={() => setShowAdd(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary" disabled={submitting}>{submitting ? 'Adding...' : 'Add Client'}</button>
+                  <button type="submit" className="btn btn-primary" disabled={submitting}>{submitting ? 'Creating...' : 'Create client & setup link'}</button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+        {inviteUrl && (
+          <div className="modal-overlay" onClick={() => setInviteUrl('')}>
+            <div className="modal account-invite-modal" onClick={event => event.stopPropagation()}>
+              <div className="modal-header"><div><h3>Client login is ready</h3><p>Send this private link to the client. They choose their own password in the portal.</p></div><button className="drawer-close" onClick={() => setInviteUrl('')}>×</button></div>
+              <div className="modal-form"><div className="account-setup-flow"><span><b>1</b> Copy the /setup link</span><span><b>2</b> Client opens it within 72 hours</span><span><b>3</b> Client confirms their profile, team, and password</span></div><div className="secure-link-box"><code>{inviteUrl}</code></div><div className="modal-actions"><button type="button" className="btn btn-ghost" onClick={() => setInviteUrl('')}>Done</button><button type="button" className="btn btn-primary" onClick={() => navigator.clipboard.writeText(inviteUrl).then(() => toast.success('Setup link copied'))}>Copy setup link</button></div></div>
             </div>
           </div>
         )}

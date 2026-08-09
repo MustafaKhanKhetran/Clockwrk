@@ -42,6 +42,7 @@ export default function Finance() {
   const [exchangeRate, setExchangeRate] = useState(PKR_RATE);
   // Subscription / billing changes reported from the client portal
   const [changes, setChanges] = useState([]);
+  const [billingTickets, setBillingTickets] = useState([]);
   const [verifyingChange, setVerifyingChange] = useState(null);
   const [verifyForm, setVerifyForm] = useState({ amount_received: '', reason: '' });
   const [processingChangeId, setProcessingChangeId] = useState(null);
@@ -61,7 +62,7 @@ export default function Finance() {
 
   const fetchChanges = () => {
     apiGet(`${API}/subscription-changes`)
-      .then(d => { if (d.success) setChanges(d.changes || []); })
+      .then(d => { if (d.success) { setChanges(d.changes || []); setBillingTickets(d.billing_tickets || []); } })
       .catch(() => {});
   };
 
@@ -625,7 +626,7 @@ export default function Finance() {
       ) : null}
 
       {activeTab === 'changes' && (
-        <div className="card">
+        <div className="finance-change-stack"><div className="card">
           {changes.length === 0 ? (
             <div className="empty-state"><p>No billing changes yet</p></div>
           ) : (
@@ -678,7 +679,7 @@ export default function Finance() {
               </tbody>
             </table>
           )}
-        </div>
+        </div>{billingTickets.length>0&&<div className="card billing-ticket-card"><div className="surface-heading"><div><h3>Billing support actions</h3><p>Pause, cancellation and Care transition requests submitted as support tickets.</p></div></div><div className="record-list">{billingTickets.map(ticket=><div className="billing-ticket-row" key={ticket.id}><span><strong>{ticket.company||ticket.client_name} · {ticket.subject}</strong><small>{ticket.description}</small></span><span className="badge badge-yellow">{ticket.priority}</span><button className="btn btn-sm btn-ghost" onClick={()=>apiFetch(`${API}/billing-tickets/${ticket.id}`,{method:'PATCH',body:{status:'Resolved'}}).then(()=>{toast.success('Billing ticket resolved');fetchChanges();})}>Resolve</button></div>)}</div></div>}</div>
       )}
 
       {activeTab === 'elevate' && (

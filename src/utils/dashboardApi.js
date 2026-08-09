@@ -93,10 +93,62 @@ export const apiFetch = async (endpoint, options = {}) => {
 
 export const apiGet = (endpoint, params = {}, options = {}) => apiFetch(endpoint, { ...options, method: 'GET', params });
 export const apiPost = (endpoint, body = {}) => apiFetch(endpoint, { method: 'POST', body });
+export const apiPatch = (endpoint, body = {}) => apiFetch(endpoint, { method: 'PATCH', body });
+export const apiPut = (endpoint, body = {}) => apiFetch(endpoint, { method: 'PUT', body });
+export const apiDelete = (endpoint, params = {}) => apiFetch(endpoint, { method: 'DELETE', params });
+
+const compact = value => Object.fromEntries(Object.entries(value || {}).filter(([, item]) => item !== undefined));
+
+const canonicalPayload = (path, value) => {
+  const body = { ...(value || {}) };
+  delete body.action; delete body.data;
+  if (path === API_ENDPOINTS.projects) {
+    Object.assign(body, {
+      name: body.name ?? body.project_name,
+      client_id: body.client_id ?? (Number(body.client) || undefined),
+      type: body.type ?? body.project_type,
+      project_manager_id: body.project_manager_id ?? (Number(body.assigned_project_manager) || undefined),
+      staging_url: body.staging_url ?? body.staging_link,
+      live_url: body.live_url ?? body.live_link,
+      progress_percent: body.progress_percent ?? body.progress,
+      notes: body.notes ?? body.brief,
+    });
+  }
+  if (path === API_ENDPOINTS.requests) {
+    Object.assign(body, {
+      client_id: body.client_id ?? (Number(body.client) || undefined),
+      project_id: body.project_id ?? (Number(body.project) || undefined),
+      description: body.description ?? body.request_brief,
+    });
+  }
+  if (path === API_ENDPOINTS.team) body.notes = body.notes ?? body.performance_notes;
+  return compact(body);
+};
 
 export const callDashboardApi = async (endpoint, action, data = {}) => {
-  if (action === 'list') return apiGet(endpoint, data);
-  return apiPost(endpoint, { action, data, ...data });
+  const path = resolveApiPath(endpoint);
+  if (action === 'list') return apiGet(path, data);
+  const body = canonicalPayload(path, data);
+  const identityKey = path === API_ENDPOINTS.requests ? 'request_id'
+    : path === API_ENDPOINTS.projects ? 'project_id'
+      : path === API_ENDPOINTS.clients ? 'client_id'
+        : path === API_ENDPOINTS.team ? 'employee_id'
+          : path === API_ENDPOINTS.timeLogs ? 'time_log_id'
+            : path === API_ENDPOINTS.bookings ? 'booking_id' : 'id';
+  const id = body[identityKey];
+  delete body[identityKey];
+  if (action === 'create' || action === 'add') return apiPost(path, body);
+  if (action === 'update') return apiPatch(`${path}/${id}`, body);
+  if (action === 'update_status') return apiPatch(`${path}/${id}`, { status: body.status });
+  if (action === 'deactivate') return apiPatch(`${path}/${id}`, { status: 'inactive' });
+  if (action === 'delete') return apiDelete(`${path}/${id}`);
+  if (action === 'add_comment' && path === API_ENDPOINTS.requests) {
+    return apiPost(`${path}/${id}/comments`, { comment: body.content || body.comment, visibility: body.visibility || 'internal' });
+  }
+  if (action === 'log_time' && path === API_ENDPOINTS.requests) {
+    return apiPost(API_ENDPOINTS.timeLogs, { request_id: id, hours: body.hours, description: body.description || '' });
+  }
+  throw new Error(`Unsupported dashboard action: ${action}`);
 };
 
 export const getList = (payload, keys) => {

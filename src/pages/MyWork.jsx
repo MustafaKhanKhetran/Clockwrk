@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import DashLayout from '../components/DashLayout';
 import SkeletonBlock from '../components/SkeletonBlock';
 import StatusBadge from '../components/StatusBadge';
+import PillSelect from '../components/PillSelect';
 import { toast } from '../components/Toast';
 import { API_BASE_URL, getToken, getUser } from '../utils/auth';
 
@@ -87,9 +88,9 @@ export default function MyWork() {
     setError('');
     try {
       const [requestData, timeData, projectData] = await Promise.all([
-        authFetch('/api/requests'),
-        authFetch('/api/time-logs'),
-        authFetch('/api/projects'),
+        authFetch(`/api/requests?employee_id=${encodeURIComponent(user?.id || '')}`),
+        authFetch(`/api/time-logs?employee_id=${encodeURIComponent(user?.id || '')}`),
+        authFetch(`/api/projects?employee_id=${encodeURIComponent(user?.id || '')}`),
       ]);
       setRequests(getList(requestData, ['requests']));
       setTimeLogs(getList(timeData, ['time_logs', 'logs', 'entries']));
@@ -209,19 +210,12 @@ export default function MyWork() {
           <div className="form-row">
             <div className="form-field">
               <label>Project *</label>
-              <select
-                className="dash-input"
-                required
-                value={form.project_id}
-                onChange={event => setForm(current => ({ ...current, project_id: event.target.value }))}
-              >
-                <option value="">Select a project</option>
-                {projects.map(project => (
-                  <option key={field(project, 'id', 'project_id')} value={field(project, 'id', 'project_id')}>
-                    {field(project, 'project_name', 'name', 'title') || 'Untitled project'}
-                  </option>
-                ))}
-              </select>
+              <PillSelect
+                value={String(form.project_id || '')}
+                onChange={project_id => setForm(current => ({ ...current, project_id }))}
+                ariaLabel="Select a project"
+                options={[{ value: '', label: 'Select a project' }, ...projects.map(project => ({ value: String(field(project, 'id', 'project_id')), label: field(project, 'project_name', 'name', 'title') || 'Untitled project' }))]}
+              />
             </div>
             <div className="form-field">
               <label>Hours *</label>

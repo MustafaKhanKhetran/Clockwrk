@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashLayout from '../components/DashLayout';
 import DetailDrawer, { DrawerRow } from '../components/DetailDrawer';
 import StatCard from '../components/StatCard';
@@ -77,6 +78,7 @@ const sortEvents = (events = []) => [...events].sort((a, b) => {
 });
 
 export default function Calendar() {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -141,7 +143,7 @@ export default function Calendar() {
           <button
             key={`${event.event_type}-${event.event_date}-${event.title}-${index}`}
             className={`calendar-agenda-item ${mode === 'overdue' || isOverdue(event) ? 'is-overdue' : ''}`}
-            onClick={() => setSelectedEvent(event)}
+            onClick={() => navigate(event.event_type === 'booking' ? `/bookings/${event.id}` : event.event_type === 'request_due' ? `/requests/${event.id}` : event.event_type === 'project_due' ? `/projects/${event.id}` : `/clients/${event.id}`)}
           >
             <span className={`calendar-agenda-dot ${eventClass(event)}`} />
             <span>

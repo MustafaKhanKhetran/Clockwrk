@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Briefcase,
-  ChevronDown,
   ExternalLink,
   FileText,
   Mail,
@@ -18,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import DashLayout from '../components/DashLayout';
+import PillSelect from '../components/PillSelect';
 import { toast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
 import { apiFetch, apiGet, apiPost } from '../utils/dashboardApi';
@@ -166,15 +166,7 @@ const StatusBadge = ({ value, kind = 'application' }) => {
 const SelectField = ({ value, onChange, options, label, allLabel }) => (
   <label className="jobs-select">
     {label && <span>{label}</span>}
-    <select value={value} onChange={event => onChange(event.target.value)}>
-      {allLabel && <option value="all">{allLabel}</option>}
-      {options.map(option => (
-        <option key={option.value || option} value={option.value || option}>
-          {option.label || option}
-        </option>
-      ))}
-    </select>
-    <ChevronDown size={16} strokeWidth={2} />
+    <PillSelect value={value} onChange={onChange} ariaLabel={label || allLabel} options={[...(allLabel ? [{ value: 'all', label: allLabel }] : []), ...options.map(option => typeof option === 'string' ? { value: option, label: option } : option)]} />
   </label>
 );
 
@@ -614,16 +606,16 @@ export default function Jobs() {
               </label>
               <label className="form-field">
                 <span>Department</span>
-                <select
-                  className={`dash-input ${listingErrors.department ? 'is-invalid' : ''}`}
+                <PillSelect
+                  className={listingErrors.department ? 'is-invalid' : ''}
                   value={listingForm.department}
-                  onChange={event => {
-                    setListingForm(prev => ({ ...prev, department: event.target.value, department_other: event.target.value === 'Other' ? prev.department_other : '' }));
+                  options={DEPARTMENTS}
+                  ariaLabel="Department"
+                  onChange={department => {
+                    setListingForm(prev => ({ ...prev, department, department_other: department === 'Other' ? prev.department_other : '' }));
                     setListingErrors(prev => ({ ...prev, department: '' }));
                   }}
-                >
-                  {DEPARTMENTS.map(department => <option key={department} value={department}>{department}</option>)}
-                </select>
+                />
                 {listingForm.department === 'Other' && (
                   <input
                     className={`dash-input ${listingErrors.department ? 'is-invalid' : ''}`}
@@ -642,30 +634,30 @@ export default function Jobs() {
             <div className="form-row">
               <label className="form-field">
                 <span>Type</span>
-                <select
-                  className={`dash-input ${listingErrors.type ? 'is-invalid' : ''}`}
+                <PillSelect
+                  className={listingErrors.type ? 'is-invalid' : ''}
                   value={listingForm.type}
-                  onChange={event => {
-                    setListingForm(prev => ({ ...prev, type: event.target.value }));
+                  options={JOB_TYPES.map(type=>({value:type,label:JOB_TYPE_LABELS[type]}))}
+                  ariaLabel="Job type"
+                  onChange={type => {
+                    setListingForm(prev => ({ ...prev, type }));
                     setListingErrors(prev => ({ ...prev, type: '' }));
                   }}
-                >
-                  {JOB_TYPES.map(type => <option key={type} value={type}>{JOB_TYPE_LABELS[type]}</option>)}
-                </select>
+                />
                 {listingErrors.type && <small className="jobs-field-error">{listingErrors.type}</small>}
               </label>
               <label className="form-field">
                 <span>Location</span>
-                <select
-                  className={`dash-input ${listingErrors.location ? 'is-invalid' : ''}`}
+                <PillSelect
+                  className={listingErrors.location ? 'is-invalid' : ''}
                   value={listingForm.location_mode}
-                  onChange={event => {
-                    setListingForm(prev => ({ ...prev, location_mode: event.target.value, location_city: event.target.value === 'Remote' ? '' : prev.location_city }));
+                  options={LOCATION_MODES}
+                  ariaLabel="Location mode"
+                  onChange={location_mode => {
+                    setListingForm(prev => ({ ...prev, location_mode, location_city: location_mode === 'Remote' ? '' : prev.location_city }));
                     setListingErrors(prev => ({ ...prev, location: '' }));
                   }}
-                >
-                  {LOCATION_MODES.map(location => <option key={location} value={location}>{location}</option>)}
-                </select>
+                />
                 {listingForm.location_mode !== 'Remote' && (
                   <input
                     className={`dash-input ${listingErrors.location ? 'is-invalid' : ''}`}
@@ -684,16 +676,16 @@ export default function Jobs() {
             {editingListing && (
               <label className="form-field">
                 <span>Status</span>
-                <select
-                  className={`dash-input ${listingErrors.status ? 'is-invalid' : ''}`}
+                <PillSelect
+                  className={listingErrors.status ? 'is-invalid' : ''}
                   value={listingForm.status}
-                  onChange={event => {
-                    setListingForm(prev => ({ ...prev, status: event.target.value }));
+                  options={LISTING_STATUSES}
+                  ariaLabel="Listing status"
+                  onChange={status => {
+                    setListingForm(prev => ({ ...prev, status }));
                     setListingErrors(prev => ({ ...prev, status: '' }));
                   }}
-                >
-                  {LISTING_STATUSES.map(status => <option key={status} value={status}>{formatStatus(status)}</option>)}
-                </select>
+                />
                 {listingErrors.status && <small className="jobs-field-error">{listingErrors.status}</small>}
               </label>
             )}
@@ -861,18 +853,15 @@ export default function Jobs() {
               <label className="form-field">
                 <span>Status</span>
                 <div className={`jobs-status-select jobs-status-select-${applicationDraft.status} ${applicationErrors.status ? 'is-invalid' : ''}`}>
-                  <select
+                  <PillSelect
                     value={applicationDraft.status}
-                    onChange={event => {
-                      setApplicationDraft(prev => ({ ...prev, status: event.target.value }));
+                    options={APPLICATION_STATUSES}
+                    ariaLabel="Application status"
+                    onChange={status => {
+                      setApplicationDraft(prev => ({ ...prev, status }));
                       setApplicationErrors(prev => ({ ...prev, status: '' }));
                     }}
-                  >
-                    {APPLICATION_STATUSES.map(status => (
-                      <option className={`jobs-option-${status}`} key={status} value={status}>{formatStatus(status)}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={16} strokeWidth={2} />
+                  />
                 </div>
                 {applicationErrors.status && <small className="jobs-field-error">{applicationErrors.status}</small>}
               </label>
