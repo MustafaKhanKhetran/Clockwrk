@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useStore } from '../../store';
 import Icon from '../Icon';
@@ -23,7 +23,12 @@ export default function Messages() {
   const { projects } = useStore();
   const [params] = useSearchParams();
   const presetProject = Number(params.get('project')) || null;
-  const [channel, setChannel] = useState(null);
+  const channels = useMemo(() => [
+    { key: 'team', projectId: null, name: 'Team & alerts', tagline: 'Direct support, billing details, and account alerts', type: 'team' },
+    ...projects.map((project) => ({ ...project, key: `project:${project.id}`, projectId: project.id, type: 'project' })),
+  ], [projects]);
+  const [channelKey, setChannelKey] = useState(presetProject ? `project:${presetProject}` : 'team');
+  const channel = channels.find((item) => item.key === channelKey) || channels[0];
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
@@ -54,13 +59,10 @@ export default function Messages() {
   };
   const removeAttachment = (url) => setAttachments((current) => current.filter((item) => item.url !== url));
 
-  // Re-sync when the seed list is replaced by the client's real projects, or the
-  // selection would silently keep pointing at a mock project.
   useEffect(() => {
-    if (!projects.length) return;
-    const stillValid = channel && projects.some((item) => item.id === channel.id && item.name === channel.name);
-    if (!stillValid) setChannel(projects.find((item) => item.id === presetProject) || projects[0]);
-  }, [channel, presetProject, projects]);
+    const requested = presetProject ? `project:${presetProject}` : 'team';
+    setChannelKey(channels.some((item) => item.key === requested) ? requested : 'team');
+  }, [channels, presetProject]);
 
   const load = useCallback(async (projectId) => {
     try {
@@ -77,16 +79,16 @@ export default function Messages() {
   useEffect(() => {
     if (!channel) return undefined;
     setLoading(true);
-    load(channel.id);
+    load(channel.projectId);
     // The team replies from the dashboard, so poll while the thread is open.
-    const timer = setInterval(() => load(channel.id), 10000);
+    const timer = setInterval(() => load(channel.projectId), 10000);
     return () => clearInterval(timer);
-  }, [channel, load]);
+  }, [channel.key, channel.projectId, load]);
 
   useEffect(() => {
     const pane = end.current?.parentElement;
     if (pane) pane.scrollTop = pane.scrollHeight;
-  }, [messages, channel]);
+  }, [messages, channel.key]);
 
   const send = async (event) => {
     event.preventDefault();
@@ -101,7 +103,7 @@ export default function Messages() {
     const optimisticId = `tmp-${Date.now()}`;
     setMessages((current) => [...current, { id: optimisticId, sender: 'client', content: body, created_at: new Date().toISOString(), attachments: sentAttachments, pending: true }]);
     try {
-      const { message } = await api.sendMessage(body, channel.id, sentAttachments);
+      const { message } = await api.sendMessage(body, channel.projectId, sentAttachments);
       setMessages((current) => current.map((item) => item.id === optimisticId ? message : item));
     } catch (err) {
       setMessages((current) => current.filter((item) => item.id !== optimisticId));
@@ -113,25 +115,24 @@ export default function Messages() {
     }
   };
 
-  if (!channel) {
-    return <div className="v3-messages-page"><PageIntro index="Project conversations" title="Messages" copy="Decisions stay attached to the work, the people, and the project they belong to." />
-      <section className="v3-empty-panel v3-enter"><Icon name="messages" size={26} /><strong>No project to talk about yet</strong><span>Once a project is open, its conversation appears here.</span></section>
-    </div>;
-  }
+  const channelMark = (item) => item.type === 'team'
+    ? <i className="v3-team-channel-mark"><Icon name="messages" size={17} /></i>
+    : <ProjectCode project={item} />;
 
-  return <div className="v3-messages-page"><PageIntro index="Project conversations" title="Messages" copy="Decisions stay attached to the work, the people, and the project they belong to." />
-    <section className="v3-messenger v3-enter"><aside><header><span>Threads</span></header>{projects.map((project) => <button key={project.id} className={project.id === channel.id ? 'is-active' : ''} onClick={() => setChannel(project)}><ProjectCode project={project} /><span><strong>{project.name}</strong><small>{project.tagline || project.description || 'Project workspace'}</small></span></button>)}</aside>
-      <div className="v3-conversation"><label className="v3-mobile-thread"><span>Conversation</span><select value={channel.id} onChange={(event) => setChannel(projects.find((project) => project.id === Number(event.target.value)) || projects[0])}>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
-        <header><div><ProjectCode project={channel} /><span><strong>{channel.name}</strong><small>Your Clockwrk project team</small></span></div><button onClick={() => setCallOpen(true)}><Icon name="calendar" size={16} />Book a call</button></header>
+  return <div className="v3-messages-page"><PageIntro index="Account and project conversations" title="Messages" copy="Talk to the team, follow account updates, or keep decisions attached to a project." />
+    <section className="v3-messenger v3-enter"><aside><header><span>Channels</span></header>{channels.map((item) => <button key={item.key} className={item.key === channel.key ? 'is-active' : ''} onClick={() => setChannelKey(item.key)}>{channelMark(item)}<span><strong>{item.name}</strong><small>{item.type === 'team' ? item.tagline : item.tagline || item.description || 'Project conversation'}</small></span></button>)}</aside>
+      <div className="v3-conversation"><label className="v3-mobile-thread"><span>Conversation</span><select value={channel.key} onChange={(event) => setChannelKey(event.target.value)}>{channels.map((item) => <option key={item.key} value={item.key}>{item.name}</option>)}</select></label>
+        <header><div>{channelMark(channel)}<span><strong>{channel.name}</strong><small>{channel.type === 'team' ? 'Your Clockwrk team and account updates' : 'Your Clockwrk project team'}</small></span></div><button onClick={() => setCallOpen(true)}><Icon name="calendar" size={16} />Book a call</button></header>
         <div className="v3-chat">
           {loading && !messages.length && <p className="v3-chat-note">Loading conversation…</p>}
           {error && <p className="v3-chat-note is-error">{error}</p>}
-          {!loading && !messages.length && !error && <p className="v3-chat-note">No messages yet — say hello to your project team.</p>}
+          {!loading && !messages.length && !error && <p className="v3-chat-note">No messages yet — say hello to the team.</p>}
           {messages.map((message) => {
             const mine = message.sender === 'client';
-            return <div key={message.id} className={`${mine ? 'is-me' : ''}${message.pending ? ' is-pending' : ''}`}>
-              {!mine && <Avatar name="Clockwrk" size="sm" online />}
-              <span><header><strong>{mine ? 'You' : 'Clockwrk'}</strong><small>{message.pending ? 'Sending…' : formatAt(message.created_at)}</small></header>{message.content && <p>{message.content}</p>}{(message.attachments || []).length > 0 && <ul className="v3-msg-attachments">{message.attachments.map((file) => <li key={file.id || file.url}><a href={file.url} target="_blank" rel="noreferrer"><Icon name="attach" size={13} />{file.name}</a></li>)}</ul>}</span>
+            const system = message.sender === 'system';
+            return <div key={message.id} className={`${mine ? 'is-me' : ''}${system ? ' is-system' : ''}${message.pending ? ' is-pending' : ''}`}>
+              {!mine && (system ? <i className={`v3-event-mark is-${message.event_type || 'alert'}`}><Icon name={message.event_type === 'delivery' ? 'check' : message.event_type === 'billing' ? 'billing' : 'bell'} size={15} /></i> : <Avatar name="Clockwrk" size="sm" online />)}
+              <span><header><strong>{mine ? 'You' : system ? message.event_title || 'Account update' : 'Clockwrk'}</strong><small>{message.pending ? 'Sending…' : formatAt(message.created_at)}</small></header>{message.content && <p>{message.content}</p>}{(message.attachments || []).length > 0 && <ul className="v3-msg-attachments">{message.attachments.map((file) => <li key={file.id || file.url}><a href={file.url} target="_blank" rel="noreferrer"><Icon name="attach" size={13} />{file.name}</a></li>)}</ul>}</span>
             </div>;
           })}
           <i ref={end} />
@@ -144,6 +145,6 @@ export default function Messages() {
           <button type="submit" disabled={(!text.trim() && attachments.length === 0) || sending || uploadingCount > 0} aria-label="Send message"><Icon name="send" size={18} /></button>
         </form>
       </div></section>
-    {callOpen && <BookCall projectId={channel.id} projectName={channel.name} onClose={() => setCallOpen(false)} />}
+    {callOpen && <BookCall projectId={channel.projectId} projectName={channel.type === 'project' ? channel.name : ''} onClose={() => setCallOpen(false)} />}
   </div>;
 }

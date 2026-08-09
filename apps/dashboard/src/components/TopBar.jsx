@@ -23,6 +23,7 @@ const PAGE_TITLES = {
   '/health':     'Website Health',
   '/workflows':  'Workflow Health',
   '/alerts':     'Alerts',
+  '/messages':   'Messages',
   '/audit':      'Audit Logs',
   '/knowledge':  'Knowledge',
   '/settings':   'Settings',

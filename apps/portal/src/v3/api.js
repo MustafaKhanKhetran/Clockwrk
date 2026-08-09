@@ -1,3 +1,8 @@
+import { AuthError, createAuthClient } from '@clockwrk/auth';
+import { Alert, Client, Plan, Request } from '@clockwrk/shared-types';
+
+export const sharedSchemas = Object.freeze({ Alert, Client, Plan, Request });
+
 // Thin client for the Clockwrk client-portal API (`/api/client/*` in clockwrk-api).
 //
 // Everything the portal sends goes through `request()` so token handling, JSON
@@ -8,9 +13,16 @@
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const TOKEN_KEY = 'clockwrk_portal_token';
 const CLIENT_KEY = 'clockwrk_portal_client';
+const portalAuth = createAuthClient({
+  apiBase: `${BASE}/api/client`,
+  tokenKey: TOKEN_KEY,
+  userKey: CLIENT_KEY,
+  persistLogin: false,
+  endpoints: { challenge: null, refresh: null, logout: null },
+});
 
 export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  return portalAuth.getToken();
 }
 
 export function getStoredClient() {
@@ -23,13 +35,11 @@ export function getStoredClient() {
 }
 
 export function setSession(token, client) {
-  localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(CLIENT_KEY, JSON.stringify(client));
+  portalAuth.setSession(token, client);
 }
 
 export function clearSession() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(CLIENT_KEY);
+  portalAuth.clearSession();
 }
 
 // session.js registers here so a 401 clearing the token still re-renders the
@@ -125,7 +135,14 @@ export async function uploadSetupAvatar(token, file) {
 }
 
 export const api = {
-  login: (email, password) => request('/login', { method: 'POST', body: { email, password }, auth: false }),
+  login: async (email, password) => {
+    try {
+      return await portalAuth.login(email, password);
+    } catch (error) {
+      if (error instanceof AuthError) throw new ApiError(error.message, error.status);
+      throw error;
+    }
+  },
   forgotPassword: (email) => request('/forgot-password', { method: 'POST', body: { email }, auth: false }),
   resetPassword: (token, new_password) => request('/reset-password', { method: 'POST', body: { token, new_password }, auth: false }),
   setupDetails: (token) => request(`/setup?token=${encodeURIComponent(token)}`, { auth: false }),
@@ -169,6 +186,7 @@ export const api = {
   createProject: (payload) => request('/projects', { method: 'POST', body: payload }),
   project: (id) => request(`/projects/${id}`),
   updateProject: (id, patch) => request(`/projects/${id}`, { method: 'PATCH', body: patch }),
+  deleteProject: (id) => request(`/projects/${id}`, { method: 'DELETE' }),
   addProjectLink: (id, link) => request(`/projects/${id}/links`, { method: 'POST', body: link }),
   removeProjectLink: (id, linkId) => request(`/projects/${id}/links/${linkId}`, { method: 'DELETE' }),
   addProjectResource: (id, resource) => request(`/projects/${id}/resources`, { method: 'POST', body: resource }),

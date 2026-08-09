@@ -1,4 +1,7 @@
+import { Alert, Client, Plan, Request } from '@clockwrk/shared-types';
 import { API_BASE_URL, getToken, logout, refreshSession } from './auth';
+
+export const sharedSchemas = Object.freeze({ Alert, Client, Plan, Request });
 
 const ENDPOINT_MAP = {
   'dashboard-alerts': '/api/alerts',

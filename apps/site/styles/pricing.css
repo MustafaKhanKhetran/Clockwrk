@@ -1798,7 +1798,7 @@
     font-size: clamp(48px, 13vw, 72px);
     font-weight: 400;
     letter-spacing: -0.04em;
-    color: #111111;
+    color: #333333;
     line-height: 1;
   }
 

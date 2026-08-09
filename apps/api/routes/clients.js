@@ -6,6 +6,11 @@ import { authenticate, requireRoles } from '../middleware/auth.js';
 const RESET_TOKEN_TTL_MIN = 60;
 const SETUP_TOKEN_TTL_MIN = 72 * 60;
 const hashToken = (raw) => crypto.createHash('sha256').update(raw).digest('hex');
+const CLIENT_PORTAL_URL = String(process.env.CLIENT_PORTAL_URL || 'https://my.clockwrk.io').replace(/\/+$/, '');
+const resolvePortalBase = (requested) => {
+  const value = String(requested || '').trim().replace(/\/+$/, '');
+  return /^https?:\/\/localhost(?::\d+)?$/i.test(value) ? value : CLIENT_PORTAL_URL;
+};
 
 const router = Router();
 
@@ -113,12 +118,12 @@ router.post('/', authenticate, requireRoles(CLIENT_ACCESS), async (req, res) => 
       [hashToken(rawToken), SETUP_TOKEN_TTL_MIN, clientId]
     );
     const [[client]] = await db.execute('SELECT * FROM clients WHERE id = ?', [clientId]);
-    const base = String(portal_base_url || '').replace(/\/+$/, '');
+    const base = resolvePortalBase(portal_base_url);
     const path = `/setup?token=${rawToken}`;
     return res.json({
       success: true,
       client,
-      invite_url: base ? `${base}${path}` : path,
+      invite_url: `${base}${path}`,
       invite_expires_minutes: SETUP_TOKEN_TTL_MIN,
     });
   } catch (err) {
@@ -131,11 +136,15 @@ router.post('/', authenticate, requireRoles(CLIENT_ACCESS), async (req, res) => 
 router.patch('/:id', authenticate, requireRoles(CLIENT_ACCESS), async (req, res) => {
   const { id } = req.params;
   const allowed = ['name','email','phone','company','status','plan','billing','whitelabel','notes','next_payment_due','payment_ref'];
+  if (['owner', 'admin'].includes(req.user.role)) allowed.push('portal_role');
   try {
     const fields = [];
     const params = [];
     for (const key of allowed) {
       if (req.body[key] === undefined) continue;
+      if (key === 'portal_role' && !['admin', 'member'].includes(req.body[key])) {
+        return res.status(400).json({ success: false, message: 'Invalid portal role' });
+      }
       fields.push(`${key} = ?`);
       params.push(key === 'whitelabel' ? (req.body[key] ? 1 : 0) : req.body[key]);
     }
@@ -167,14 +176,14 @@ router.post('/:id/setup-token', authenticate, requireRoles(CLIENT_ACCESS), async
       'UPDATE clients SET account_setup_token_hash = ?, account_setup_expires_at = DATE_ADD(NOW(), INTERVAL ? MINUTE) WHERE id = ?',
       [hashToken(rawToken), SETUP_TOKEN_TTL_MIN, client.id]
     );
-    const base = String(req.body?.portal_base_url || '').replace(/\/+$/, '') || null;
+    const base = resolvePortalBase(req.body?.portal_base_url);
     const path = `/setup?token=${rawToken}`;
     return res.json({
       success: true,
       client: { id: client.id, name: client.name, email: client.email },
       token: rawToken,
       path,
-      url: base ? `${base}${path}` : path,
+      url: `${base}${path}`,
       expires_in_minutes: SETUP_TOKEN_TTL_MIN,
       purpose: 'setup',
     });
@@ -194,14 +203,14 @@ router.post('/:id/reset-token', authenticate, requireRoles(CLIENT_ACCESS), async
       'UPDATE clients SET password_reset_token_hash = ?, password_reset_expires_at = DATE_ADD(NOW(), INTERVAL ? MINUTE) WHERE id = ?',
       [hashToken(rawToken), RESET_TOKEN_TTL_MIN, client.id]
     );
-    const base = String(req.body?.portal_base_url || '').replace(/\/+$/, '') || null;
+    const base = resolvePortalBase(req.body?.portal_base_url);
     const path = `/reset-password?token=${rawToken}`;
     return res.json({
       success: true,
       client: { id: client.id, name: client.name, email: client.email },
       token: rawToken,
       path,
-      url: base ? `${base}${path}` : path,
+      url: `${base}${path}`,
       expires_in_minutes: RESET_TOKEN_TTL_MIN,
       purpose: 'reset',
     });

@@ -65,7 +65,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .icon-action.danger { color: #c43b30; }
 .icon-action:disabled { opacity: .35; cursor: not-allowed; }
 
-.card, .tw-card, .stat-card, .detail-section { background: var(--launch-surface) !important; border: 1px solid var(--launch-line) !important; border-radius: 12px !important; box-shadow: none !important; }
+.card,
+.dash-content:not(:has(> .overview-page)) .tw-card,
+.stat-card,
+.detail-section {
+  background: var(--launch-surface) !important;
+  border: 1px solid var(--launch-line) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
 .stat-grid { gap: 12px !important; }
 .stat-card { padding: 22px !important; }
 .stat-label { color: var(--launch-muted) !important; font-size: 13px !important; }

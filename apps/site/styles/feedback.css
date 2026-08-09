@@ -746,7 +746,7 @@
   display: none;
 }
 
-@media (max-width: 1399px) and (min-width: 861px) {
+@media (max-width: 1499px) and (min-width: 861px) {
   .feedback-reveal-screen {
     width: min(1120px, calc(100vw - (var(--feedback-final-rail) * 2)));
   }

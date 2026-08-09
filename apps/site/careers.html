@@ -1343,6 +1343,7 @@
     </section>
 
     <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="https://unpkg.com/libphonenumber-js@1.11.19/bundle/libphonenumber-js.min.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => lucide.createIcons());
 
@@ -2825,7 +2826,7 @@
           <div class="cw-group">
             <div class="cw-linkedin-field">
               <button type="button" class="cw-linkedin-icon" aria-label="Open LinkedIn profile"></button>
-              <input id="intLinkedinUrlMain" type="url" placeholder="LinkedIn Profile URL" />
+              <input id="intLinkedinUrlMain" type="url" placeholder="LinkedIn Profile URL *" />
             </div>
           </div>
           <div class="cw-group">
@@ -3289,10 +3290,65 @@
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
       }
 
+      const PHONE_ERROR_MESSAGE =
+        "Please enter a valid phone number including your country code (e.g. +92 300 1234567)";
+
+      function getPhoneLib() {
+        return window.libphonenumber || window.libphonenumberJs || null;
+      }
+
+      function getPhoneRawValue(field) {
+        const raw = String(field?.dataset.e164 || field?.value || "").trim();
+        if (!raw || raw === "+") return "";
+        const phone = parsePhoneInput(raw);
+        return phone?.number || raw;
+      }
+
+      function parsePhoneInput(value) {
+        const phoneLib = getPhoneLib();
+        const raw = String(value || "").trim();
+        if (!raw || !phoneLib?.parsePhoneNumber) return null;
+        try {
+          const phone = phoneLib.parsePhoneNumber(raw);
+          return phone?.isValid?.() ? phone : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
       function isValidPhone(value) {
         if (!value) return true;
-        const digits = value.replace(/\D/g, "");
-        return digits.length >= 7 && digits.length <= 20;
+        return Boolean(parsePhoneInput(value));
+      }
+
+      function countryFlagEmoji(country) {
+        if (!/^[A-Z]{2}$/.test(country || "")) return "";
+        return country
+          .split("")
+          .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
+          .join("");
+      }
+
+      function formatPhoneNationalWithoutCode(phone) {
+        const callingCode = phone?.countryCallingCode;
+        if (!callingCode) return String(phone?.nationalNumber || "");
+        return phone
+          .formatInternational()
+          .replace(new RegExp("^\\+" + callingCode + "\\s*"), "")
+          .trim();
+      }
+
+      function focusNextApplicationField(field) {
+        const activeStep = field?.closest(".cw-step");
+        if (!activeStep) return;
+        const focusable = Array.from(
+          activeStep.querySelectorAll(
+            "input:not([type='hidden']):not([type='file']), textarea, .cw-cs-trigger, .cw-date-trigger, button:not(.cw-input-hint-btn)",
+          ),
+        ).filter((el) => !el.disabled && el.offsetParent !== null);
+        const index = focusable.indexOf(field);
+        const next = focusable[index + 1];
+        next?.focus?.();
       }
 
       function normalizeUrlInput(id) {
@@ -3634,7 +3690,7 @@
         const em = v("appEmail");
         if (isInternApplication) {
           const internEmail = v("intEmailMain");
-          const internPhone = v("intPhoneMain");
+          const internPhone = getPhoneRawValue(document.getElementById("intPhoneMain"));
           const internLinkedin = normalizeUrlInput("intLinkedinUrlMain");
           const pendingInternLink = normalizeUrlInput("intLinksEntry");
 
@@ -3652,10 +3708,7 @@
               );
             }
             if (internPhone && !isValidPhone(internPhone)) {
-              return showFieldError(
-                "intPhoneMain",
-                "Please enter a valid phone number.",
-              );
+              return showFieldError("intPhoneMain", PHONE_ERROR_MESSAGE);
             }
           }
           if (n === 2) {
@@ -3715,7 +3768,13 @@
           if (n === 3) {
             formatLinkedInField(document.getElementById("intLinkedinUrlMain"));
             const formattedInternLinkedin = normalizeUrlInput("intLinkedinUrlMain");
-            if (formattedInternLinkedin && (!isValidHttpUrl(formattedInternLinkedin) || !getLinkedInProfileMeta(formattedInternLinkedin))) {
+            if (!formattedInternLinkedin) {
+              return showFieldError(
+                "intLinkedinUrlMain",
+                "Please enter your LinkedIn profile URL.",
+              );
+            }
+            if (!isValidHttpUrl(formattedInternLinkedin) || !getLinkedInProfileMeta(formattedInternLinkedin)) {
               return showFieldError(
                 "intLinkedinUrlMain",
                 "Please enter a valid LinkedIn URL with http:// or https://.",
@@ -3815,11 +3874,9 @@
           if (!em || !isValidEmail(em)) {
             return showFieldError("appEmail", "Please enter a valid email.");
           }
-          if (!v("appPhone") || !isValidPhone(v("appPhone"))) {
-            return showFieldError(
-              "appPhone",
-              "Please enter a valid phone number.",
-            );
+          const appPhone = getPhoneRawValue(document.getElementById("appPhone"));
+          if (!appPhone || !isValidPhone(appPhone)) {
+            return showFieldError("appPhone", PHONE_ERROR_MESSAGE);
           }
           if (!v("appBased") || v("appBased").length < 2) {
             return showFieldError(
@@ -4058,6 +4115,52 @@
       // INPUT MASKING
       // ─────────────────────────────────────────────────────
       function bindApplicationInputEnhancements() {
+        function formatPhoneWhileTyping(field) {
+          const phoneLib = getPhoneLib();
+          const digits = String(field.value || "").replace(/\D/g, "");
+          const raw = "+" + digits;
+          let formatted = raw;
+          if (phoneLib?.AsYouType && digits) {
+            formatted = new phoneLib.AsYouType().input(raw);
+          }
+          field.value = formatted || "+";
+          delete field.dataset.e164;
+        }
+
+        function restorePhoneForEdit(field) {
+          if (!field) return;
+          const phone = parsePhoneInput(field.dataset.e164 || field.value);
+          field.value = phone ? phone.formatInternational() : field.value || "+";
+          if (!field.value.startsWith("+")) {
+            field.value = "+" + field.value.replace(/\D/g, "");
+          }
+          requestAnimationFrame(() => {
+            const end = field.value.length;
+            field.setSelectionRange?.(end, end);
+          });
+        }
+
+        function applyPhoneDisplay(field, options = {}) {
+          if (!field) return true;
+          const raw = getPhoneRawValue(field);
+          if (!raw || raw === "+") {
+            delete field.dataset.e164;
+            field.value = options.keepEmpty ? "" : "+";
+            return true;
+          }
+          const phone = parsePhoneInput(raw);
+          if (!phone) {
+            delete field.dataset.e164;
+            if (options.showError) showFieldError(field.id, PHONE_ERROR_MESSAGE);
+            return false;
+          }
+          field.dataset.e164 = phone.number;
+          const flag = countryFlagEmoji(phone.country);
+          const national = formatPhoneNationalWithoutCode(phone);
+          field.value = (flag ? flag + " " : "") + national;
+          return true;
+        }
+
         [
           document.getElementById("appPhone"),
           document.getElementById("intPhoneMain"),
@@ -4066,30 +4169,37 @@
           .forEach((phoneInput) => {
             if (phoneInput.dataset.phoneBound) return;
             phoneInput.dataset.phoneBound = "1";
-            phoneInput.addEventListener("keydown", (e) => {
-              if (
-                [
-                  "Backspace",
-                  "Delete",
-                  "Tab",
-                  "ArrowLeft",
-                  "ArrowRight",
-                  "Home",
-                  "End",
-                ].includes(e.key)
-              )
+            phoneInput.inputMode = "tel";
+            if (!phoneInput.value) phoneInput.value = "+";
+
+            phoneInput.addEventListener("focus", () => restorePhoneForEdit(phoneInput));
+            phoneInput.addEventListener("keydown", (event) => {
+              const allowed = ["Tab", "ArrowLeft", "ArrowRight", "Home", "End", "Enter"];
+              if ((event.metaKey || event.ctrlKey) && ["a", "c", "v", "x"].includes(event.key.toLowerCase())) return;
+              if (allowed.includes(event.key)) return;
+              if (event.key === "Backspace" || event.key === "Delete") {
+                const start = phoneInput.selectionStart ?? 0;
+                const end = phoneInput.selectionEnd ?? start;
+                if (start <= 1 && end <= 1) event.preventDefault();
                 return;
-              if (!/[\d+\s]/.test(e.key)) e.preventDefault();
+              }
+              if (!/\d/.test(event.key)) event.preventDefault();
             });
-            phoneInput.addEventListener("input", () => {
-              const val = phoneInput.value;
-              let cleaned = val
-                .replace(/(?!^\+)[^\d\s]/g, "")
-                .replace(/^\+?/, (m) => m);
-              if (val.startsWith("+"))
-                cleaned = "+" + cleaned.replace(/\+/g, "");
-              else cleaned = cleaned.replace(/\+/g, "");
-              if (phoneInput.value !== cleaned) phoneInput.value = cleaned;
+            phoneInput.addEventListener("input", () => formatPhoneWhileTyping(phoneInput));
+            phoneInput.addEventListener("blur", () =>
+              applyPhoneDisplay(phoneInput, {
+                showError: true,
+                keepEmpty: phoneInput.id === "intPhoneMain",
+              }),
+            );
+            phoneInput.addEventListener("keydown", (event) => {
+              if (event.key !== "Enter") return;
+              event.preventDefault();
+              const isValid = applyPhoneDisplay(phoneInput, {
+                showError: true,
+                keepEmpty: phoneInput.id === "intPhoneMain",
+              });
+              if (isValid) focusNextApplicationField(phoneInput);
             });
           });
 
@@ -5326,15 +5436,24 @@
         return document.getElementById(id)?.value?.trim() || "";
       }
 
-      function splitLinkValues(id) {
-        return getValue(id)
-          .split(",")
-          .map((link) => link.trim())
+      function splitPillValues(hiddenId, pendingEntryId) {
+        const values = getValue(hiddenId)
+          .split(/[\n,]+/)
+          .map((value) => value.trim())
           .filter(Boolean);
+        const pending = pendingEntryId ? getValue(pendingEntryId) : "";
+        if (pending && !values.some((value) => value.toLowerCase() === pending.toLowerCase())) {
+          values.push(pending);
+        }
+        return values;
+      }
+
+      function joinPillValues(hiddenId, pendingEntryId) {
+        return splitPillValues(hiddenId, pendingEntryId).join("\n");
       }
 
       function firstNonLinkedInLink(links) {
-        return links.find((link) => !/linkedin\.com/i.test(link)) || "";
+        return links.find((link) => !/linkedin\.com/i.test(link)) || null;
       }
 
       function showApplicationSuccess(message) {
@@ -5348,15 +5467,11 @@
       }
 
       function buildJobPayload(resumeUrl) {
-        const additionalLinks = splitLinkValues("appLinks");
         return {
           job_id: selectedListing.id || "",
-          position: selectedListing.title || "",
-          department: selectedListing.department || "",
-          listing_type: selectedListing.type || "",
-          full_name: `${getValue("appFName")} ${getValue("appLName")}`.trim(),
+          full_name: (getValue("appFName") + " " + getValue("appLName")).trim(),
           email: getValue("appEmail"),
-          phone: getValue("appPhone"),
+          phone: getPhoneRawValue(document.getElementById("appPhone")),
           location: getValue("appBased"),
           availability_type: getValue("appRoleType"),
           availability_start: getValue("appStartDate"),
@@ -5366,10 +5481,9 @@
           remote_experience: getValue("appRemote"),
           has_shipped_work: getValue("appShipped"),
           linkedin_url: normalizeUrlInput("appLinkedin"),
-          portfolio_url: firstNonLinkedInLink(additionalLinks),
-          additional_links: additionalLinks.join(", "),
+          additional_links: joinPillValues("appLinks", "appLinksEntry"),
           resume_url: resumeUrl,
-          skills: getValue("appSkills"),
+          skills: joinPillValues("appSkills", "appSkillsEntry"),
           best_work_description: getValue("appBestWork"),
           hardest_part: getValue("appHardest"),
           why_clockwrk: getValue("appWhy"),
@@ -5381,36 +5495,33 @@
       }
 
       function buildInternshipPayload(resumeUrl) {
-        const additionalLinks = splitLinkValues("intLinksMain");
+        const additionalLinks = splitPillValues("intLinksMain", "intLinksEntry");
+        const graduationYear = parseInt(getValue("intGraduationYearMain"), 10);
+        const phone = getPhoneRawValue(document.getElementById("intPhoneMain"));
         return {
           job_id: selectedListing.id || "",
-          position: selectedListing.title || "",
-          department: selectedListing.department || "",
-          listing_type: selectedListing.type || "internship",
           full_name: getValue("intFullName"),
           email: getValue("intEmailMain"),
-          phone: getValue("intPhoneMain"),
+          phone: phone || null,
           location: getValue("intLocationMain"),
-          area_of_interest: getValue("intAreaOfInterest"),
           university: getValue("intUniversityMain"),
           program: getValue("intProgramMain"),
           enrollment_status: getValue("intEnrollmentStatus"),
+          graduation_year: Number.isNaN(graduationYear) ? null : graduationYear,
           year_of_study: getValue("intYearOfStudy"),
-          graduation_year: getValue("intGraduationYearMain")
-            ? Number(getValue("intGraduationYearMain"))
-            : null,
+          area_of_interest: getValue("intAreaOfInterest"),
           availability_start: getValue("intAvailabilityStartMain"),
-          availability_duration: getValue("intAvailabilityDuration"),
-          hours_per_week: getValue("intHoursPerWeek"),
           linkedin_url: normalizeUrlInput("intLinkedinUrlMain"),
+          additional_links: additionalLinks.join("\n"),
           portfolio_url: firstNonLinkedInLink(additionalLinks),
-          additional_links: additionalLinks.join(", "),
           resume_url: resumeUrl,
-          skills: getValue("intSkillsMain"),
-          why_clockwrk: getValue("intWhyClockwrkMain"),
+          skills: joinPillValues("intSkillsMain", "intSkillsEntry"),
           strongest_skill: getValue("intStrongestSkillMain"),
-          improvement_area: getValue("intImprovementAreaMain"),
           work_style: getValue("intWorkStyle"),
+          hours_per_week: getValue("intHoursPerWeek"),
+          availability_duration: getValue("intAvailabilityDuration"),
+          why_clockwrk: getValue("intWhyClockwrkMain"),
+          improvement_area: getValue("intImprovementAreaMain"),
           referral_source: getValue("intReferralSource"),
           extra_note: getValue("intExtraNoteMain"),
         };

@@ -17,6 +17,8 @@ import {
   promoteNextQueued,
   reorderClientQueue,
 } from '../services/requestWorkflow.js';
+import { deleteProjectTree } from '../services/projectDeletion.js';
+import { getClientMessageFeed } from '../services/clientMessageFeed.js';
 
 const router = Router();
 
@@ -72,6 +74,18 @@ function clientAuth(req, res, next) {
   }
 }
 
+async function clientAdmin(req, res, next) {
+  try {
+    const [[client]] = await db.execute('SELECT portal_role FROM clients WHERE id = ?', [req.client.id]);
+    if (!client) return res.status(404).json({ success: false, message: 'Client not found' });
+    if (client.portal_role !== 'admin') return res.status(403).json({ success: false, message: 'Client administrator access required' });
+    next();
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+}
+
 // ─── POST /api/client/login ───────────────────────────────────────────────────
 router.post('/login', credentialLimiter, async (req, res) => {
   const { email, password } = req.body;
@@ -79,7 +93,7 @@ router.post('/login', credentialLimiter, async (req, res) => {
   try {
     const [[client]] = await db.execute(
       `SELECT id, name, email, phone, company, avatar_url, plan, billing, status, password_hash, subscribed_at,
-              portal_onboarding_version, onboarding_completed_at
+              portal_role, portal_onboarding_version, onboarding_completed_at
          FROM clients WHERE email = ?`,
       [email]
     );
@@ -109,7 +123,7 @@ router.get('/me', clientAuth, async (req, res) => {
     const [[client]] = await db.execute(
       `SELECT id, name, email, phone, company, avatar_url, plan, billing, status, subscribed_at,
               next_payment_due, last_payment_date, notify_prefs,
-              portal_onboarding_version, onboarding_completed_at
+              portal_role, portal_onboarding_version, onboarding_completed_at
          FROM clients WHERE id = ?`,
       [req.client.id]
     );
@@ -650,34 +664,9 @@ router.get('/files', clientAuth, async (req, res) => {
 router.get('/messages', clientAuth, async (req, res) => {
   const projectId = req.query.project_id ? Number(req.query.project_id) : null;
   try {
-    // Messages predating project threads have a NULL project_id; show them in
-    // every thread rather than hiding history.
-    const [messages] = projectId
-      ? await db.execute(
-          `SELECT id, project_id, sender, content, created_at
-             FROM client_messages
-            WHERE client_id = ? AND (project_id = ? OR project_id IS NULL)
-            ORDER BY created_at ASC`,
-          [req.client.id, projectId]
-        )
-      : await db.execute(
-          `SELECT id, project_id, sender, content, created_at
-             FROM client_messages
-            WHERE client_id = ? ORDER BY created_at ASC`,
-          [req.client.id]
-        );
-    // Attach each message's file rows in one round-trip.
-    if (messages.length) {
-      const ids = messages.map((m) => m.id);
-      const [files] = await db.execute(
-        `SELECT id, message_id, file_name AS name, file_url AS url, file_type
-           FROM files WHERE message_id IN (${ids.map(() => '?').join(',')})`,
-        ids
-      );
-      const byMsg = files.reduce((acc, f) => { (acc[f.message_id] ||= []).push({ id: f.id, name: f.name, url: f.url, mime: f.file_type }); return acc; }, {});
-      for (const m of messages) m.attachments = byMsg[m.id] || [];
-    }
-    return res.json({ success: true, messages });
+    const feed = await getClientMessageFeed({ clientId: req.client.id, projectId });
+    if (!feed) return res.status(404).json({ success: false, message: 'Conversation not found' });
+    return res.json({ success: true, messages: feed.messages });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: 'Server error' });
@@ -1295,6 +1284,25 @@ router.patch('/projects/:id', clientAuth, async (req, res) => {
        goal ?? null, audience ?? null, success_measure ?? null, target_date || null, row.id]
     );
     return res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.delete('/projects/:id', clientAuth, clientAdmin, async (req, res) => {
+  try {
+    const project = await deleteProjectTree(req.params.id, { clientId: req.client.id });
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    try {
+      await db.execute(
+        "INSERT INTO dashboard_alerts (type, title, message, link) VALUES ('system', 'Project deleted by client administrator', ?, '/clients')",
+        [`${req.client.name} deleted ${project.name}`]
+      );
+    } catch (alertErr) {
+      console.error('project deletion alert failed:', alertErr.message);
+    }
+    return res.json({ success: true, project: { id: project.id, name: project.name } });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: 'Server error' });

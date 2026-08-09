@@ -1,3 +1,7 @@
+import { PLAN_CARE, PLANS } from '@clockwrk/shared-types';
+
+export { PLAN_CARE, PLANS };
+
 // Pricing, plans and the service catalogue — this is real configuration, not
 // sample data. All fake clients, projects, requests, files, invoices, team
 // members, messages, tickets and activity were removed on 2026-08-08; the
@@ -28,18 +32,6 @@ export const ADDONS = [
 // Subscription — the active build phase. Paid upfront, work starts on payment.
 // Weekly = pause or cancel any week. Monthly = ~10% off the true monthly cost
 // (a real month is 4.333 weeks, so weekly x 4.333 x 0.9, rounded for clean pricing).
-export const PLANS = [
-  { name: 'Startup', slots: 1, price: 870, cadence: 'wk', monthlyPrice: 3350, blurb: 'One request at a time' },
-  { name: 'Business', slots: 2, price: 1550, cadence: 'wk', monthlyPrice: 6000, blurb: 'Two requests at a time' },
-  { name: 'Enterprise', slots: 3, price: 2300, cadence: 'wk', monthlyPrice: 8950, blurb: 'Three requests at a time' },
-];
-
-export const PLAN_CARE = {
-  Startup: 'starter',
-  Business: 'growth',
-  Enterprise: 'business',
-};
-
 const SERVICE_ITEMS = [
   { id: 'shared', category: 'Hosting', name: 'Shared hosting', price: 25, cadence: 'mo', buyModel: 'order', billing: 'infra' },
   { id: 'wordpress', category: 'Hosting', name: 'WordPress hosting', price: 45, cadence: 'mo', buyModel: 'order', billing: 'infra' },
@@ -190,4 +182,3 @@ export const LAUNCH_BUNDLES = [
   { id: 'pro', name: 'Launch Pro', price: 650, includes: ['Essentials', 'Performance pass', 'Conversion tracking'] },
   { id: 'premium', name: 'Launch Premium', price: 1200, includes: ['Pro', 'Security audit', '30-day monitoring'] },
 ];
-

@@ -244,19 +244,19 @@
           name: "Startup",
           description: "One request at a time",
           weekly: 870,
-          monthly: 2958,
+          monthly: 3350,
         },
         business: {
           name: "Business",
           description: "Two requests at a time",
           weekly: 1550,
-          monthly: 5270,
+          monthly: 6000,
         },
         enterprise: {
           name: "Enterprise",
           description: "Three requests at a time",
           weekly: 2300,
-          monthly: 7820,
+          monthly: 8950,
         },
       };
 
@@ -269,7 +269,9 @@
       const total = hasWhitelabel ? price + wlPrice : price;
       const periodLabel = safeBilling === "weekly" ? "/ week" : "/ month";
       const billingLabel = safeBilling === "weekly" ? "weekly" : "monthly";
-      const originalMonthlyPrice = detail.weekly * 4;
+      // A real month is 52/12 = 4.3333 weeks — what a weekly subscriber
+      // actually pays over a month. The monthly price is ~10% off it.
+      const originalMonthlyPrice = Math.round(detail.weekly * (52 / 12));
 
       function generateRef() {
         const namePart = customerName

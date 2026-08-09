@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { PLAN_IDS } from '@clockwrk/shared-types';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
@@ -29,7 +30,7 @@ import './Clients.css';
 const API = '/api/clients';
 const RATE_URL = '/api/rate/usd-pkr';
 const ELEVATE_RATE_FALLBACK = 275.62;
-const PLANS = ['startup', 'business', 'enterprise'];
+const PLANS = PLAN_IDS;
 const BILLINGS = ['weekly', 'monthly'];
 const STATUSES = ['active', 'paused', 'cancelled'];
 const DRAWER_TABS = ['overview', 'projects', 'files', 'communications', 'billing'];

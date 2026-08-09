@@ -1,24 +1,28 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ExternalLink, Link2, Plus } from 'lucide-react';
+import { ExternalLink, Link2, Plus, Trash2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashLayout from '../components/DashLayout';
 import { DetailPage, DetailSection, ErrorDetail, LoadingDetail, formatDate, humanize } from '../components/DetailPage';
 import FileList from '../components/FileList';
 import FormModal from '../components/FormModal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import PillSelect from '../components/PillSelect';
 import StatusBadge from '../components/StatusBadge';
 import { toast } from '../components/Toast';
-import { apiFetch, apiGet, apiPost } from '../utils/dashboardApi';
+import { useAuth } from '../context/AuthContext';
+import { apiDelete, apiFetch, apiGet, apiPost } from '../utils/dashboardApi';
 
 export default function ProjectDetail(){
-  const {id}=useParams();const navigate=useNavigate();const [data,setData]=useState(null);const [error,setError]=useState('');const [modal,setModal]=useState('');const [form,setForm]=useState({});const [busy,setBusy]=useState(false);
+  const {id}=useParams();const navigate=useNavigate();const {user}=useAuth();const [data,setData]=useState(null);const [error,setError]=useState('');const [modal,setModal]=useState('');const [deleteOpen,setDeleteOpen]=useState(false);const [form,setForm]=useState({});const [busy,setBusy]=useState(false);
   const load=useCallback(()=>{setError('');apiGet(`/api/projects/${id}`).then(setData).catch(e=>setError(e.message));},[id]);useEffect(load,[load]);
   if(error)return <DashLayout><ErrorDetail message={error} onRetry={load}/></DashLayout>;if(!data)return <DashLayout><LoadingDetail/></DashLayout>;
   const {project,requests=[],files=[],links=[],resources=[],activity=[]}=data;
   const openEdit=()=>{setForm({...project});setModal('edit');};
+  const canDelete=['owner','admin'].includes(user?.role);
+  const removeProject=async()=>{setBusy(true);try{await apiDelete(`/api/projects/${id}`);toast.success('Project deleted');navigate('/projects',{replace:true});}catch(err){toast.error(err.message);}finally{setBusy(false);setDeleteOpen(false);}};
   const submit=async e=>{e.preventDefault();setBusy(true);try{if(modal==='edit')await apiFetch(`/api/projects/${id}`,{method:'PATCH',body:form});if(modal==='link')await apiPost(`/api/projects/${id}/links`,form);if(modal==='resource')await apiPost(`/api/projects/${id}/resources`,form);toast.success(modal==='edit'?'Project updated':'Item added');setModal('');load();}catch(err){toast.error(err.message);}finally{setBusy(false);}};
   const counts=status=>requests.filter(r=>r.request_kind!=='parent'&&r.status===status).length;
-  return <DashLayout><DetailPage eyebrow="Project workspace" title={project.name} subtitle={`${project.client_company||project.client_name} · ${humanize(project.type)}`} meta={<><StatusBadge value={project.status}/><span>{humanize(project.priority)} priority</span><span>Target {formatDate(project.due_date)}</span></>} actions={<><button className="btn btn-ghost" onClick={openEdit}>Edit project</button><button className="btn btn-primary" onClick={()=>navigate(`/requests?project_id=${project.id}&create=1`)}><Plus size={16}/> New request</button></>}>
+  return <DashLayout><DetailPage eyebrow="Project workspace" title={project.name} subtitle={`${project.client_company||project.client_name} · ${humanize(project.type)}`} meta={<><StatusBadge value={project.status}/><span>{humanize(project.priority)} priority</span><span>Target {formatDate(project.due_date)}</span></>} actions={<><button className="btn btn-ghost" onClick={openEdit}>Edit project</button>{canDelete&&<button className="btn btn-danger" onClick={()=>setDeleteOpen(true)}><Trash2 size={16}/> Delete project</button>}<button className="btn btn-primary" onClick={()=>navigate(`/requests?project_id=${project.id}&create=1`)}><Plus size={16}/> New request</button></>}>
     <div className="detail-kpis"><div><span>In progress</span><strong>{counts('in_progress')}</strong></div><div><span>Needs review</span><strong>{counts('in_review')}</strong></div><div><span>Up next</span><strong>{counts('queue')}</strong></div><div><span>Delivered</span><strong>{counts('completed')}</strong></div></div>
     <div className="detail-grid detail-grid-two"><DetailSection title="Project brief"><p className="long-copy">{project.notes||project.goal||'No project brief has been added.'}</p><dl className="definition-grid"><div><dt>Goal</dt><dd>{project.goal||'Not set'}</dd></div><div><dt>Audience</dt><dd>{project.audience||'Not set'}</dd></div><div><dt>Success measure</dt><dd>{project.success_measure||'Not set'}</dd></div><div><dt>Project manager</dt><dd>{project.project_manager_name||'Unassigned'}</dd></div></dl></DetailSection><DetailSection title="Project links" action={<button className="text-action" onClick={()=>{setForm({kind:'production',label:'',url:''});setModal('link')}}><Link2 size={15}/> Add link</button>}>{links.length?<div className="simple-list">{links.map(l=><a href={l.url} target="_blank" rel="noreferrer" key={l.id}><strong>{l.label}</strong><p>{humanize(l.kind)}</p><ExternalLink size={15}/></a>)}</div>:<p className="empty-copy">No project links yet.</p>}</DetailSection></div>
     <DetailSection title="Current requests" description="Parent request groups stay here for context but never consume a production slot.">{requests.length?<div className="record-list">{requests.map(r=><button key={r.id} onClick={()=>navigate(`/requests/${r.id}`)}><span><strong>{r.title}</strong><small>{humanize(r.type)} · {r.dependency_title?`blocked by ${r.dependency_title}`:`due ${formatDate(r.due_date)}`}</small></span><StatusBadge value={r.request_kind==='parent'?`group · ${r.scope_status}`:r.status}/></button>)}</div>:<p className="empty-copy">No requests have been added.</p>}</DetailSection>
@@ -29,5 +33,6 @@ export default function ProjectDetail(){
       {modal==='link'&&<><div className="form-row"><label className="form-field">Label<input className="dash-input" required value={form.label||''} onChange={e=>setForm({...form,label:e.target.value})}/></label><label className="form-field">Type<PillSelect value={form.kind||'other'} onChange={kind=>setForm({...form,kind})} ariaLabel="Link type" options={['production','staging','figma','github','appstore','docs','prototype','other']}/></label></div><label className="form-field">URL<input className="dash-input" type="url" required value={form.url||''} onChange={e=>setForm({...form,url:e.target.value})}/></label></>}
       {modal==='resource'&&<><label className="form-field">Title<input className="dash-input" required value={form.title||''} onChange={e=>setForm({...form,title:e.target.value})}/></label><label className="form-field">URL<input className="dash-input" type="url" value={form.url||''} onChange={e=>setForm({...form,url:e.target.value})}/></label><label className="form-field">Notes<textarea className="dash-input" rows="4" value={form.notes||''} onChange={e=>setForm({...form,notes:e.target.value})}/></label></>}
     </FormModal>
+    <ConfirmDialog open={deleteOpen} title={`Delete ${project.name}?`} message="This permanently removes the project and its requests, file records, conversations, and time history from the workspace. This cannot be undone." confirmLabel="Delete project" danger loading={busy} onCancel={()=>!busy&&setDeleteOpen(false)} onConfirm={removeProject}/>
   </DetailPage></DashLayout>;
 }

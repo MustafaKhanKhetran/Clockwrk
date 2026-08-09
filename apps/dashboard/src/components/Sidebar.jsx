@@ -14,6 +14,7 @@ const NAV = [
     { path: '/bookings', label: 'Bookings', icon: 'calendar', roles: ['booking_access'] },
     { path: '/calendar', label: 'Calendar', icon: 'cal', roles: ['delivery', 'managers'] },
     { path: '/finance', label: 'Finance', icon: 'dollar', roles: ['finance_access'] },
+    { path: '/messages', label: 'Messages', icon: 'mail', roles: ['owner'] },
   ] },
   { group: 'Your work', items: [
     { path: '/my-work', label: 'My Work', icon: 'briefcase', roles: ['workers'] },

@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Activity,
   ArrowDownRight,
@@ -13,7 +14,6 @@ import {
   ChevronUp,
   CircleDollarSign,
   Clock3,
-  CreditCard,
   Crown,
   DollarSign,
   ExternalLink,
@@ -34,7 +34,7 @@ import DashLayout from '../components/DashLayout';
 import { hasRole } from '../components/RoleGuard';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { apiGet } from '../utils/dashboardApi';
+import { apiFetch, apiGet, apiPost } from '../utils/dashboardApi';
 import './Overview.css';
 
 const STATS_URL = '/api/stats';
@@ -898,42 +898,41 @@ const CashCard = memo(function CashCard({ balance, payrollDate, payrollAmount })
   );
 });
 
-const OperationsCard = memo(function OperationsCard({ bookings, teamMeetings, paymentAlerts, pendingAmount }) {
-  const nextBooking = bookings[0];
-  const nextMeeting = teamMeetings[0];
+const OperationsCard = memo(function OperationsCard({ clientAlerts, internalMeetings, externalMeetings, paymentAlertCount, pendingAmount }) {
+  const nextInternal = internalMeetings[0];
+  const nextExternal = externalMeetings[0];
+  const latestClientAlert = clientAlerts[0];
 
   return (
-    <section className="tw-card tw-compact-card tw-operations-card">
-      <div className="tw-card-heading">
-        <div>
-          <span className="tw-kicker"><CalendarDays size={15} /> Schedule</span>
-          <h2>What needs attention</h2>
-        </div>
-      </div>
+    <section className="tw-card tw-compact-card tw-operations-card" aria-label="Live operations">
       <div className="tw-operations-grid">
-        <div className="tw-operations-schedule">
-          <div className="tw-operation-stat">
-            <span className="tw-operation-icon"><CalendarDays size={15} /></span>
-            <span className="tw-operation-copy">
-              <small>Upcoming bookings</small>
-              <strong>{fmtNum(bookings.length)}</strong>
-              <em>{nextBooking ? `${nextBooking.title || 'Client booking'} · ${fmtTime(nextBooking.event_time)}` : 'Nothing scheduled'}</em>
-            </span>
-          </div>
-          <div className="tw-operation-stat">
-            <span className="tw-operation-icon"><UsersRound size={15} /></span>
-            <span className="tw-operation-copy">
-              <small>Team meetings</small>
-              <strong>{fmtNum(teamMeetings.length)}</strong>
-              <em>{nextMeeting ? `${nextMeeting.title || 'Team meeting'} · ${fmtTime(nextMeeting.event_time)}` : 'Nothing scheduled'}</em>
-            </span>
-          </div>
+        <div className="tw-operation-stat">
+          <span className="tw-operation-copy">
+            <small>Client alerts</small>
+            <strong>{fmtNum(clientAlerts.length)}</strong>
+            <em>{latestClientAlert?.title || 'No client action needed'}</em>
+          </span>
         </div>
-        <div className={`tw-payment-alerts ${paymentAlerts > 0 ? 'has-alerts' : ''}`}>
-          <span className="tw-operation-icon"><CreditCard size={16} /></span>
-          <small>Payment alerts</small>
-          <strong>{fmtNum(paymentAlerts)}</strong>
-          <em>{paymentAlerts > 0 ? `${fmtCompactPKR(pendingAmount)} awaiting action` : 'All payments are clear'}</em>
+        <div className="tw-operation-stat">
+          <span className="tw-operation-copy">
+            <small>Internal meetings</small>
+            <strong>{fmtNum(internalMeetings.length)}</strong>
+            <em>{nextInternal ? `${nextInternal.title || 'Team meeting'} · ${fmtTime(nextInternal.event_time)}` : 'Nothing scheduled'}</em>
+          </span>
+        </div>
+        <div className="tw-operation-stat">
+          <span className="tw-operation-copy">
+            <small>External meetings</small>
+            <strong>{fmtNum(externalMeetings.length)}</strong>
+            <em>{nextExternal ? `${nextExternal.title || 'Client meeting'} · ${fmtTime(nextExternal.event_time)}` : 'Nothing scheduled'}</em>
+          </span>
+        </div>
+        <div className={`tw-operation-stat tw-payment-alerts ${paymentAlertCount > 0 ? 'has-alerts' : ''}`}>
+          <span className="tw-operation-copy">
+            <small>Payment alerts</small>
+            <strong>{fmtNum(paymentAlertCount)}</strong>
+            <em>{paymentAlertCount > 0 ? `${fmtCompactPKR(pendingAmount)} awaiting action` : 'All payments are clear'}</em>
+          </span>
         </div>
       </div>
     </section>
@@ -1736,6 +1735,7 @@ const MeetingSchedulerCard = memo(function MeetingSchedulerCard({
 export default function Overview() {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({});
   const [alerts, setAlerts] = useState([]);
   const [predictions, setPredictions] = useState([]);
@@ -1749,6 +1749,8 @@ export default function Overview() {
   const [selectedDate, setSelectedDate] = useState(() => dateKey(new Date()));
   const [elevateRate, setElevateRate] = useState(ELEVATE_RATE_FALLBACK);
   const [rateWarning, setRateWarning] = useState(null);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const alertsMenuRef = useRef(null);
 
   const isOwnerAdmin = hasRole(user, ['owner', 'admin']);
   const isDeliveryLead = hasRole(user, ['head_of_delivery', 'head_of_design', 'head_of_development']);
@@ -1777,6 +1779,28 @@ export default function Overview() {
       })
       .finally(() => setLoading(false));
   }, [user?.role, user?.id]);
+
+  useEffect(() => {
+    apiGet('/api/alerts')
+      .then(data => setAlerts(data.alerts || []))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!alertsOpen) return undefined;
+    const closeOnOutsideClick = event => {
+      if (!alertsMenuRef.current?.contains(event.target)) setAlertsOpen(false);
+    };
+    const closeOnEscape = event => {
+      if (event.key === 'Escape') setAlertsOpen(false);
+    };
+    document.addEventListener('pointerdown', closeOnOutsideClick);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [alertsOpen]);
 
   useEffect(() => {
     apiGet(CALENDAR_URL)
@@ -1837,7 +1861,9 @@ export default function Overview() {
       .catch(() => setTeamMembers([]));
   }, [isOwnerAdmin]);
 
-  const unreadAlerts = stats?.unread_alerts || stats?.unread_alert_count || alerts.filter(alert => !alert.is_read).length;
+  const unreadAlerts = alerts.length
+    ? alerts.filter(alert => !alert.is_read).length
+    : Number(stats?.unread_alerts || stats?.unread_alert_count || 0);
   const revenueUsd = stats?.monthly_revenue_usd ?? stats?.monthly_revenue;
   const expensesPkr = stats?.monthly_expenses_pkr ?? stats?.monthly_expenses;
   const revenuePkr = Number(revenueUsd || 0) * elevateRate;
@@ -1872,12 +1898,22 @@ export default function Overview() {
       })
       .sort((a, b) => new Date(`${a.event_date || ''}T${a.event_time || '00:00'}`) - new Date(`${b.event_date || ''}T${b.event_time || '00:00'}`));
   }, [calendarData.events_by_date, calendarData.today]);
-  const upcomingBookings = useMemo(
-    () => upcomingCalendarEvents.filter(event => event.event_type === 'booking' || event.event_type === 'client'),
+  const upcomingExternalMeetings = useMemo(
+    () => upcomingCalendarEvents.filter(event => {
+      const type = String(event.event_type || '').toLowerCase();
+      return Number(event.is_internal) !== 1
+        && !type.includes('internal')
+        && !type.includes('team')
+        && (Array.isArray(event.client_attendees) && event.client_attendees.length > 0
+          || ['booking', 'client', 'meeting'].some(label => type.includes(label)));
+    }),
     [upcomingCalendarEvents],
   );
-  const upcomingTeamMeetings = useMemo(
-    () => upcomingCalendarEvents.filter(event => Number(event.is_internal) === 1 || String(event.event_type || '').includes('meeting')),
+  const upcomingInternalMeetings = useMemo(
+    () => upcomingCalendarEvents.filter(event => {
+      const type = String(event.event_type || '').toLowerCase();
+      return Number(event.is_internal) === 1 || type.includes('internal') || type.includes('team');
+    }),
     [upcomingCalendarEvents],
   );
 
@@ -1937,6 +1973,20 @@ export default function Overview() {
   }, []);
 
   const pendingPayments = stats?.pending_payments_list || stats?.payments_pending || [];
+  const recentAlerts = useMemo(
+    () => [...alerts]
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      .slice(0, 6),
+    [alerts],
+  );
+  const clientAlerts = useMemo(
+    () => alerts.filter(alert => ['message', 'support', 'client'].includes(String(alert.type || '').toLowerCase()) || String(alert.link || '').startsWith('/clients')),
+    [alerts],
+  );
+  const paymentAlerts = useMemo(
+    () => alerts.filter(alert => alert.type === 'payment' || /payment|billing|subscription|add[ -]?on/i.test(`${alert.title || ''} ${alert.message || ''}`)),
+    [alerts],
+  );
   const confirmedPayments = stats?.recent_confirmed_payments || [];
   const bookings = stats?.recent_bookings || [];
   const applications = stats?.applications_by_status || [];
@@ -1950,6 +2000,26 @@ export default function Overview() {
   const payrollAmount = stats?.next_payroll_amount ?? stats?.payroll_due ?? stats?.monthly_payroll;
   const pendingApprovals = stats?.pending_approvals
     ?? recentRequests.filter(request => field(request, 'approval_status') === 'pending' || field(request, 'status') === 'in_review').length;
+
+  const openAlert = async alert => {
+    if (!alert.is_read) {
+      try {
+        await apiFetch(`/api/alerts/${alert.id}/read`, { method: 'PATCH' });
+        setAlerts(current => current.map(item => item.id === alert.id ? { ...item, is_read: 1 } : item));
+      } catch {}
+    }
+    setAlertsOpen(false);
+    if (alert.link) navigate(alert.link);
+  };
+
+  const markAllAlertsRead = async () => {
+    try {
+      await apiPost('/api/alerts/mark-all-read');
+      setAlerts(current => current.map(alert => ({ ...alert, is_read: 1 })));
+    } catch {
+      // Keep the panel open so the user can retry or open the full alerts page.
+    }
+  };
 
   // Keep existing owner health requests intact even though health is no longer rendered here.
   void webhookHealth;
@@ -1965,10 +2035,63 @@ export default function Overview() {
           </div>
           <div className="ov-header-actions">
             <div className="ov-date"><CalendarDays size={15} /><span>{todayLabel}</span></div>
-            <button type="button" className="ov-header-action has-indicator" aria-label="View alerts">
-              <Bell size={17} />
-              {unreadAlerts > 0 && <i />}
-            </button>
+            <div className="ov-alert-menu" ref={alertsMenuRef}>
+              <button
+                type="button"
+                className={`ov-header-action has-indicator ${alertsOpen ? 'is-active' : ''}`}
+                aria-label="View recent alerts"
+                aria-haspopup="dialog"
+                aria-expanded={alertsOpen}
+                onClick={() => setAlertsOpen(open => !open)}
+              >
+                <Bell size={17} />
+                {unreadAlerts > 0 && <i />}
+              </button>
+              {alertsOpen && (
+                <section className="ov-alert-panel" aria-label="Recent alerts">
+                  <header>
+                    <span>
+                      <strong>Recent alerts</strong>
+                      <small>{unreadAlerts} unread</small>
+                    </span>
+                    {unreadAlerts > 0 && <button type="button" onClick={markAllAlertsRead}>Mark all read</button>}
+                  </header>
+                  <div className="ov-alert-list">
+                    {recentAlerts.length ? recentAlerts.map(alert => {
+                      const AlertIcon = ALERT_ICONS[alert.type] || Bell;
+                      return (
+                        <button
+                          type="button"
+                          className={`ov-alert-row ${alert.is_read ? '' : 'is-unread'}`}
+                          key={alert.id}
+                          onClick={() => openAlert(alert)}
+                        >
+                          <span className={`ov-alert-type is-${ALERT_COLORS[alert.type] || 'slate'}`}><AlertIcon size={15} /></span>
+                          <span className="ov-alert-copy">
+                            <strong>{alert.title || 'Dashboard alert'}</strong>
+                            <small>{alert.message || 'Open for details'}</small>
+                            <time>{timeAgo(alert.created_at)}</time>
+                          </span>
+                          {!alert.is_read && <i className="ov-alert-unread" />}
+                        </button>
+                      );
+                    }) : (
+                      <div className="ov-alert-empty"><Bell size={18} /><span>No alerts yet</span></div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="ov-alert-view-all"
+                    onClick={() => {
+                      setAlertsOpen(false);
+                      navigate('/alerts');
+                    }}
+                  >
+                    View all alerts <ExternalLink size={13} />
+                  </button>
+                </section>
+              )}
+            </div>
             <button type="button" className="ov-header-action" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>
               {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
             </button>
@@ -2015,9 +2138,10 @@ export default function Overview() {
                     payrollAmount={payrollAmount}
                   />
                   <OperationsCard
-                    bookings={upcomingBookings}
-                    teamMeetings={upcomingTeamMeetings}
-                    paymentAlerts={pendingPayments.length || Number(stats?.pending_payments || 0)}
+                    clientAlerts={clientAlerts}
+                    internalMeetings={upcomingInternalMeetings}
+                    externalMeetings={upcomingExternalMeetings}
+                    paymentAlertCount={Math.max(paymentAlerts.length, pendingPayments.length, Number(stats?.pending_payments || 0))}
                     pendingAmount={outstandingInvoices}
                   />
                   <JobsCard requests={recentRequests} overdueRequest={overdueRequest} />

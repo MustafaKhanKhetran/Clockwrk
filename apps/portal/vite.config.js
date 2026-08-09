@@ -7,8 +7,8 @@ export default defineConfig({
   // Allow tunnelled hosts (e.g. *.trycloudflare.com) so the production build can
   // be opened on a phone over HTTPS — service workers won't register over plain
   // HTTP on a LAN address, so a tunnel is the only way to test install on iOS.
-  preview: { host: true, allowedHosts: true },
-  server: { allowedHosts: true },
+  preview: { host: true, port: 4174, strictPort: true, allowedHosts: true },
+  server: { port: 5174, strictPort: true, allowedHosts: true },
   plugins: [
     react(),
     VitePWA({

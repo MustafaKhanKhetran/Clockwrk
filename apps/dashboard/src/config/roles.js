@@ -78,6 +78,7 @@ export const PAGE_ACCESS = {
   referrals: ['owner', 'finance', 'sales'],
   jobs: ['owner', 'admin', 'hr'],
   alerts: ROLES,
+  messages: ['owner'],
   settings: ['owner'],
 };
 

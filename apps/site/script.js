@@ -417,7 +417,9 @@
         const origEl = card.querySelector(".pricing-plan-price-orig");
         const weeklyVal = Number(card.dataset.weeklyPrice);
         const monthlyDiscounted = Number(card.dataset.monthlyPrice);
-        const monthlyFull = weeklyVal * 4;
+        // A real month is 52/12 = 4.3333 weeks, so this is what a weekly
+        // subscriber actually pays over a month. The monthly price is ~10% off it.
+        const monthlyFull = Math.round(weeklyVal * (52 / 12));
 
         card.classList.toggle("pricing-plan-card-active", isActive);
 

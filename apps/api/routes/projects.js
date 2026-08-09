@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import db from '../db.js';
 import { authenticate, requireRoles } from '../middleware/auth.js';
+import { deleteProjectTree } from '../services/projectDeletion.js';
 
 const router = Router();
 
@@ -140,10 +141,20 @@ router.post('/:id/resources', authenticate, requireRoles(PROJECT_ACCESS), async 
   } catch (err) { console.error(err); return res.status(500).json({success:false,message:'Server error'}); }
 });
 
-router.delete('/:id', authenticate, requireRoles(['owner','admin','head_of_delivery']), async (req, res) => {
+router.delete('/:id', authenticate, requireRoles(['owner','admin']), async (req, res) => {
   try {
-    await db.execute('DELETE FROM projects WHERE id = ?', [req.params.id]);
-    return res.json({ success: true });
+    const project = await deleteProjectTree(req.params.id);
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    try {
+      await db.execute(
+        `INSERT INTO audit_logs (employee_id, action, category, entity_type, entity_id, details)
+         VALUES (?, 'delete_project', 'system', 'project', ?, ?)`,
+        [req.user.id, project.id, JSON.stringify({ name: project.name, client_id: project.client_id })]
+      );
+    } catch (auditErr) {
+      console.error('project deletion audit failed:', auditErr.message);
+    }
+    return res.json({ success: true, project: { id: project.id, name: project.name } });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: 'Server error' });

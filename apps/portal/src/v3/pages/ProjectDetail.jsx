@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useStore } from '../../store';
+import { store, useStore } from '../../store';
 import Icon from '../Icon';
 import { api, uploadFile } from '../api';
 import { usePortalBack } from '../navigation';
@@ -23,7 +23,7 @@ export default function ProjectDetail() {
   const navigate = useNavigate();
   const goBack = usePortalBack('/projects');
   const { projectId } = useParams();
-  const { requests } = useStore();
+  const { requests, account } = useStore();
   const fileInput = useRef(null);
 
   const [data, setData] = useState(null);
@@ -37,6 +37,10 @@ export default function ProjectDetail() {
   const [addingLink, setAddingLink] = useState(false);
   const [addingResource, setAddingResource] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -129,6 +133,28 @@ export default function ProjectDetail() {
 
   const remove = async (fn, id) => { setBusy(true); try { await fn(project.id, id); await load(); } catch (err) { setError(err.message); } finally { setBusy(false); } };
 
+  const closeDelete = () => {
+    if (deleting) return;
+    setDeleteOpen(false);
+    setDeleteConfirmation('');
+    setDeleteError('');
+  };
+
+  const deleteProject = async () => {
+    if (deleteConfirmation.trim() !== project.name) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await api.deleteProject(project.id);
+      await store.loadFromApi();
+      navigate('/projects', { replace: true });
+    } catch (err) {
+      setDeleteError(err.message || 'Could not delete this project.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const fmt = (d) => d ? new Date(d).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
   return <div className="v3-project-record">
@@ -147,6 +173,7 @@ export default function ProjectDetail() {
         <Action icon="plus" onClick={() => navigate(`/requests/new?project=${project.id}`)}>New request</Action>
         <button onClick={() => navigate(`/messages?project=${project.id}`)}><Icon name="messages" size={16} />Message Clockwrk</button>
         {primaryLink && <a className="v3-ghost-link" href={primaryLink.url} target="_blank" rel="noreferrer">Open project <Icon name="external" size={14} /></a>}
+        {account?.portal_role === 'admin' && <button className="v3-delete-project" onClick={() => setDeleteOpen(true)}><Icon name="trash" size={15} />Delete project</button>}
       </div>
     </header>
 
@@ -259,5 +286,18 @@ export default function ProjectDetail() {
         </section>
       </aside>
     </div>
+    {deleteOpen && <div className="v3-dialog-layer" onMouseDown={closeDelete}>
+      <section className="v3-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-project-title" onMouseDown={(event) => event.stopPropagation()}>
+        <header><span>Delete project</span><button onClick={closeDelete} disabled={deleting} aria-label="Close dialog"><Icon name="close" size={17} /></button></header>
+        <div className="v3-delete-dialog-body">
+          <span>Permanent action</span>
+          <h2 id="delete-project-title">Delete {project.name}?</h2>
+          <p>This permanently removes the project and its requests, file records, conversations, and time history from your workspace. This cannot be undone.</p>
+          <label><span>Type <strong>{project.name}</strong> to confirm</span><input autoFocus value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} disabled={deleting} /></label>
+          {deleteError && <p className="v3-delete-error" role="alert">{deleteError}</p>}
+          <div><button type="button" onClick={closeDelete} disabled={deleting}>Keep project</button><button type="button" className="is-danger" onClick={deleteProject} disabled={deleting || deleteConfirmation.trim() !== project.name}>{deleting ? 'Deleting…' : 'Delete project'}</button></div>
+        </div>
+      </section>
+    </div>}
   </div>;
 }

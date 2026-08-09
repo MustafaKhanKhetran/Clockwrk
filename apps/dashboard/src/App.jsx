@@ -29,6 +29,7 @@ import RequestDetail from './pages/RequestDetail';
 import EmployeeDetail from './pages/EmployeeDetail';
 import BookingDetail from './pages/BookingDetail';
 import SetupPassword from './pages/SetupPassword';
+import Messages from './pages/Messages';
 
 const P = ({ roles, children }) => <ProtectedRoute allowedRoles={roles}>{children}</ProtectedRoute>;
 const G = ({ roles, children }) => (
@@ -64,6 +65,7 @@ export default function App() {
             <Route path="/bookings/:id" element={<P roles={PAGE_ACCESS.bookings}> <BookingDetail /></P>} />
             <Route path="/calendar"   element={<G roles={['delivery', 'managers']}> <Calendar /> </G>} />
             <Route path="/alerts"     element={<P roles={PAGE_ACCESS.alerts}>     <Alerts />     </P>} />
+            <Route path="/messages"   element={<P roles={PAGE_ACCESS.messages}>   <Messages />   </P>} />
             <Route path="/files"      element={<G roles={['allStaff']}>           <Files />      </G>} />
             <Route path="/coming-soon" element={<P roles={PAGE_ACCESS.overview}>  <ComingSoon /> </P>} />
             <Route path="/newsletter" element={<P roles={PAGE_ACCESS.overview}>   <ComingSoon /> </P>} />

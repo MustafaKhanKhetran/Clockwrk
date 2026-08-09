@@ -310,16 +310,22 @@
 }
 
 /* ---------------------------------------------------------
-   LARGE DESKTOP (1400px+)
+   LARGE DESKTOP (1500px+)
    --------------------------------------------------------- */
-@media (min-width: 1400px) {
+@media (min-width: 1500px) {
+  .hero-col {
+    /* widen the container so the larger tracks + gaps actually fit */
+    width: min(1360px, 100%);
+  }
+
   .hero-row {
-    grid-template-columns: 340px 1fr 540px;
-    gap: 80px;
+    /* flexible tracks: never demand more space than the container has */
+    grid-template-columns: minmax(300px, 340px) minmax(auto, 1fr) minmax(460px, 540px);
+    gap: clamp(48px, 4vw, 80px);
   }
 }
 
-@media (max-width: 1399px) {
+@media (max-width: 1499px) {
   .hero-logo-text {
     font-size: clamp(150px, 16vw, 220px);
     transform: translateX(0);
