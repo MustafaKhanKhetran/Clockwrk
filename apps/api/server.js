@@ -1,0 +1,121 @@
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+
+// General limiter for authenticated client-portal traffic. The login limiter is
+// far too tight for this: a single portal page load makes several calls, so
+// mounting it on the whole router locked real clients out after two page loads.
+const clientApiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: { success: false, message: 'Too many requests. Slow down and try again shortly.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+import authRoutes from './routes/auth.js';
+import statsRoutes from './routes/stats.js';
+import clientsRoutes from './routes/clients.js';
+import projectsRoutes from './routes/projects.js';
+import requestsRoutes from './routes/requests.js';
+import financeRoutes from './routes/finance.js';
+import teamRoutes from './routes/team.js';
+import bookingsRoutes from './routes/bookings.js';
+import alertsRoutes from './routes/alerts.js';
+import calendarRoutes from './routes/calendar.js';
+import referralsRoutes from './routes/referrals.js';
+import newsletterRoutes from './routes/newsletter.js';
+import hrRoutes from './routes/hr.js';
+import timeLogsRoutes from './routes/timeLogs.js';
+import filesRoutes from './routes/files.js';
+import communicationsRoutes from './routes/communications.js';
+import dbRoutes from './routes/db.js';
+import n8nRoutes from './routes/n8n.js';
+import clientPortalRoutes from './routes/clientPortal.js';
+import rateRoutes from './routes/rate.js';
+import predictionsRoutes from './routes/predictions.js';
+import publicSiteRoutes from './routes/publicSite.js';
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Trust exactly the number of proxy hops in front of the API — default 1
+// (Cloudflare). Set TRUST_PROXY_HOPS to change this if you add more hops;
+// setting it too high makes the rate-limit key (X-Forwarded-For) spoofable.
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS ?? 1));
+
+// API returns JSON only, so we keep helmet's HTML-oriented policies off
+// (CSP / COEP / frame-guessing) and rely on the response body type.
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
+
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    // Deny cleanly (no CORS headers -> browser blocks) instead of throwing,
+    // which used to surface as a 500 on every preflight and look like an outage.
+    console.warn(`CORS blocked origin: ${origin}`);
+    cb(null, false);
+  },
+  credentials: true,
+}));
+
+app.use(express.json());
+
+// Health check
+app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
+
+// Routes
+// Auth: /login and /2fa/challenge carry their own strict per-IP limiter
+// inside the router; /refresh, /me, /sessions etc. are meant to be called
+// frequently and would be starved by a shared limit here.
+app.use('/api/auth',           authRoutes);
+app.use('/api/stats',          statsRoutes);
+app.use('/api/clients',        clientsRoutes);
+app.use('/api/projects',       projectsRoutes);
+app.use('/api/requests',       requestsRoutes);
+app.use('/api/finance',        financeRoutes);
+app.use('/api/team',           teamRoutes);
+app.use('/api/bookings',       bookingsRoutes);
+app.use('/api/alerts',         alertsRoutes);
+app.use('/api/calendar',       calendarRoutes);
+app.use('/api/referrals',      referralsRoutes);
+app.use('/api/newsletter',     newsletterRoutes);
+app.use('/api/hr',             hrRoutes);
+app.use('/api/time-logs',      timeLogsRoutes);
+app.use('/api/files',          filesRoutes);
+app.use('/api/communications', communicationsRoutes);
+app.use('/api/db',             dbRoutes);
+app.use('/api/n8n',            n8nRoutes);
+// Only the credential endpoints get the strict limiter; see clientPortal.js.
+app.use('/api/client',        clientApiLimiter, clientPortalRoutes);
+app.use('/api/rate',          rateRoutes);
+app.use('/api/predictions',   predictionsRoutes);
+app.use('/api/site',          publicSiteRoutes);
+
+// 404
+app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
+
+// Error handler
+// Never leak driver / stack details to callers in production — real error
+// stays in the server logs, the client gets a generic message.
+const IS_PROD = process.env.NODE_ENV === 'production';
+app.use((err, req, res, next) => {
+  console.error(err);
+  const message = IS_PROD ? 'Server error' : (err.message || 'Server error');
+  res.status(500).json({ success: false, message });
+});
+
+import { startBookingAssignmentPoller } from './services/bookingAutoAssign.js';
+
+app.listen(PORT, () => {
+  console.log(`Clockwrk API running on http://localhost:${PORT}`);
+  startBookingAssignmentPoller(60_000);
+});
