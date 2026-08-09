@@ -17,6 +17,9 @@ export type Env = {
   JWT_SECRET: string;
   RESEND_API_KEY: string;
   INTERNAL_ALERT_EMAIL: string;
+  ZOOM_ACCOUNT_ID: string;
+  ZOOM_CLIENT_ID: string;
+  ZOOM_CLIENT_SECRET: string;
 };
 
 // Auth-context payloads. Employee and client tokens share the same signing
@@ -30,7 +33,7 @@ export type EmployeeClaims = {
 };
 
 export type ClientClaims = {
-  type: 'client';
+  type: "client";
   id: number;
   email: string;
   name: string;
@@ -41,7 +44,7 @@ export type ClientClaims = {
 };
 
 export type MfaPendingClaims = {
-  type: 'mfa_pending';
+  type: "mfa_pending";
   id: number;
   iat?: number;
   exp?: number;
