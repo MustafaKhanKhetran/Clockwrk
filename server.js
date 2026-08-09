@@ -4,14 +4,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,                   // 10 attempts per IP
-  message: { success: false, message: 'Too many login attempts. Try again in 15 minutes.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
 // General limiter for authenticated client-portal traffic. The login limiter is
 // far too tight for this: a single portal page load makes several calls, so
 // mounting it on the whole router locked real clients out after two page loads.
@@ -80,7 +72,10 @@ app.use(express.json());
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
 // Routes
-app.use('/api/auth',           loginLimiter, authRoutes);
+// Auth: /login and /2fa/challenge carry their own strict per-IP limiter
+// inside the router; /refresh, /me, /sessions etc. are meant to be called
+// frequently and would be starved by a shared limit here.
+app.use('/api/auth',           authRoutes);
 app.use('/api/stats',          statsRoutes);
 app.use('/api/clients',        clientsRoutes);
 app.use('/api/projects',       projectsRoutes);
