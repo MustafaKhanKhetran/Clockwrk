@@ -1,0 +1,47 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "clockwrk-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "clockwrk",
+      "database_id": "REPLACE_WITH_WRANGLER_D1_CREATE_OUTPUT",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "clockwrk-files"
+    }
+  ],
+
+  "vars": {
+    "ALLOWED_ORIGINS": "https://dashboard.clockwrk.io,https://my.clockwrk.io,https://clockwrk.io",
+    "ALLOW_RAW_SQL": "false",
+    "R2_PUBLIC_URL": "https://files.clockwrk.io",
+    "RESEND_FROM": "Clockwrk <no-reply@clockwrk.io>"
+  },
+
+  "triggers": {
+    "crons": [
+      "* * * * *",
+      "0 3 * * *"
+    ]
+  }
+
+  // Secrets to set via `wrangler secret put`:
+  //   JWT_SECRET       — 96+ char random hex, used for access + mfa_pending tokens
+  //   RESEND_API_KEY   — for transactional emails
+  //   INTERNAL_ALERT_EMAIL — where new-booking / new-payment alerts go
+}

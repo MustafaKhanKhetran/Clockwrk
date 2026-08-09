@@ -1,0 +1,28 @@
+{
+  "name": "clockwrk-api-worker",
+  "version": "1.0.0",
+  "description": "Clockwrk API on Cloudflare Workers + D1",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "types": "wrangler types",
+    "migrate:local": "wrangler d1 migrations apply clockwrk --local",
+    "migrate:remote": "wrangler d1 migrations apply clockwrk --remote",
+    "tsc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.5.0",
+    "bcryptjs": "^2.4.3",
+    "hono": "^4.6.14",
+    "jose": "^5.9.6",
+    "otpauth": "^9.5.1",
+    "resend": "^4.0.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250109.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.101.0"
+  }
+}
