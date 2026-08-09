@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local review scratch
+REVIEW-MAP.md
+clockwrk-portal-review.zip
