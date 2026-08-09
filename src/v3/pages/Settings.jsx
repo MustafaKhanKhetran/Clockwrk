@@ -5,6 +5,7 @@ import { api, getToken } from '../api';
 import { session, useSession } from '../session';
 import Icon from '../Icon';
 import { Action, Avatar, PageIntro } from '../Primitives';
+import { RESTART_ONBOARDING_EVENT } from '../OnboardingTour';
 
 const NOTIFY_OPTIONS = [
   ['delivery_ready', 'Delivery ready', 'When work is delivered for your review'],
@@ -127,7 +128,7 @@ export default function Settings() {
 
     <form className="v3-settings-sheet v3-enter" onSubmit={save}>
       <section id="profile">
-        <header><span>01</span><div><h2>Your profile</h2><p>Used on approvals, messages, and invoices.</p></div><Avatar name={name} online /></header>
+        <header><span>01</span><div><h2>Your profile</h2><p>Used on approvals, messages, and invoices.</p></div><Avatar name={name} src={identity.avatar_url} online /></header>
         <div className="v3-field-pair">
           <label><span>Full name</span><input value={name} onChange={(event) => setName(event.target.value)} /></label>
           <label><span>Company</span><input value={company} onChange={(event) => setCompany(event.target.value)} /></label>
@@ -177,6 +178,7 @@ export default function Settings() {
         </div>
         {pwState.error && <div className="v3-login-error" role="alert"><Icon name="close" size={14} />{pwState.error}</div>}
         <footer>
+          <button type="button" onClick={() => window.dispatchEvent(new CustomEvent(RESTART_ONBOARDING_EVENT))}>Restart workspace tour</button>
           <button type="button" disabled={pwState.busy} onClick={changePassword}>{pwState.busy ? 'Updating…' : pwState.done ? 'Password updated' : 'Update password'}</button>
           <button type="button" onClick={() => { store.resetToEmpty(); session.signOut(); navigate('/login', { replace: true }); }}>Sign out</button>
         </footer>

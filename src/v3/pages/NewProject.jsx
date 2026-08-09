@@ -3,11 +3,54 @@ import { useNavigate } from 'react-router-dom';
 import { store } from '../../store';
 import Icon from '../Icon';
 import { uploadFile } from '../api';
+import { usePortalBack } from '../navigation';
 import { Action } from '../Primitives';
 import { emojiForType, ICON_CHOICES, LINK_KINDS, PROJECT_TYPES, RESOURCE_KINDS } from '../projectTypes';
 
+function ProjectDropdown({ value, options, onChange, label }) {
+  const [open, setOpen] = useState(false);
+  const selectedIndex = Math.max(0, options.findIndex((option) => option.id === value));
+  const [activeIndex, setActiveIndex] = useState(selectedIndex);
+  const selected = options[selectedIndex];
+
+  const choose = (option) => {
+    onChange(option.id);
+    setActiveIndex(options.indexOf(option));
+    setOpen(false);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setOpen(false);
+      return;
+    }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const direction = event.key === 'ArrowDown' ? 1 : -1;
+      setOpen(true);
+      setActiveIndex((current) => (current + direction + options.length) % options.length);
+      return;
+    }
+    if ((event.key === 'Enter' || event.key === ' ') && open) {
+      event.preventDefault();
+      choose(options[activeIndex]);
+    }
+  };
+
+  return <div className={`v3-custom-select v3-builder-select ${open ? 'is-open' : ''}`} onBlur={(event) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+  }} onKeyDown={handleKeyDown}>
+    <button type="button" aria-label={label} aria-haspopup="listbox" aria-expanded={open} onClick={() => {
+      setActiveIndex(selectedIndex);
+      setOpen(!open);
+    }}><span>{selected.label}</span><Icon name="down" size={15} /></button>
+    {open && <div role="listbox" aria-label={label}>{options.map((option, index) => <button type="button" role="option" aria-selected={option.id === value} key={option.id} className={index === activeIndex ? 'is-active' : ''} onMouseEnter={() => setActiveIndex(index)} onClick={() => choose(option)}><span>{option.label}</span>{option.id === value && <Icon name="check" size={14} />}</button>)}</div>}
+  </div>;
+}
+
 export default function NewProject() {
   const navigate = useNavigate();
+  const goBack = usePortalBack('/projects');
   const fileInput = useRef(null);
   const [name, setName] = useState('');
   const [type, setType] = useState('Website');
@@ -29,6 +72,9 @@ export default function NewProject() {
 
   // Falls back to the type's emoji, exactly as the server would.
   const shownIcon = icon || emojiForType(type, name.length);
+  const formattedTargetDate = targetDate
+    ? new Date(`${targetDate}T00:00:00`).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' })
+    : 'No date selected';
 
   const addLink = () => {
     if (!linkDraft.url.trim()) return;
@@ -93,7 +139,7 @@ export default function NewProject() {
   }
 
   return <div className="v3-project-builder">
-    <header><button onClick={() => navigate('/projects')} aria-label="Back to projects"><Icon name="back" /></button><span>New project</span><strong>Workspace setup</strong></header>
+    <header><button onClick={goBack} aria-label="Back to previous page"><Icon name="back" /></button><span>New project</span><strong>Workspace setup</strong></header>
     <main>
       <aside>
         <span>One clear source of truth</span>
@@ -103,7 +149,15 @@ export default function NewProject() {
           <span className="v3-project-emoji is-lg">{shownIcon}</span>
           <div><strong>{name || 'Untitled project'}</strong><small>{type}</small></div>
         </div>
-        <ol><li className="is-active"><i>1</i>Identity</li><li><i>2</i>Direction</li><li><i>3</i>Links &amp; resources</li></ol>
+        <section className="v3-builder-summary" aria-live="polite">
+          <header><span>Project summary</span><small>{name ? 'Building your brief' : 'Updates as you add details'}</small></header>
+          <dl>
+            <div className={objective ? 'is-complete' : ''}><dt>Objective</dt><dd>{objective || 'Add the outcome this project should achieve'}</dd></div>
+            <div className={goal || audience || measure ? 'is-complete' : ''}><dt>Direction</dt><dd>{goal || audience || measure || 'Add the goal, audience, and success measure'}</dd></div>
+            <div className={targetDate ? 'is-complete' : ''}><dt>Target</dt><dd>{formattedTargetDate}</dd></div>
+            <div className={links.length || resources.length ? 'is-complete' : ''}><dt>Context</dt><dd>{links.length} {links.length === 1 ? 'link' : 'links'} · {resources.length} {resources.length === 1 ? 'resource' : 'resources'}</dd></div>
+          </dl>
+        </section>
       </aside>
 
       <form onSubmit={submit}>
@@ -155,7 +209,7 @@ export default function NewProject() {
           <span className="v3-field-label">Project links</span>
           {!!links.length && <ul className="v3-chip-list">{links.map((link, index) => <li key={`${link.url}-${index}`}><span>{LINK_KINDS.find((k) => k.id === link.kind)?.label}</span><strong>{link.label}</strong><button type="button" onClick={() => setLinks(links.filter((_, i) => i !== index))} aria-label="Remove link"><Icon name="close" size={13} /></button></li>)}</ul>}
           <div className="v3-inline-add">
-            <select value={linkDraft.kind} onChange={(event) => setLinkDraft({ ...linkDraft, kind: event.target.value })}>{LINK_KINDS.map((k) => <option key={k.id} value={k.id}>{k.label}</option>)}</select>
+            <ProjectDropdown label="Project link type" value={linkDraft.kind} options={LINK_KINDS} onChange={(kind) => setLinkDraft({ ...linkDraft, kind })} />
             <input value={linkDraft.url} onChange={(event) => setLinkDraft({ ...linkDraft, url: event.target.value })} placeholder="https://" />
             <button type="button" onClick={addLink} disabled={!linkDraft.url.trim()}><Icon name="plus" size={15} />Add</button>
           </div>
@@ -163,7 +217,7 @@ export default function NewProject() {
           <span className="v3-field-label">Project resources</span>
           {!!resources.length && <ul className="v3-chip-list">{resources.map((item, index) => <li key={`${item.title}-${index}`}><span>{RESOURCE_KINDS.find((k) => k.id === item.kind)?.label}</span><strong>{item.title}</strong>{item.file_url && <em>file</em>}<button type="button" onClick={() => setResources(resources.filter((_, i) => i !== index))} aria-label="Remove resource"><Icon name="close" size={13} /></button></li>)}</ul>}
           <div className="v3-inline-add">
-            <select value={resourceDraft.kind} onChange={(event) => setResourceDraft({ ...resourceDraft, kind: event.target.value })}>{RESOURCE_KINDS.map((k) => <option key={k.id} value={k.id}>{k.label}</option>)}</select>
+            <ProjectDropdown label="Project resource type" value={resourceDraft.kind} options={RESOURCE_KINDS} onChange={(kind) => setResourceDraft({ ...resourceDraft, kind })} />
             <input value={resourceDraft.title} onChange={(event) => setResourceDraft({ ...resourceDraft, title: event.target.value })} placeholder="Title" />
             <input value={resourceDraft.url} onChange={(event) => setResourceDraft({ ...resourceDraft, url: event.target.value })} placeholder="https://" />
             <button type="button" onClick={addResource} disabled={!resourceDraft.title.trim() || !resourceDraft.url.trim()}><Icon name="plus" size={15} />Add</button>

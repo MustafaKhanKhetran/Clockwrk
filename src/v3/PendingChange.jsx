@@ -52,9 +52,11 @@ export default function PendingChange({ change, onChanged }) {
 
   const outstanding = Number(change.amount_due) - Number(change.amount_received || 0);
 
-  const title = change.kind === 'addon'
-    ? `${change.direction === 'remove' ? 'Removing' : 'Adding'} ${change.to_value.replace(/_/g, ' ')}`
-    : `${change.direction === 'downgrade' ? 'Moving down to' : 'Upgrading to'} ${change.to_value}`;
+  const title = change.kind === 'cadence'
+    ? `Switching to ${change.to_value} billing`
+    : change.kind === 'addon'
+      ? `${change.direction === 'remove' ? 'Removing' : 'Adding'} ${change.to_value.replace(/_/g, ' ')}`
+      : `${change.direction === 'downgrade' ? 'Moving down to' : 'Upgrading to'} ${change.to_value}${change.target_cadence ? ` · ${change.target_cadence}` : ''}`;
 
   return <section className={`v3-pending-change is-${change.status}`}>
     <header>

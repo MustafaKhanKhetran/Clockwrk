@@ -10,10 +10,11 @@ export default function Home() {
   const { client } = useSession();
   const firstName = (client?.name || '').split(' ')[0];
   const today = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
-  const active = requests.filter((item) => item.status === 'active');
-  const review = requests.filter((item) => item.status === 'review');
-  const queued = requests.filter((item) => item.status === 'queued').sort((a, b) => a.queuePos - b.queuePos);
-  const complete = requests.filter((item) => item.status === 'done');
+  const active = requests.filter((item) => item.status === 'active' && !item.isParent);
+  const review = requests.filter((item) => item.status === 'review' && !item.isParent);
+  const queued = requests.filter((item) => item.status === 'queued' && !item.isParent).sort((a, b) => a.queuePos - b.queuePos);
+  const complete = requests.filter((item) => item.status === 'done' && !item.isParent);
+  const scopeGroups = requests.filter((item) => item.isParent && ['reviewing', 'proposed'].includes(item.scopeStatus));
   const projectFor = (id) => projects.find((project) => project.id === id);
   const accountNotice = paused
     ? pauseReason === 'payment'
@@ -31,7 +32,7 @@ export default function Home() {
         <div>
           <p>{today}</p>
           <h1><span>{firstName ? `${firstName},` : 'Welcome,'}</span><br />{requests.length ? 'work is moving.' : "let's get started."}</h1>
-          <div className="v3-hero-actions"><Action onClick={() => navigate('/requests/new')} icon="plus">Start a request</Action><button onClick={() => navigate('/messages')}>Talk to your team <Icon name="arrow" size={15} /></button></div>
+          <div className="v3-hero-actions"><Action onClick={() => navigate(projects.length ? '/requests/new' : '/projects/new')} icon="plus">{projects.length ? 'Start a request' : 'Create project'}</Action>{projects.length > 0 && <button onClick={() => navigate('/messages')}>Talk to your team <Icon name="arrow" size={15} /></button>}</div>
         </div>
         <aside className="v3-now-dial">
           <div><span>Right now</span><strong>{active.length + review.length}</strong><small>items moving</small></div>
@@ -41,6 +42,8 @@ export default function Home() {
       </section>
 
       {accountNotice && <section className={`v3-account-notice is-${accountNotice.tone} v3-enter`} role="status"><span className="v3-account-notice-icon"><Icon name={accountNotice.tone === 'critical' ? 'billing' : 'clock'} size={20} /></span><div><small>{accountNotice.label}</small><strong>{accountNotice.title}</strong><p>{accountNotice.copy}</p></div><button onClick={() => navigate('/billing')}>Review billing <Icon name="arrow" size={15} /></button></section>}
+
+      {!!scopeGroups.length && <section className="v3-home-scope v3-enter"><div><span>Scope desk</span><strong>{scopeGroups.some((item) => item.scopeStatus === 'proposed') ? 'A breakdown needs your decision.' : 'The team is shaping oversized work.'}</strong><p>{scopeGroups.length} request {scopeGroups.length === 1 ? 'group is' : 'groups are'} outside production capacity until the scope is agreed.</p></div><button onClick={() => navigate(`/requests/${scopeGroups.find((item) => item.scopeStatus === 'proposed')?.id || scopeGroups[0].id}`)}>Open scope desk <Icon name="arrow" size={15} /></button></section>}
 
       <section className="v3-glance v3-enter">
         <button onClick={() => navigate('/requests')}><span>In motion</span><strong>{active.length}</strong><small>{active.map((item) => item.title).join(' · ')}</small></button>
@@ -58,7 +61,7 @@ export default function Home() {
               return <button key={request.id} onClick={() => navigate(`/requests/${request.id}`)}><em>{String(index + 1).padStart(2, '0')}</em><ProjectCode project={project} /><span><small>{project?.name} · {request.type}</small><strong>{request.title}</strong><p>{request.changelog?.[0]?.text || request.brief}</p></span><div><Status status={request.status} /><Meter value={request.progress} /></div><Icon name="arrow" /></button>;
             })}
           </div>
-          <footer><span><i />{Math.max(0, (baseSlots + extraSlots) - active.length)} of {baseSlots + extraSlots} slots available</span><button onClick={() => navigate('/requests/new')}>Add to the queue <Icon name="plus" size={15} /></button></footer>
+          <footer><span><i />{Math.max(0, (baseSlots + extraSlots) - active.length)} of {baseSlots + extraSlots} slots available</span><button onClick={() => navigate(projects.length ? '/requests/new' : '/projects/new')}>{projects.length ? 'Add to the queue' : 'Create project'} <Icon name="plus" size={15} /></button></footer>
         </section>
 
         <aside className="v3-review-stack v3-enter">

@@ -1,7 +1,5 @@
-// Reached from the reset URL the owner shares (or a future email flow).
-// Handles both password reset AND first-login: the endpoint sets the hash and
-// signs the user in on success, so the same page works for a new client who
-// has never had a password.
+// Reached only from an established account's password-reset URL. First-time
+// client invitations use the richer /setup flow instead.
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Icon from '../Icon';

@@ -58,7 +58,7 @@ export default function BookCall({ projectId = null, projectName = '', onClose }
     <section className="v3-call-dialog" onMouseDown={(event) => event.stopPropagation()}>
       <header><span>Book a call</span><button onClick={onClose} aria-label="Close"><Icon name="close" size={16} /></button></header>
 
-      {done ? <div className="v3-call-done">
+      <main className="v3-dialog-body">{done ? <div className="v3-call-done">
         <i><Icon name="check" size={26} /></i>
         <h2>Call booked</h2>
         <p>{dayLabel(day).weekday} {dayLabel(day).day} {dayLabel(day).month} at {time}. We will send the joining link by email.</p>
@@ -88,7 +88,7 @@ export default function BookCall({ projectId = null, projectName = '', onClose }
           <label className="v3-call-notes"><span>What should we prepare?<em>optional</em></span><textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Anything you want covered" /></label>
           <Action icon="check" onClick={confirm} disabled={!time || booking}>{booking ? 'Booking…' : time ? `Book ${dayLabel(day).weekday} at ${time}` : 'Pick a time'}</Action>
         </>}
-      </>}
+      </>}</main>
     </section>
   </div>;
 }

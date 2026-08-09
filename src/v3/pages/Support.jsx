@@ -44,7 +44,7 @@ export default function Support() {
   const [formError, setFormError] = useState('');
   const [callOpen, setCallOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
-  const [openFaq, setOpenFaq] = useState(0);
+  const [openFaq, setOpenFaq] = useState(-1);
 
   const load = useCallback(async () => {
     try {

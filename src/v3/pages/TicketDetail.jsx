@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Icon from '../Icon';
 import { api } from '../api';
+import { usePortalBack } from '../navigation';
 import { Action, Avatar, Status } from '../Primitives';
 
 const STATUS_SLUG = { Open: 'active', 'In Progress': 'active', Resolved: 'done', Closed: 'done' };
@@ -17,7 +18,7 @@ function formatAt(value) {
 }
 
 export default function TicketDetail() {
-  const navigate = useNavigate();
+  const goBack = usePortalBack('/support');
   const { ticketId } = useParams();
   const end = useRef(null);
   const [ticket, setTicket] = useState(null);
@@ -71,11 +72,11 @@ export default function TicketDetail() {
   };
 
   if (loading) return <section className="v3-empty-panel"><span>Loading ticket…</span></section>;
-  if (!ticket) return <section className="v3-missing"><h1>{error || 'Ticket not found'}</h1><Action onClick={() => navigate('/support')}>Back to help</Action></section>;
+  if (!ticket) return <section className="v3-missing"><h1>{error || 'Ticket not found'}</h1><Action onClick={goBack}>Go back</Action></section>;
 
   return <div className="v3-ticket-record">
     <header>
-      <button onClick={() => navigate('/support')} aria-label="Back to help"><Icon name="back" /></button>
+      <button onClick={goBack} aria-label="Back to previous page"><Icon name="back" /></button>
       <div>
         <span>CW-{ticket.id} · {ticket.category}<Status status={STATUS_SLUG[ticket.status] || 'queued'}>{ticket.status}</Status></span>
         <h1>{ticket.subject}</h1>

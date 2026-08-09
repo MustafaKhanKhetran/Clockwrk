@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../../store';
 import Icon from '../Icon';
 import { api, uploadFile } from '../api';
+import { usePortalBack } from '../navigation';
 import { Action, FileMark, Status } from '../Primitives';
 import { LINK_KINDS, RESOURCE_KINDS } from '../projectTypes';
 
@@ -20,6 +21,7 @@ const ACTIVITY_COPY = {
 
 export default function ProjectDetail() {
   const navigate = useNavigate();
+  const goBack = usePortalBack('/projects');
   const { projectId } = useParams();
   const { requests } = useStore();
   const fileInput = useRef(null);
@@ -58,7 +60,7 @@ export default function ProjectDetail() {
 
   if (loading) return <section className="v3-empty-panel"><span>Loading project…</span></section>;
   if (error || !data) {
-    return <section className="v3-missing"><h1>{error || 'Project not found'}</h1><Action onClick={() => navigate('/projects')}>Back to projects</Action></section>;
+    return <section className="v3-missing"><h1>{error || 'Project not found'}</h1><Action onClick={goBack}>Go back</Action></section>;
   }
 
   const { project, summary, activity } = data;
@@ -132,7 +134,7 @@ export default function ProjectDetail() {
   return <div className="v3-project-record">
     {/* ── Header: identity, objective, primary actions ── */}
     <header>
-      <button onClick={() => navigate('/projects')} aria-label="Back to projects"><Icon name="back" /></button>
+      <button onClick={goBack} aria-label="Back to previous page"><Icon name="back" /></button>
       {project.logoUrl
         ? <img className="v3-project-logo" src={project.logoUrl} alt="" />
         : <span className="v3-project-emoji is-lg">{project.icon}</span>}

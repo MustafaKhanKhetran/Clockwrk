@@ -109,10 +109,27 @@ export async function uploadFile(file) {
   return data;
 }
 
+export async function uploadSetupAvatar(token, file) {
+  const body = new FormData();
+  body.append('token', token);
+  body.append('file', file);
+  let res;
+  try {
+    res = await fetch(`${BASE}/api/client/setup/avatar`, { method: 'POST', body });
+  } catch {
+    throw new ApiError('Profile picture upload failed — check your connection.', 0);
+  }
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new ApiError(data?.message || 'Profile picture upload failed.', res.status);
+  return data;
+}
+
 export const api = {
   login: (email, password) => request('/login', { method: 'POST', body: { email, password }, auth: false }),
   forgotPassword: (email) => request('/forgot-password', { method: 'POST', body: { email }, auth: false }),
   resetPassword: (token, new_password) => request('/reset-password', { method: 'POST', body: { token, new_password }, auth: false }),
+  setupDetails: (token) => request(`/setup?token=${encodeURIComponent(token)}`, { auth: false }),
+  completeSetup: (payload) => request('/setup', { method: 'POST', body: payload, auth: false }),
   me: () => request('/me'),
   saveOnboarding: (version) => request('/onboarding', { method: 'PUT', body: { version } }),
   updateMe: (patch) => request('/me', { method: 'PATCH', body: patch }),

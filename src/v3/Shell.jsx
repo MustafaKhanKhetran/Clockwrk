@@ -5,6 +5,7 @@ import { useSession } from './session';
 import Icon from './Icon';
 import ErrorBoundary from './ErrorBoundary';
 import InstallPrompt from './InstallPrompt';
+import OnboardingTour from './OnboardingTour';
 import { Avatar } from './Primitives';
 
 const links = [
@@ -35,9 +36,9 @@ export default function Shell({ children }) {
   const [createOpen, setCreateOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
-  const active = requests.filter((item) => item.status === 'active');
-  const reviews = requests.filter((item) => item.status === 'review');
-  const queued = requests.filter((item) => item.status === 'queued');
+  const active = requests.filter((item) => item.status === 'active' && !item.isParent);
+  const reviews = requests.filter((item) => item.status === 'review' && !item.isParent);
+  const queued = requests.filter((item) => item.status === 'queued' && !item.isParent);
   const current = allLinks.find(([, path]) => location.pathname === path || location.pathname.startsWith(`${path}/`))?.[0] || 'Workspace';
 
   // Pull the signed-in client's real projects and requests once per session.
@@ -115,22 +116,22 @@ export default function Shell({ children }) {
     <div className="v3-shell">
       <a href="#v3-content" className="v3-skip">Skip to content</a>
       <header className="v3-nav">
-        <button className="v3-wordmark" onClick={() => navigate('/home')} aria-label="Clockwrk home"><img src="/brand/cw-logo.png" alt="" /></button>
+        <button className="v3-wordmark" data-tour="workspace-home" onClick={() => navigate('/home')} aria-label="Clockwrk home"><img src="/brand/cw-logo.png" alt="" /></button>
         <nav aria-label="Main navigation">
-          {links.map(([label, to]) => <NavLink key={to} to={to}>{label}</NavLink>)}
+          {links.map(([label, to]) => <NavLink key={to} to={to} data-tour={label.toLowerCase()}>{label}</NavLink>)}
         </nav>
         <div className="v3-nav-tools">
           <button className="v3-search-trigger" onClick={() => setSearchOpen(true)}><Icon name="search" size={16} /><span>Find</span><kbd>⌘K</kbd></button>
           <button className="v3-icon-button" onClick={() => setAlertsOpen(!alertsOpen)} aria-label="Notifications"><Icon name="bell" size={18} />{notifications.some((item) => item.unread) && <i />}</button>
           <button className="v3-icon-button" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Change theme"><Icon name={theme === 'light' ? 'moon' : 'sun'} size={18} /></button>
           <div className="v3-create-wrap">
-            <button className="v3-create" onClick={() => setCreateOpen(!createOpen)}><span>Create</span><Icon name="plus" size={18} /></button>
+            <button className="v3-create" data-tour="create-primary" onClick={() => setCreateOpen(!createOpen)}><span>Create</span><Icon name="plus" size={18} /></button>
             {createOpen && <div className="v3-create-menu"><button onClick={() => navigate('/requests/new')}><Icon name="requests" />New request<small>Send work to the team</small></button><button onClick={() => navigate('/projects/new')}><Icon name="projects" />New project<small>Open a fresh workspace</small></button></div>}
           </div>
-          <button className="v3-account" onClick={() => setAccountOpen(!accountOpen)} aria-label="Account menu"><Avatar name={identity.name} size="sm" /></button>
+          <button className="v3-account" data-tour="account-primary" onClick={() => setAccountOpen(!accountOpen)} aria-label="Account menu"><Avatar name={identity.name} src={identity.avatar_url} size="sm" /></button>
         </div>
         {alertsOpen && <aside className="v3-popover v3-alerts"><header><strong>Updates</strong><button onClick={() => setAlertsOpen(false)}><Icon name="close" size={15} /></button></header>{notifications.map((item) => <button key={item.id} onClick={() => navigate(item.to || '/requests')}><i className={item.unread ? 'is-new' : ''} /><span>{item.text}<small>{item.to === '/billing' ? 'Review billing' : 'Open workspace'}</small></span></button>)}</aside>}
-        {accountOpen && <aside className="v3-popover v3-account-menu"><div><Avatar name={identity.name} /><span><strong>{identity.name}</strong><small>{identity.company}</small></span></div><button className="v3-mobile-menu-only" onClick={() => navigate('/messages')}><Icon name="messages" size={16} />Messages<Icon name="arrow" size={14} /></button>{utility.map(([label, to, icon]) => <button key={to} onClick={() => navigate(to)}><Icon name={icon} size={16} />{label}<Icon name="arrow" size={14} /></button>)}</aside>}
+        {accountOpen && <aside className="v3-popover v3-account-menu"><div><Avatar name={identity.name} src={identity.avatar_url} /><span><strong>{identity.name}</strong><small>{identity.company}</small></span></div><button className="v3-mobile-menu-only" onClick={() => navigate('/messages')}><Icon name="messages" size={16} />Messages<Icon name="arrow" size={14} /></button>{utility.map(([label, to, icon]) => <button key={to} onClick={() => navigate(to)}><Icon name={icon} size={16} />{label}<Icon name="arrow" size={14} /></button>)}</aside>}
       </header>
 
       <div className="v3-live-rail" aria-label="Workspace status">
@@ -145,9 +146,9 @@ export default function Shell({ children }) {
       <main id="v3-content" key={location.pathname}><ErrorBoundary routeKey={location.pathname}>{children}</ErrorBoundary></main>
 
       <nav className="v3-mobile-nav" aria-label="Mobile navigation">
-        {links.slice(0, 4).map(([label, to, icon]) => <NavLink key={to} to={to} aria-label={label}><Icon name={icon} size={20} /><span>{label}</span></NavLink>)}
-        <button onClick={() => setCreateOpen(!createOpen)} aria-label="Create"><Icon name="plus" size={20} /><span>Create</span></button>
-        <button onClick={() => setAccountOpen(!accountOpen)} aria-label="More"><Icon name="settings" size={20} /><span>More</span></button>
+        {links.slice(0, 4).map(([label, to, icon]) => <NavLink key={to} to={to} data-tour={`mobile-${label.toLowerCase()}`} aria-label={label}><Icon name={icon} size={20} /><span>{label}</span></NavLink>)}
+        <button data-tour="mobile-create" onClick={() => setCreateOpen(!createOpen)} aria-label="Create"><Icon name="plus" size={20} /><span>Create</span></button>
+        <button data-tour="mobile-account" onClick={() => setAccountOpen(!accountOpen)} aria-label="More"><Icon name="settings" size={20} /><span>More</span></button>
       </nav>
 
       {searchOpen && <div className="v3-search-layer" onMouseDown={() => setSearchOpen(false)}><section onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="Search workspace"><header><Icon name="search" size={22} /><input autoFocus aria-label="Search workspace" aria-activedescendant={results.length ? `v3-search-result-${searchIndex}` : undefined} value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={handleSearchKeyDown} placeholder="Search requests, projects, pages…" /><button onClick={() => setSearchOpen(false)}>Esc</button></header><div><span>{search ? 'Results' : 'Go somewhere'}<small>↑↓ to move · Enter to open</small></span>{results.map((item, index) => <button id={`v3-search-result-${index}`} key={item.id} className={index === searchIndex ? 'is-active' : ''} aria-current={index === searchIndex ? 'true' : undefined} onMouseEnter={() => setSearchIndex(index)} onClick={() => jump(item.to)}><i><Icon name={item.icon} size={17} /></i><strong>{item.label}</strong><small>{item.meta}</small><Icon name="arrow" size={15} /></button>)}</div></section></div>}
@@ -155,6 +156,7 @@ export default function Shell({ children }) {
       {/* Add-to-home-screen helper + service worker update toast. Renders nothing
           when already installed, on the first visit, or while dismissed. */}
       <InstallPrompt />
+      <OnboardingTour />
     </div>
   );
 }

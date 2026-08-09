@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { store, useStore } from '../../store';
 import Icon from '../Icon';
+import { usePortalBack } from '../navigation';
 import { Action, Avatar, FileMark, Meter, ProjectCode, Status } from '../Primitives';
 
 export default function RequestDetail() {
   const navigate = useNavigate();
+  const goBack = usePortalBack('/requests');
   const { requestId } = useParams();
   const { requests, projects } = useStore();
   const request = requests.find((item) => String(item.id) === String(requestId));
@@ -13,7 +15,7 @@ export default function RequestDetail() {
   const [revision, setRevision] = useState(false);
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
-  if (!request) return <section className="v3-missing"><h1>Request not found</h1><Action onClick={() => navigate('/requests')}>Back to requests</Action></section>;
+  if (!request) return <section className="v3-missing"><h1>Request not found</h1><Action onClick={goBack}>Go back</Action></section>;
   const project = projects.find((item) => item.id === request.projectId);
   const run = async (label, fn) => {
     setBusy(label);
@@ -26,7 +28,7 @@ export default function RequestDetail() {
     if (!text) return;
     run('comment', async () => { await store.addComment(request.id, text); setComment(''); });
   };
-  return <div className="v3-record-page"><header className="v3-record-head"><button onClick={() => navigate('/requests')}><Icon name="back" /></button><div><span><ProjectCode project={project} />{request.isChild ? <button className="v3-parent-link" onClick={() => navigate(`/requests/${request.parentRequestId}`)}>{request.parentTitle} / Part {request.partNumber} of {request.partCount}</button> : `${project?.name} / ${request.isParent ? 'Request group' : request.type}`}</span><h1>{request.title}</h1><p>{request.brief}</p></div><Status status={request.status}>{request.isParent ? request.scopeStatus === 'proposed' ? 'Approval needed' : request.scopeStatus === 'reviewing' ? 'Being scoped' : 'Request group' : undefined}</Status></header>
+  return <div className="v3-record-page"><header className="v3-record-head"><button onClick={goBack} aria-label="Back to previous page"><Icon name="back" /></button><div><span><ProjectCode project={project} />{request.isChild ? <button className="v3-parent-link" onClick={() => navigate(`/requests/${request.parentRequestId}`)}>{request.parentTitle} / Part {request.partNumber} of {request.partCount}</button> : `${project?.name} / ${request.isParent ? 'Request group' : request.type}`}</span><h1>{request.title}</h1><p>{request.brief}</p></div><Status status={request.status}>{request.isParent ? request.scopeStatus === 'proposed' ? 'Approval needed' : request.scopeStatus === 'reviewing' ? 'Being scoped' : 'Request group' : undefined}</Status></header>
     <section className="v3-record-facts"><span><small>Priority</small><strong>{request.priority || 'Normal'}</strong></span><span><small>Started</small><strong>{request.startedAt || 'Not started'}</strong></span><span><small>{request.deliveredAt ? 'Delivered' : 'Expected'}</small><strong>{request.deliveredAt || request.due || 'Not scheduled'}</strong></span><span><small>Revisions</small><strong>{request.revisionsUsed || 0} used</strong></span>{request.progress !== undefined && <Meter value={request.progress} />}</section>
     {request.isParent && <section className={`v3-breakdown-panel is-${request.scopeStatus}`}>
       <header><div><span>{request.scopeStatus === 'proposed' ? 'Your approval' : 'Oversized request'}</span><h2>{request.scopeStatus === 'reviewing' ? 'The team is preparing the production plan.' : request.scopeStatus === 'proposed' ? 'One outcome, split into clear parts.' : 'The linked production plan.'}</h2><p>{request.scopeStatus === 'reviewing' ? 'This group does not consume a production slot while the team confirms the cleanest scope and sequence.' : request.scopeStatus === 'proposed' ? 'Approve once to create every linked request in the correct order. You can discuss changes below before deciding.' : 'Each part moves through the normal queue independently while staying connected to this group.'}</p></div>{request.scopeStatus === 'proposed' && <Action icon="check" disabled={!!busy} onClick={() => run('breakdown', () => store.approveBreakdown(request.id))}>{busy === 'breakdown' ? 'Creating requests…' : `Approve ${request.breakdown.length} parts`}</Action>}</header>

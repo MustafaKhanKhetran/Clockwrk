@@ -34,13 +34,13 @@ export function Action({ children, icon = 'arrow', tone = 'dark', className = ''
   return <button className={`v3-action is-${tone} ${className}`} {...props}><span>{children}</span><i><Icon name={icon} size={16} /></i></button>;
 }
 
-export function Avatar({ name, online = false, size = 'md' }) {
+export function Avatar({ name, src, online = false, size = 'md' }) {
   const initials = (name || '?').split(' ').map((part) => part[0]).slice(0, 2).join('');
-  return <span className={`v3-avatar is-${size}`}>{initials}{online && <i />}</span>;
+  return <span className={`v3-avatar is-${size}`}>{src ? <img src={src} alt="" /> : initials}{online && <i />}</span>;
 }
 
 export function Status({ status, children }) {
-  const labels = { active: 'Building', review: 'Needs review', queued: 'Queued', done: 'Delivered', paused: 'Paused', paid: 'Paid' };
+  const labels = { active: 'Building', review: 'Needs review', queued: 'Queued', done: 'Delivered', scope: 'Scoping', paused: 'Paused', paid: 'Paid' };
   return <span className={`v3-status is-${status}`}><i />{children || labels[status] || status}</span>;
 }
 
