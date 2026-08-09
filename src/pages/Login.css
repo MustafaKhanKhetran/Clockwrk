@@ -151,6 +151,19 @@
 }
 .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.login-back {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 6px;
+  align-self: center;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.login-back:hover { color: var(--text); }
+
 .login-btn-icon {
   width: 48px; height: 48px;
   border-radius: 50%;

@@ -1,4 +1,4 @@
-import { API_BASE_URL, getToken, logout } from './auth';
+import { API_BASE_URL, getToken, logout, refreshSession } from './auth';
 
 const ENDPOINT_MAP = {
   'dashboard-alerts': '/api/alerts',
@@ -66,11 +66,11 @@ export const authHeaders = (extra = {}) => {
   };
 };
 
-export const apiFetch = async (endpoint, options = {}) => {
+const doFetch = (endpoint, options) => {
   const { params, headers, body, ...rest } = options;
   const hasBody = body !== undefined;
   const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
-  const res = await fetch(buildUrl(endpoint, params), {
+  return fetch(buildUrl(endpoint, params), {
     ...rest,
     headers: authHeaders({
       ...(hasBody && !isFormData ? { 'Content-Type': 'application/json' } : {}),
@@ -79,10 +79,22 @@ export const apiFetch = async (endpoint, options = {}) => {
     }),
     ...(hasBody ? { body: isFormData || typeof body === 'string' ? body : JSON.stringify(body) } : {}),
   });
+};
+
+export const apiFetch = async (endpoint, options = {}) => {
+  let res = await doFetch(endpoint, options);
+  // On expired access token, try one silent refresh before giving up.
+  // Concurrent 401s share a single /refresh promise (see refreshSession).
   if (res.status === 401) {
-    logout();
-    window.dispatchEvent(new CustomEvent('cw:unauthorized'));
-    throw new Error('Your session has expired. Please sign in again.');
+    const newToken = await refreshSession();
+    if (newToken) {
+      res = await doFetch(endpoint, options);
+    }
+    if (res.status === 401) {
+      await logout();
+      window.dispatchEvent(new CustomEvent('cw:unauthorized'));
+      throw new Error('Your session has expired. Please sign in again.');
+    }
   }
   const json = await res.json().catch(() => ({}));
   if (!res.ok || json.success === false) {

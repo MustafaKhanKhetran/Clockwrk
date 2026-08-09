@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { logout as logoutSession } from '../utils/auth';
 
 const AuthContext = createContext(null);
 
@@ -17,11 +18,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const signOut = () => {
-    localStorage.removeItem('cw_dash_token');
-    localStorage.removeItem('token');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('cw_dash_user');
+  const signOut = async () => {
+    // logoutSession revokes the refresh token server-side then clears storage.
+    await logoutSession();
     setUser(null);
   };
 

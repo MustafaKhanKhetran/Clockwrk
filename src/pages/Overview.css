@@ -3116,6 +3116,158 @@
   color: #aeb5c0;
 }
 
+.tw-operations-card {
+  color: #ffffff;
+  background: #0b0d10;
+}
+
+.tw-operations-card .tw-card-heading h2,
+.tw-operations-card .tw-kicker,
+.tw-operations-card .tw-kicker svg {
+  color: #ffffff;
+}
+
+.tw-operations-grid {
+  min-height: 116px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(124px, 0.8fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.tw-operations-schedule {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tw-operation-stat,
+.tw-payment-alerts {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #292d33;
+  border-radius: 14px;
+  background: #15181c;
+}
+
+.tw-operation-stat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+}
+
+.tw-operation-icon {
+  width: 29px;
+  height: 29px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 29px;
+  border-radius: 50%;
+  color: #11150b;
+  background: #91df23;
+}
+
+.tw-operation-copy {
+  min-width: 0;
+}
+
+.tw-operation-copy small,
+.tw-payment-alerts small {
+  display: block;
+  color: #aeb5c0;
+  font-size: 9px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.tw-operation-copy strong,
+.tw-payment-alerts strong {
+  display: block;
+  margin-top: 3px;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.tw-operation-copy em,
+.tw-payment-alerts em {
+  display: block;
+  overflow: hidden;
+  margin-top: 7px;
+  color: #858d99;
+  font-size: 8px;
+  font-style: normal;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tw-payment-alerts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.tw-payment-alerts .tw-operation-icon {
+  margin-bottom: auto;
+  color: #0b0d10;
+  background: #ffffff;
+}
+
+.tw-payment-alerts.has-alerts {
+  border-color: #51401e;
+  background: #211b10;
+}
+
+.tw-payment-alerts.has-alerts .tw-operation-icon {
+  background: #f6cf62;
+}
+
+html[data-theme="dark"] .overview-page {
+  --ov-bg: #101012;
+  --ov-card: #18181b;
+  --ov-ink: #ffffff;
+  --ov-muted: #a7a7ab;
+  --ov-line: #2a2a2e;
+  --ov-soft: #222226;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .overview-page :is(
+  .mc-prediction-toggle,
+  .mc-meta-rail .mc-meta-val,
+  .mc-team-head h2,
+  .mc-cal-hero h2
+) {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .overview-page .mc-team-filters button:hover {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .overview-page :is(
+  .mc-chip-clients,
+  .mc-cal-tabs button.is-active,
+  .mc-week-grid .mc-calendar-event.is-discovery-meeting
+) {
+  color: #11151b;
+}
+
+html[data-theme="dark"] .overview-page :is(
+  .tw-cash-card,
+  .tw-cash-card .tw-card-heading h2,
+  .tw-cash-card .tw-split-stats strong,
+  .tw-cash-card .tw-split-stats span
+) {
+  color: #0b1117;
+}
+
 .tw-side-stack .tw-bottom-card {
   min-height: 0;
   padding: 14px 16px;
@@ -5276,4 +5428,18 @@
     flex: 1;
   }
 
+  .tw-operations-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tw-payment-alerts {
+    min-height: 104px;
+  }
+
+}
+
+@media (max-width: 480px) {
+  .tw-operations-schedule {
+    grid-template-columns: 1fr;
+  }
 }
