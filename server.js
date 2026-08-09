@@ -96,9 +96,13 @@ app.use('/api/predictions',   predictionsRoutes);
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
 
 // Error handler
+// Never leak driver / stack details to callers in production — real error
+// stays in the server logs, the client gets a generic message.
+const IS_PROD = process.env.NODE_ENV === 'production';
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(500).json({ success: false, message: err.message || 'Server error' });
+  const message = IS_PROD ? 'Server error' : (err.message || 'Server error');
+  res.status(500).json({ success: false, message });
 });
 
 import { startBookingAssignmentPoller } from './services/bookingAutoAssign.js';

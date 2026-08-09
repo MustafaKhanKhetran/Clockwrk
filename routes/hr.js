@@ -1,9 +1,20 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import db from '../db.js';
 import { authenticate, requireRoles } from '../middleware/auth.js';
 
 const router = Router();
 const HR_ACCESS = ['owner', 'admin', 'hr'];
+
+// Public application endpoints — tight per-IP limit so a hostile actor
+// cannot flood the applications table or grief the HR inbox.
+const applyLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: { success: false, message: 'Too many submissions from this address. Try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -16,7 +27,7 @@ const safeDate = val => {
 
 // ─── PUBLIC: Job application ──────────────────────────────────────────────────
 // POST /api/hr/apply/job
-router.post('/apply/job', async (req, res) => {
+router.post('/apply/job', applyLimiter, async (req, res) => {
   const {
     job_id, full_name, email, phone, location,
     availability_type, availability_start, experience_yrs,
@@ -65,7 +76,7 @@ router.post('/apply/job', async (req, res) => {
 
 // ─── PUBLIC: Internship application ──────────────────────────────────────────
 // POST /api/hr/apply/internship
-router.post('/apply/internship', async (req, res) => {
+router.post('/apply/internship', applyLimiter, async (req, res) => {
   const {
     job_id, full_name, email, phone, location,
     university, program, enrollment_status, graduation_year, year_of_study,

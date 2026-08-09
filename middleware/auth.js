@@ -21,7 +21,13 @@ export const authenticate = (req, res, next) => {
   }
   const token = header.slice(7);
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    // Client-portal tokens are signed with the same secret; reject them here so
+    // a client can never authenticate against employee-only routes.
+    if (payload?.type === 'client') {
+      return res.status(403).json({ success: false, message: 'Employee token required' });
+    }
+    req.user = payload;
     touchLastSeen(req.user?.id);
     next();
   } catch {

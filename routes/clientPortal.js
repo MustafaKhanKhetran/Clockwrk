@@ -37,7 +37,7 @@ const clientUpload = multer({
   limits: { fileSize: 25 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = [
-      'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
       'application/pdf', 'application/zip', 'application/x-zip-compressed',
       'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
