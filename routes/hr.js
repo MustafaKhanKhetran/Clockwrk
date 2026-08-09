@@ -2,6 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import db from '../db.js';
 import { authenticate, requireRoles } from '../middleware/auth.js';
+import { sendJobAlerts } from '../services/publicSiteEmails.js';
 
 const router = Router();
 const HR_ACCESS = ['owner', 'admin', 'hr'];
@@ -192,15 +193,38 @@ router.delete('/applications/:id', authenticate, requireRoles(['owner', 'admin',
 });
 
 // ─── POST: Create listing ─────────────────────────────────────────────────────
+// Replaces n8n workflow h2fN4XEo15QWpgIs: the authenticated API already owns
+// listing creation, and now also notifies active careers subscribers.
 router.post('/listings', authenticate, requireRoles(HR_ACCESS), async (req, res) => {
   const { title, department, description, requirements, type, location } = req.body;
+  if (!title) {
+    return res.status(400).json({ success: false, message: 'Job title is required' });
+  }
   try {
     await db.execute(
       `INSERT INTO job_listings (id, title, department, description, requirements, type, status, location, is_active)
        VALUES (UUID(), ?, ?, ?, ?, ?, 'open', ?, 1)`,
       [title, department || '', description || '', requirements || '', type || 'full-time', location || 'Remote']
     );
-    return res.json({ success: true });
+    const [subscribers] = await db.execute(
+      "SELECT email FROM newsletter_subscribers WHERE type = 'careers' AND status = 'active'"
+    );
+    if (subscribers.length) {
+      await sendJobAlerts(subscribers, {
+        title,
+        department: department || '',
+        description: description || '',
+        requirements: requirements || '',
+        type: type || 'full-time',
+        location: location || 'Remote',
+      });
+    }
+    return res.json({
+      success: true,
+      message: subscribers.length
+        ? 'Job posted and alerts sent'
+        : 'Job posted, no careers subscribers to notify',
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: 'Server error' });

@@ -36,6 +36,7 @@ import n8nRoutes from './routes/n8n.js';
 import clientPortalRoutes from './routes/clientPortal.js';
 import rateRoutes from './routes/rate.js';
 import predictionsRoutes from './routes/predictions.js';
+import publicSiteRoutes from './routes/publicSite.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -97,6 +98,7 @@ app.use('/api/n8n',            n8nRoutes);
 app.use('/api/client',        clientApiLimiter, clientPortalRoutes);
 app.use('/api/rate',          rateRoutes);
 app.use('/api/predictions',   predictionsRoutes);
+app.use('/api/site',          publicSiteRoutes);
 
 // 404
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
