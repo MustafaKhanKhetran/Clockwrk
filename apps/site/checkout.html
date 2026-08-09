@@ -840,25 +840,17 @@
           };
 
           try {
-            const n8nRes = await fetch("https://n8n.clockwrk.io/webhook/payment-confirm", {
+            const apiRes = await fetch("https://api.clockwrk.io/api/site/payment-confirm", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(paymentPayload),
             });
-            if (!n8nRes.ok) throw new Error("n8n returned " + n8nRes.status);
-          } catch (_) {
-            // n8n failed — send to Cloudflare Worker fallback
-            // Worker saves to KV + DB and retries n8n so the team is alerted
-            try {
-              await fetch("https://missed-payment-alert.mustafakhankhetran1.workers.dev", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(paymentPayload),
-              });
-            } catch (_) {
-              // Both failed — details are in sessionStorage, team can recover manually
-              console.error("Payment fallback also failed. Details:", paymentPayload);
-            }
+            if (!apiRes.ok) throw new Error("api returned " + apiRes.status);
+          } catch (err) {
+            // Payment submit failed. Details stay in sessionStorage so ops
+            // can recover manually; the previous KV-based fallback Worker is
+            // gone with the n8n migration.
+            console.error("Payment confirmation failed. Details:", paymentPayload, err);
           }
 
           sessionStorage.setItem("cw_checkout_name", name);

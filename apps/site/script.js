@@ -3485,7 +3485,7 @@ function initNewsletterForm(formId, inputId, btnId, type, source) {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 10000);
 
-      const res = await fetch('https://n8n.clockwrk.io/webhook/newsletter', {
+      const res = await fetch('https://api.clockwrk.io/api/site/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, type: emailType || type, source }),

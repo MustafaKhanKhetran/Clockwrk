@@ -1088,9 +1088,11 @@
             // 1. Show CW overlay
             formCard.classList.add("is-sending");
 
-            // 2. Fire the lead-capture Worker in the background
+            // 2. Fire the lead-capture request against the main API in the
+            // background. If the API is unreachable (n8nReachable === false)
+            // we still capture the interest so ops can follow up manually.
             const sendLead = fetch(
-              "https://missedbookingalert.mustafakhankhetran1.workers.dev",
+              "https://api.clockwrk.io/api/site/booking",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -1098,6 +1100,7 @@
                   name: formData.name,
                   email: formData.email,
                   company: formData.company || "",
+                  lead_only: true,
                 }),
               },
             ).catch(() => {});
@@ -1251,10 +1254,10 @@
       let bkUse24 = false;
 
       // ── Clockwrk Booking Config ────────────────────────────────
-      // n8n webhook — your Cloudflare tunnel URL
-      const N8N_BASE = "https://n8n.clockwrk.io";
-      const N8N_BOOKING_URL = `${N8N_BASE}/webhook/booking`;
-      const N8N_SLOTS_URL = `${N8N_BASE}/webhook/slots`;
+      // Cloudflare Workers API (was n8n before the migration)
+      const N8N_BASE = "https://api.clockwrk.io";
+      const N8N_BOOKING_URL = `${N8N_BASE}/api/site/booking`;
+      const N8N_SLOTS_URL = `${N8N_BASE}/api/site/slots`;
 
       const BK_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const _bkCache = {};
@@ -1287,7 +1290,7 @@
         (async function bkHealthCheck() {
           try {
             var res = await fetch(
-              N8N_BASE + "/webhook/slots?year=2000&month=1",
+              N8N_BASE + "/api/site/slots?year=2000&month=1",
               { signal: AbortSignal.timeout(4000) },
             );
             if (!res.ok) bkSetOfflineMode();
@@ -2110,7 +2113,7 @@
 	            const controller = new AbortController();
 	            const timeout = setTimeout(() => controller.abort(), 10000);
 
-	            const res = await fetch("https://n8n.clockwrk.io/webhook/newsletter", {
+	            const res = await fetch("https://api.clockwrk.io/api/site/newsletter", {
 	              method: "POST",
 	              headers: { "Content-Type": "application/json" },
 	              body: JSON.stringify({ email, type: emailType || type, source }),
