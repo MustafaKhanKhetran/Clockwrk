@@ -76,8 +76,28 @@ export const sendCareersApplicationAlert = (
 ) =>
   sendEmail(env, {
     to: env.INTERNAL_ALERT_EMAIL,
-    subject: `New Application: ${String(application.full_name)} — ${String(application.position || "General")}`,
-    html: `<h2>New Application</h2><p><b>Name:</b> ${esc(application.full_name)}</p><p><b>Email:</b> ${esc(application.email)}</p><p><b>Phone:</b> ${esc(application.phone || "Not provided")}</p><p><b>Position:</b> ${esc(application.position || "General Application")}</p><p><b>Skills:</b> ${esc(application.skills || "—")}</p><p><b>Cover Letter:</b> ${esc(application.cover_letter || "Not provided")}</p>${application.resume_url ? `<p><a href="${esc(application.resume_url)}">Open CV / resume</a></p>` : ""}`,
+    subject: `New Application: ${String(application.full_name)} — ${String(application.position || application.job_title || "General")}`,
+    html: `<h2>New Application</h2><p><b>Name:</b> ${esc(application.full_name)}</p><p><b>Email:</b> ${esc(application.email)}</p><p><b>Phone:</b> ${esc(application.phone || "Not provided")}</p><p><b>Position:</b> ${esc(application.position || application.job_title || "General Application")}</p><p><b>Skills:</b> ${esc(application.skills || "—")}</p><p><b>Cover Letter:</b> ${esc(application.cover_letter || application.why_clockwrk || "Not provided")}</p>${application.resume_url ? `<p><a href="${esc(application.resume_url)}">Open CV / resume</a></p>` : ""}`,
+  });
+
+// Applicant-facing confirmation. Sent alongside the internal alert so the
+// applicant doesn't wonder whether we received it. `kind` distinguishes the
+// full-time vs internship copy without a whole extra template.
+export const sendApplicantConfirmation = (
+  env: Env,
+  input: { email: string; full_name: string; kind: "job" | "internship"; job_title?: string },
+) =>
+  sendEmail(env, {
+    to: input.email,
+    subject:
+      input.kind === "internship"
+        ? "We've received your Clockwrk internship application"
+        : "We've received your Clockwrk application",
+    html: shell(
+      input.kind === "internship" ? "Internship application" : "Application",
+      "Thanks — we've got it.",
+      `<p>Hi ${esc(input.full_name)},</p><p>Your application${input.job_title ? ` for <strong style="color:#ebebea">${esc(input.job_title)}</strong>` : ""} is with our team. We review every submission and reply within 5–7 working days.</p><p>If you don't hear back in that window, drop a note to <a href="mailto:hello@clockwrk.io" style="color:#a0e92a">hello@clockwrk.io</a>.</p><p>— Clockwrk</p>`,
+    ),
   });
 export async function sendPaymentEmails(
   env: Env,
@@ -100,6 +120,29 @@ export async function sendPaymentEmails(
     }),
   ]);
 }
+export async function sendReferralEmails(
+  env: Env,
+  input: { email: string; name?: string | null; referral_code: string },
+) {
+  const link = `https://clockwrk.io/?ref=${encodeURIComponent(input.referral_code)}`;
+  await Promise.all([
+    sendEmail(env, {
+      to: input.email,
+      subject: "Your Clockwrk referral link is ready",
+      html: shell(
+        "Referral program",
+        "You're in.",
+        `<p>Hi ${esc(input.name || "there")},</p><p>Your referral link:</p><p><a href="${esc(link)}" style="color:#a0e92a">${esc(link)}</a></p><p>Share it with anyone who might need Clockwrk. When someone signs up through your link, you both get rewarded.</p>`,
+      ),
+    }),
+    sendEmail(env, {
+      to: env.INTERNAL_ALERT_EMAIL,
+      subject: `New Referrer: ${input.email}`,
+      html: `<h2>New Referrer Registered</h2><p><b>Email:</b> ${esc(input.email)}</p><p><b>Name:</b> ${esc(input.name || "—")}</p><p><b>Code:</b> ${esc(input.referral_code)}</p>`,
+    }),
+  ]);
+}
+
 export async function sendJobAlerts(
   env: Env,
   subscribers: Array<{ email: string }>,

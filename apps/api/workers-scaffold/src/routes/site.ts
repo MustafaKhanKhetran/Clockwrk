@@ -10,6 +10,7 @@ import {
   sendCareersApplicationAlert,
   sendNewsletterWelcome,
   sendPaymentEmails,
+  sendReferralEmails,
 } from "../services/publicSiteEmails";
 
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
@@ -380,34 +381,54 @@ app.post("/careers", submitLimit, async (c) => {
   });
 });
 
+// 7-char code from a lookalike-free alphabet.
+function generateReferralCode() {
+  const alphabet = "abcdefghjkmnpqrstuvwxyz23456789";
+  const buf = crypto.getRandomValues(new Uint8Array(7));
+  return Array.from(buf, (b) => alphabet[b % alphabet.length]).join("");
+}
+
 app.post("/referral", submitLimit, async (c) => {
   const input = await body(c);
   if (input.healthcheck === true)
     return health(c, "site-referral", { includeTimestamp: true });
-  if (!input.email || !input.referral_code)
-    return c.json(
-      {
-        success: false,
-        message: "Missing required fields: email or referral_code",
-      },
-      400,
-    );
+  if (!input.email)
+    return c.json({ success: false, message: "Email is required" }, 400);
   const email = String(input.email);
-  const code = String(input.referral_code);
   if (!emailPattern.test(email))
     return c.json({ success: false, message: "Invalid email address" }, 400);
+
+  // Idempotent: if this email is already a referrer, return their existing code.
   const existing = await c.env.DB.prepare(
-    "SELECT id FROM referrers WHERE email=? LIMIT 1",
+    "SELECT referral_code FROM referrers WHERE email=? LIMIT 1",
   )
     .bind(email)
-    .first();
+    .first<{ referral_code: string }>();
   if (existing)
-    return c.json({ success: true, message: "Already registered", code });
+    return c.json({
+      success: true,
+      message: "Already registered",
+      code: existing.referral_code,
+    });
+
+  const code = generateReferralCode();
   await c.env.DB.prepare(
     "INSERT INTO referrers (id,email,referral_code,is_verified,name) VALUES (?,?,?,1,?)",
   )
     .bind(crypto.randomUUID(), email, code, nullable(input.name))
     .run();
+  await c.env.DB.prepare(
+    "INSERT INTO dashboard_alerts (type,title,message,link) VALUES ('system','New referrer',?,?)",
+  )
+    .bind(`${email} registered as a referrer`, "/referrals")
+    .run();
+  c.executionCtx.waitUntil(
+    sendReferralEmails(c.env, {
+      email,
+      name: (input.name as string | null | undefined) ?? null,
+      referral_code: code,
+    }).catch((err) => console.error("referral-notify:", err)),
+  );
   return c.json({ success: true, message: "Referral saved", code });
 });
 

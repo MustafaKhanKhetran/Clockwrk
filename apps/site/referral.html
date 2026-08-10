@@ -616,11 +616,10 @@
         );
       }
 
-      // ── Worker endpoints ─────────────────────────────────────────────────────
-      const SEND_URL =
-        "https://referral-send-otp.mustafakhankhetran1.workers.dev";
-      const VERIFY_URL =
-        "https://referral-verify-otp.mustafakhankhetran1.workers.dev";
+      // ── API endpoint ─────────────────────────────────────────────────────────
+      // Single-step referral submit. OTP was removed with the n8n migration —
+      // the new API assigns and returns the referral code atomically.
+      const REFERRAL_URL = "https://api.clockwrk.io/api/site/referral";
 
       // ── Inline error helper ───────────────────────────────────────────────────
       function setError(container, msg) {
@@ -685,12 +684,11 @@
 	        const originalSendContent = sendButton.innerHTML;
 	        sendButton.textContent = "Sending...";
 	        overlay.classList.add("is-visible");
-	        let otpSent = false;
 	        const sendController = new AbortController();
 	        const sendTimeout = setTimeout(() => sendController.abort(), 10000);
 
 	        try {
-	          const res = await fetch(SEND_URL, {
+	          const res = await fetch(REFERRAL_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: value, name }),
@@ -704,17 +702,16 @@
 	            throw new Error("invalid_response");
 	          }
 
-	          if (!res.ok) {
-	            const message =
-	              data?.error || "Something went wrong, please try again.";
+	          if (!res.ok || !data?.success || !data.code) {
+	            const message = data?.message || "Something went wrong, please try again.";
 	            setError(cardDefault, message);
 	            return;
 	          }
 
-	          // Already registered — skip OTP, show existing code immediately
-	          if (data?.error === "already_verified" && data.code) {
-	            codeValue.textContent = data.code;
-		            linkValue.textContent = `clockwrk.io/?ref=${data.code}`;
+	          // Straight to success — no OTP step in the new flow.
+	          codeValue.textContent = data.code;
+	          linkValue.textContent = `clockwrk.io/?ref=${data.code}`;
+	          setTimeout(() => {
 	            transitionToPanel(() => {
               cardDefault.style.display = "block";
               referralHow.style.display = "none";
@@ -722,30 +719,9 @@
               successPanel.style.display = "block";
               successPanel.removeAttribute("aria-hidden");
 	            });
-	            return;
-	          }
-
-	          if (data?.error) {
-	            setError(cardDefault, data.error);
-	            return;
-	          }
-
-	          verifiedContact = value;
-	          verifyEmailText.textContent = value;
-	          sendButton._name = name;
-	          otpSent = true;
-
-	          setTimeout(() => {
-	            transitionToPanel(() => {
-              cardDefault.style.display = "none";
-              cardVerify.style.display = "block";
-              cardVerify.removeAttribute("aria-hidden");
-              setTimeout(() => digits[0]?.focus(), 280);
-            });
-          }, 300);
+	          }, 200);
         } catch (err) {
 	          clearTimeout(sendTimeout);
-	          overlay.classList.remove("is-visible");
 	          setError(
 	            cardDefault,
 	            err?.name === "AbortError"
@@ -753,14 +729,11 @@
 	              : "Something went wrong. Please try again.",
 	          );
 	        } finally {
-	          if (otpSent) {
-	            startSendCooldown(originalSendContent);
-	          } else {
-	            sendButton.disabled = false;
-	            sendButton.innerHTML = originalSendContent;
-	            if (typeof lucide !== "undefined")
-	              lucide.createIcons({ nodes: [sendButton] });
-	          }
+	          overlay.classList.remove("is-visible");
+	          sendButton.disabled = false;
+	          sendButton.innerHTML = originalSendContent;
+	          if (typeof lucide !== "undefined")
+	            lucide.createIcons({ nodes: [sendButton] });
 	        }
 	      });
 
@@ -791,110 +764,15 @@
         });
       });
 
-      // ── Verify OTP ────────────────────────────────────────────────────────────
-      verifyButton.addEventListener("click", async () => {
-        const entered = digits.map((d) => d.value).join("");
-        clearError(cardVerify);
-
-        if (entered.length < 6) {
-          setError(cardVerify, "Please enter all 6 digits.");
-          digits.find((d) => !d.value)?.focus();
-          return;
-        }
-
-	        verifyButton.disabled = true;
-	        const originalVerifyContent = verifyButton.innerHTML;
-	        verifyButton.textContent = "Verifying...";
-	        overlay.classList.add("is-visible");
-	        const verifyController = new AbortController();
-	        const verifyTimeout = setTimeout(
-	          () => verifyController.abort(),
-	          10000,
-	        );
-
-        try {
-          const res = await fetch(VERIFY_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: verifiedContact,
-              otp: entered,
-              name: sendButton._name || "",
-            }),
-            signal: verifyController.signal,
-          });
-	          clearTimeout(verifyTimeout);
-	          let data;
-	          try {
-	            data = await res.json();
-	          } catch {
-	            throw new Error("invalid_response");
-	          }
-
-	          if (!res.ok) {
-	            const message =
-	              data?.error || "Something went wrong, please try again.";
-	            overlay.classList.remove("is-visible");
-	            setError(cardVerify, message);
-	            return;
-	          }
-
-	          if (data?.error) {
-	            overlay.classList.remove("is-visible");
-	            setError(
-	              cardVerify,
-	              data.error === "expired"
-	                ? "Code expired — go back and request a new one."
-	                : data.error,
-	            );
-	            digits.forEach((d) => (d.value = ""));
-	            digits[0].focus();
-	            return;
-	          }
-
-	          if (data.ok && data.code) {
-            codeValue.textContent = data.code;
-            linkValue.textContent = `clockwrk.io/?ref=${data.code}`;
-
-            setTimeout(() => {
-              transitionToPanel(() => {
-                cardVerify.style.display = "none";
-                cardVerify.setAttribute("aria-hidden", "true");
-                digits.forEach((d) => (d.value = ""));
-                cardDefault.style.display = "block";
-                referralHow.style.display = "none";
-                referralPanel.style.display = "none";
-                successPanel.style.display = "block";
-                successPanel.removeAttribute("aria-hidden");
-              });
-            }, 300);
-          } else {
-            overlay.classList.remove("is-visible");
-            setError(
-              cardVerify,
-              data.error === "expired"
-                ? "Code expired — go back and request a new one."
-                : "Incorrect code. Please try again.",
-	            );
-	            digits.forEach((d) => (d.value = ""));
-	            digits[0].focus();
-	          }
-	        } catch (err) {
-	          clearTimeout(verifyTimeout);
-	          overlay.classList.remove("is-visible");
-	          setError(
-	            cardVerify,
-	            err?.name === "AbortError"
-	              ? "Verification timed out. Please try again."
-	              : "Something went wrong. Please try again.",
-	          );
-	        } finally {
-	          verifyButton.disabled = false;
-	          verifyButton.innerHTML = originalVerifyContent;
-	          if (typeof lucide !== "undefined")
-	            lucide.createIcons({ nodes: [verifyButton] });
-	        }
-	      });
+      // ── OTP verify removed with the n8n migration ────────────────────────────
+      // The new API returns the referral code atomically on submit, so the
+      // OTP step is gone. The button/handler are left in place as a no-op
+      // in case any older DOM still references it — it just returns.
+      if (verifyButton) {
+        verifyButton.addEventListener("click", (e) => {
+          e.preventDefault();
+        });
+      }
 
       // ── Back ──────────────────────────────────────────────────────────────────
       backButton.addEventListener("click", () => {

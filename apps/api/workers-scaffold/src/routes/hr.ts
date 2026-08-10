@@ -1,8 +1,10 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import type { Env, Variables } from "../types";
+
+type Ctx = Context<{ Bindings: Env; Variables: Variables }>;
 import { requireEmployee, requireRoles } from "../middleware/auth";
 import { ipRateLimit } from "../middleware/rateLimit";
-import { sendJobAlerts } from "../services/publicSiteEmails";
+import { sendJobAlerts, sendCareersApplicationAlert, sendApplicantConfirmation } from "../services/publicSiteEmails";
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 const ACCESS = ["owner", "admin", "hr"];
 const applyLimit = ipRateLimit({
@@ -16,6 +18,48 @@ const date = (value: unknown) =>
   !Number.isNaN(new Date(String(value)).getTime())
     ? String(value)
     : null;
+// Fires the post-insert notifications for either apply flow: dashboard alert
+// row + applicant confirmation email + internal team alert. Called via
+// ctx.waitUntil so the applicant's HTTP response returns without waiting
+// on Resend.
+async function notifyApplication(
+  c: Ctx,
+  kind: "job" | "internship",
+  body: Record<string, unknown>,
+) {
+  const jobTitle = body.job_id
+    ? (
+        await c.env.DB.prepare("SELECT title FROM job_listings WHERE id=?")
+          .bind(body.job_id)
+          .first<{ title: string }>()
+      )?.title
+    : undefined;
+  const label = jobTitle || (kind === "internship" ? "Internship" : "General application");
+  const link = kind === "internship" ? "/hr?tab=internships" : "/hr";
+
+  await c.env.DB.prepare(
+    "INSERT INTO dashboard_alerts (type,title,message,link) VALUES ('system',?,?,?)",
+  )
+    .bind(
+      kind === "internship" ? "New internship application" : "New job application",
+      `${String(body.full_name)} applied — ${label}`,
+      link,
+    )
+    .run();
+
+  c.executionCtx.waitUntil(
+    Promise.all([
+      sendApplicantConfirmation(c.env, {
+        email: String(body.email),
+        full_name: String(body.full_name),
+        kind,
+        job_title: jobTitle,
+      }),
+      sendCareersApplicationAlert(c.env, { ...body, job_title: jobTitle }),
+    ]).catch((err) => console.error("apply-notify:", err)),
+  );
+}
+
 app.post("/apply/job", applyLimit, async (c) => {
   const b: Record<string, unknown> = await c.req
     .json<Record<string, unknown>>()
@@ -58,6 +102,7 @@ app.post("/apply/job", applyLimit, async (c) => {
   )
     .bind(crypto.randomUUID(), ...values)
     .run();
+  await notifyApplication(c, "job", b);
   return c.json({ success: true, message: "Application received" });
 });
 app.post("/apply/internship", applyLimit, async (c) => {
@@ -103,6 +148,7 @@ app.post("/apply/internship", applyLimit, async (c) => {
   )
     .bind(crypto.randomUUID(), ...values)
     .run();
+  await notifyApplication(c, "internship", b);
   return c.json({ success: true, message: "Application received" });
 });
 app.get("/", requireEmployee, requireRoles(...ACCESS), async (c) => {
