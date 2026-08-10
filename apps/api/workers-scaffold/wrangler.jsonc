@@ -14,7 +14,7 @@
     {
       "binding": "DB",
       "database_name": "clockwrk",
-      "database_id": "REPLACE_WITH_WRANGLER_D1_CREATE_OUTPUT",
+      "database_id": "5238bc86-5f6e-46d7-992f-8209afb37587",
       "migrations_dir": "migrations"
     }
   ],
@@ -27,7 +27,7 @@
   ],
 
   "vars": {
-    "ALLOWED_ORIGINS": "https://dashboard.clockwrk.io,https://my.clockwrk.io,https://clockwrk.io",
+    "ALLOWED_ORIGINS": "https://dash.clockwrk.io,https://my.clockwrk.io,https://clockwrk.io,https://www.clockwrk.io,https://clockwrk-dashboard.pages.dev,https://clockwrk-portal.pages.dev",
     "ALLOW_RAW_SQL": "false",
     "R2_PUBLIC_URL": "https://files.clockwrk.io",
     "RESEND_FROM": "Clockwrk <no-reply@clockwrk.io>"

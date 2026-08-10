@@ -5,7 +5,12 @@
       "Bash(du -sh /Users/mustafakhetran/Clockwrk/*)",
       "Bash(python3 -)",
       "Bash(sed -i '' 's/    padding-top: 40px;/    padding-top: 60px;/' /Users/mustafakhetran/clockwrk/styles/process.css)",
-      "Bash(sed -i '' 's/    width: min\\(100%, 210px\\);/    width: min\\(100%, 240px\\);/' /Users/mustafakhetran/clockwrk/styles/process.css)"
+      "Bash(sed -i '' 's/    width: min\\(100%, 210px\\);/    width: min\\(100%, 240px\\);/' /Users/mustafakhetran/clockwrk/styles/process.css)",
+      "Bash(python3 -c ' *)",
+      "Bash(file /Users/mustafakhetran/Clockwrk/assets/showcase/*.png /Users/mustafakhetran/Clockwrk/assets/icons/*.png /Users/mustafakhetran/Clockwrk/assets/logos/*.png)",
+      "Bash(xxd)",
+      "Bash(awk '/max-width: 760px/,/^}$/' /Users/mustafakhetran/Clockwrk/styles/bookcall.css)",
+      "Bash(awk 'NR>=2095 && NR<=2120' /Users/mustafakhetran/Clockwrk/styles/careers.css)"
     ]
   }
 }
